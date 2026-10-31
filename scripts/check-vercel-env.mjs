@@ -15,8 +15,8 @@ const directDb = process.env.DIRECT_URL?.trim() ?? '';
 try {
   const url = new URL(directDb);
   if (!['postgres:', 'postgresql:'].includes(url.protocol)) throw new Error();
-  const host = url.hostname.toLowerCase().replace(/^\\[|\\]$/g, '');
-  if (!host || host === 'localhost' || host === '::1' || host === '0.0.0.0' || /^127\\./.test(host)) throw new Error();
+  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  if (!host || host === 'localhost' || host === '::1' || host === '0.0.0.0' || /^127\./.test(host)) throw new Error();
 } catch { errors.push('DIRECT_URL must be a valid, non-local direct PostgreSQL connection URL for Prisma migrations.'); }
 
 const secret = process.env.SESSION_SECRET ?? '';
