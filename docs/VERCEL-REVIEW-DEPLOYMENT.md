@@ -32,7 +32,7 @@ Import the GitHub repository as a new Next.js project; use the repository root. 
 | `DIRECT_URL` | Direct, non-pooled connection URL for Prisma migrations. For a review database without a pooler, this may be the same URL as `DATABASE_URL`. |
 | `SESSION_SECRET` | A unique cryptographically random secret, at least 32 characters; e.g. generate locally with `openssl rand -hex 32`. Do not share or commit it. |
 | `APP_URL` | The exact stable protected HTTPS origin for that environment, without a path; verification and reset emails use this origin. Do not copy a production URL into Preview. |
-| `PAPER_STARTING_BALANCE` | `0` for review; this does not disable legacy simulated actions. |
+| `PAPER_STARTING_BALANCE` | `0` for interface-only review, or `100000` to exercise the internal PAPER trading workflow with test funds. Applies only when a new PAPER account is created. |
 | `CRYPTO_DEPOSIT_ADDRESSES` | Leave unset or `{}`. Deposits remain unavailable. |
 | `COINGECKO_DEMO_API_KEY` | Optional, server-side only; review the provider's plan, usage limits and redistribution rights. |
 
