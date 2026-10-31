@@ -24,11 +24,12 @@ A managed database should provide automated backups and point-in-time recovery o
 ## Deployment checklist
 
 1. Set `ENABLE_PAPER_TRADING=true` in the protected environment for the paper session.
-2. Configure `DATABASE_URL` and `DIRECT_URL` for the same isolated PostgreSQL environment.
-3. Run `npm ci`, `npx prisma generate`, `npx prisma migrate deploy`, and `npm run build`.
-4. Start the Next.js web process and the separate `npm run worker` process.
-5. Test registration, email verification, account creation, market quote freshness, market and resting orders, cancel/replace behavior, position close, take-profit/stop-loss, margin warning, liquidation, ledger balancing, and account isolation using disposable test accounts.
-6. Verify that LIVE-account order attempts are rejected and deposits remain unavailable. Do not accept customer money or present paper fills as live broker execution.
+2. Set `PAPER_STARTING_BALANCE=100000` before creating disposable test accounts if you want them to have a $100,000 test balance. This affects new PAPER accounts only; it does not top up existing accounts. Keep the balance at `0` for interface-only review.
+3. Configure `DATABASE_URL` and `DIRECT_URL` for the same isolated PostgreSQL environment.
+4. Run `npm ci`, `npx prisma generate`, `npx prisma migrate deploy`, and `npm run build`.
+5. Start the Next.js web process and the separate `npm run worker` process.
+6. Test registration, email verification, account creation, market quote freshness, market and resting orders, cancel/replace behavior, position close, take-profit/stop-loss, margin warning, liquidation, ledger balancing, and account isolation using disposable test accounts.
+7. Verify that LIVE-account order attempts are rejected and deposits remain unavailable. Do not accept customer money or present paper fills as live broker execution.
 
 ## Not included in this phase
 
