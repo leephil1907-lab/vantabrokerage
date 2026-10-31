@@ -11,10 +11,20 @@ const config: Config = {
         danger: '#ff5b6e',
         siren: '#ffb020',
         muted: '#8a97a6',
+        sky: { DEFAULT: '#60a5fa', 400: '#60a5fa', 300: '#93c5fd' },
+      },
+      transitionTimingFunction: {
+        premium: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      },
+      borderRadius: {
+        '4xl': '2rem',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
+      maxWidth: {
+        '8xl': '90rem',
       },
       boxShadow: {
         panel: '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 20px 60px -20px rgba(0,0,0,0.8)',

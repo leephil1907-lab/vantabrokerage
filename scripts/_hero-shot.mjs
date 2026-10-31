@@ -1,0 +1,11 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ args: ['--no-sandbox'] });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
+await p.goto('http://127.0.0.1:3000/', { waitUntil: 'networkidle' });
+await p.waitForTimeout(3000);
+await p.screenshot({ path: '/tmp/shots/hero-2x.png', clip: { x: 0, y: 0, width: 1440, height: 760 } });
+const m = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+await m.goto('http://127.0.0.1:3000/', { waitUntil: 'networkidle' });
+await m.waitForTimeout(2500);
+await m.screenshot({ path: '/tmp/shots/hero-mobile-2x.png' });
+await b.close();

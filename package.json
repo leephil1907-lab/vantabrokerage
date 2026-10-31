@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "next dev -p 3000 -H 0.0.0.0",
+    "dev": "bash scripts/dev.sh",
     "build": "prisma generate && next build",
     "start": "next start -p 3000 -H 0.0.0.0",
     "lint": "next lint",
     "seed": "tsx prisma/seed.ts",
     "db:migrate": "prisma migrate deploy",
     "worker": "tsx src/worker/index.ts",
-    "test": "tsx scripts/test-e2e.ts"
+    "test": "tsx scripts/test-e2e.ts",
+    "dev:once": "next dev -p 3000 -H 0.0.0.0"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/qrcode": "^1.5.6",
+    "playwright": "^1.49.1",
     "prisma": "^6.19.3",
     "tsx": "^4.23.15",
     "typescript": "5.9"

@@ -2,9 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Logo } from './brand';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { Logo, VantaGlyph } from './brand';
 import { Badge } from './ui';
+import { PageTransition } from './motion/page-transition';
+import { MotionIndicator } from './motion/primitives';
+import { CommandPalette } from './command-palette';
 
 const NAV: { group: string; items: { href: string; label: string; icon: string; badge?: string }[] }[] = [
   {
@@ -15,6 +19,7 @@ const NAV: { group: string; items: { href: string; label: string; icon: string; 
       { href: '/dashboard/short-expiry', label: 'Short-Expiry', icon: 'clock' },
       { href: '/dashboard/crypto', label: 'Crypto Spot', icon: 'coins' },
       { href: '/dashboard/futures', label: 'Crypto Futures', icon: 'layers' },
+      { href: '/dashboard/crypto-futures', label: 'Futures Pro', icon: 'bolt' },
       { href: '/dashboard/markets', label: 'Markets', icon: 'globe' },
     ],
   },
@@ -81,6 +86,7 @@ function Icon({ name, className = 'h-4 w-4' }: { name: string; className?: strin
     settings: <><circle cx="8.5" cy="8.5" r="2.3" /><path d="M8.5 1.8v1.6M8.5 13.6v1.6M2.4 8.5H4M13 8.5h1.6M4.2 4.2l1.1 1.1M11.7 11.7l1.1 1.1M12.8 4.2l-1.1 1.1M5.3 11.7l-1.1 1.1" /></>,
     help: <><circle cx="8.5" cy="8.5" r="6" /><path d="M6.6 6.4a1.9 1.9 0 1 1 2.8 1.7c-.6.3-.9.8-.9 1.4v.3" /><circle cx="8.5" cy="12" r="0.7" fill="currentColor" /></>,
     admin: <><path d="M8.5 2 14 4v4.2c0 3.3-2.3 5.9-5.5 6.8-3.2-.9-5.5-3.5-5.5-6.8V4z" /><path d="M6 8.5h5M8.5 6v5" /></>,
+    bolt: <><path d="M9.6 1.8 3.4 9.6h3.6L6.6 15.2 13.4 7h-3.8z" /></>,
   };
   return (
     <svg viewBox="0 0 17 17" className={className} fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
@@ -88,6 +94,13 @@ function Icon({ name, className = 'h-4 w-4' }: { name: string; className?: strin
     </svg>
   );
 }
+
+const MOBILE_TABS = [
+  { href: '/dashboard', label: 'Home', icon: 'grid' },
+  { href: '/dashboard/forex', label: 'Trade', icon: 'chart' },
+  { href: '/dashboard/markets', label: 'Markets', icon: 'globe' },
+  { href: '/dashboard/wallet', label: 'Wallet', icon: 'wallet' },
+];
 
 export function DashboardShell({
   children,
@@ -98,9 +111,11 @@ export function DashboardShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
+  const [palette, setPalette] = useState(false);
 
   useEffect(() => {
     setOpen(false);
@@ -110,6 +125,18 @@ export function DashboardShell({
       .catch(() => undefined);
   }, [pathname]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPalette((p) => !p);
+      }
+      if (e.key === 'Escape') setPalette(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const signOut = async () => {
     setSigningOut(true);
     await fetch('/api/auth/logout', { method: 'POST' }).catch(() => undefined);
@@ -118,11 +145,16 @@ export function DashboardShell({
   };
 
   const isStaff = ['ADMIN', 'SUPERADMIN', 'SUPPORT', 'FINANCE'].includes(user.role);
+  const activeItem = useMemo(() => NAV.flatMap((g) => g.items).find((i) => i.href === pathname), [pathname]);
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-[248px] shrink-0 overflow-y-auto border-r border-white/[0.07] bg-ink-950/95 backdrop-blur-xl transition-transform duration-200 lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+      {/* ── Sidebar ─────────────────────────────────────────────────────── */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-[250px] shrink-0 overflow-y-auto border-r border-white/[0.07] bg-ink-950/95 backdrop-blur-xl transition-transform duration-300 ease-premium lg:static lg:translate-x-0 ${
+          open ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         <div className="flex h-16 items-center justify-between border-b border-white/[0.07] px-4">
           <Logo />
           <button className="rounded-md p-1.5 text-muted lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu">
@@ -139,10 +171,11 @@ export function DashboardShell({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`mb-0.5 flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[12.5px] font-medium transition-colors ${
-                      active ? 'bg-lime/10 text-lime' : 'text-muted hover:bg-white/[0.04] hover:text-white'
+                    className={`relative mb-0.5 flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[12.5px] font-medium transition-colors ${
+                      active ? 'text-lime' : 'text-muted hover:bg-white/[0.04] hover:text-white'
                     }`}
                   >
+                    {active && <MotionIndicator layoutId="sidebar-active" className="absolute inset-0 -z-10 rounded-lg bg-lime/10" />}
                     <Icon name={item.icon} className={`h-[15px] w-[15px] ${active ? 'text-lime' : ''}`} />
                     {item.label}
                     {item.href === '/dashboard/notifications' && unread > 0 && (
@@ -185,26 +218,44 @@ export function DashboardShell({
         </div>
       </aside>
 
-      {open && <div className="fixed inset-0 z-30 bg-ink-950/70 lg:hidden" onClick={() => setOpen(false)} />}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-30 bg-ink-950/70 lg:hidden"
+            onClick={() => setOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Main */}
+      {/* ── Main ────────────────────────────────────────────────────────── */}
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-white/[0.07] bg-ink-950/80 px-4 backdrop-blur-xl lg:px-6">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <button className="rounded-lg border border-white/10 p-2 text-muted lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu">
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 5h12M2 11h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
             </button>
-            <div className="hidden items-center gap-2 text-[12px] text-muted sm:flex">
+            <div className="hidden items-center gap-1.5 text-[12px] text-muted sm:flex">
               <span className="flex items-center gap-1.5 rounded-lg border border-white/[0.07] bg-ink-900 px-2 py-1">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald" /> market feed live
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald" /> feed live
               </span>
-              <span className="rounded-lg border border-white/[0.07] bg-ink-900 px-2 py-1">
-                {process.env.NEXT_PUBLIC_EXECUTION_LABEL ?? 'paper-safe deployment'}
-              </span>
+              <span className="rounded-lg border border-white/[0.07] bg-ink-900 px-2 py-1">{process.env.NEXT_PUBLIC_EXECUTION_LABEL ?? 'paper'}</span>
+            </div>
+            <div className="min-w-0 sm:hidden">
+              <p className="truncate text-[13px] font-semibold text-white">{activeItem?.label ?? 'Dashboard'}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/dashboard/notifications" className="relative rounded-lg border border-white/10 p-2 text-muted hover:text-white" aria-label="Notifications">
+            <button
+              onClick={() => setPalette(true)}
+              className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.02] px-2.5 py-1.5 text-[11.5px] text-muted transition-colors hover:border-white/20 hover:text-white md:flex"
+              aria-label="Open command palette"
+            >
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.2" stroke="currentColor" strokeWidth="1.3" /><path d="M9.2 9.2 12 12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" /></svg>
+              Search
+              <kbd className="rounded border border-white/10 px-1 py-[1px] font-mono text-[9.5px]">⌘K</kbd>
+            </button>
+            <Link href="/dashboard/notifications" className="relative rounded-lg border border-white/10 p-2 text-muted transition-colors hover:text-white" aria-label="Notifications">
               <Icon name="bell" className="h-4 w-4" />
               {unread > 0 && <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold text-white">{unread}</span>}
             </Link>
@@ -212,8 +263,33 @@ export function DashboardShell({
             <Link href="/dashboard/forex" className="btn-primary px-3.5 py-1.5 text-[12px]">Trade</Link>
           </div>
         </header>
-        <main className="min-w-0 flex-1 px-4 py-5 lg:px-6 lg:py-6">{children}</main>
+        <main className="min-w-0 flex-1 px-4 pb-[76px] pt-5 lg:px-6 lg:pb-6 lg:pt-6">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </div>
+
+      {/* ── Mobile tab bar ──────────────────────────────────────────────── */}
+      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-white/[0.08] bg-ink-950/95 backdrop-blur-xl lg:hidden">
+        <div className="grid grid-cols-5">
+          {MOBILE_TABS.map((t) => {
+            const active = pathname === t.href;
+            return (
+              <Link key={t.href} href={t.href} className="relative flex flex-col items-center gap-1 py-2.5">
+                {active && <motion.span layoutId="dash-mobile-tab" className="absolute inset-x-3 top-0 h-[2px] rounded-full bg-lime" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
+                <span className={active ? 'text-lime' : 'text-muted'}><Icon name={t.icon} className="h-[18px] w-[18px]" /></span>
+                <span className={`text-[10px] font-medium ${active ? 'text-white' : 'text-muted'}`}>{t.label}</span>
+              </Link>
+            );
+          })}
+          <button onClick={() => setOpen(true)} className="flex flex-col items-center gap-1 py-2.5" aria-label="More">
+            <span className="text-muted"><Icon name="list" className="h-[18px] w-[18px]" /></span>
+            <span className="text-[10px] font-medium text-muted">More</span>
+          </button>
+        </div>
+      </nav>
+
+      <CommandPalette open={palette} onClose={() => setPalette(false)} isStaff={isStaff} />
+      {reduce && <span className="sr-only">Reduced motion enabled.</span>}
     </div>
   );
 }
