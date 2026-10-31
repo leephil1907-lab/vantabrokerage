@@ -1,21 +1,31 @@
 import { prisma } from './db';
+import { EmailTemplateKey, EmailTemplateVariables, renderEmailTemplate } from './email-templates';
 
 /**
- * Email delivery. When provider credentials are configured (EMAIL_PROVIDER=resend
- * + RESEND_API_KEY and EMAIL_FROM, or EMAIL_PROVIDER=webhook + EMAIL_WEBHOOK_URL) messages are sent and
- * logged. Otherwise messages are queued in `EmailOutbox` and flagged as NOT_DELIVERED so
- * delivery failures remain visible without exposing verification/reset links.
+ * Email delivery writes a redacted audit copy to EmailOutbox. Action URLs and
+ * one-time tokens are sent to the provider but are never persisted in the outbox.
  */
 export function emailConfigured() {
-  const p = process.env.EMAIL_PROVIDER;
-  if (p === 'resend') return !!(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
-  if (p === 'webhook') return !!process.env.EMAIL_WEBHOOK_URL;
+  const provider = process.env.EMAIL_PROVIDER;
+  if (provider === 'resend') return !!(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
+  if (provider === 'webhook') return !!process.env.EMAIL_WEBHOOK_URL;
   return false;
 }
 
-export async function queueEmail(input: { to: string; subject: string; body: string; template?: string }) {
+function redactEmailBody(body: string) {
+  return body
+    .replace(/https?:\/\/[^\s]+/gi, '[secure link omitted]')
+    .replace(/\b(token|code|secret)=?[^\s&]*/gi, '$1=[redacted]');
+}
+
+export async function queueEmail(input: { to: string; subject: string; body: string; html?: string; template?: string }) {
   const record = await prisma.emailOutbox.create({
-    data: { to: input.to, subject: input.subject, body: input.body, template: input.template ?? 'generic' },
+    data: {
+      to: input.to,
+      subject: input.subject,
+      body: redactEmailBody(input.body).slice(0, 12000),
+      template: input.template ?? 'generic',
+    },
   });
   if (!emailConfigured()) return { id: record.id, delivered: false as const, reason: 'no_provider' };
   try {
@@ -23,9 +33,15 @@ export async function queueEmail(input: { to: string; subject: string; body: str
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: process.env.EMAIL_FROM, to: input.to, subject: input.subject, text: input.body }),
+        body: JSON.stringify({
+          from: process.env.EMAIL_FROM,
+          to: [input.to],
+          subject: input.subject,
+          text: input.body,
+          ...(input.html ? { html: input.html } : {}),
+        }),
       });
-      if (!res.ok) throw new Error(`Resend responded ${res.status}`);
+      if (!res.ok) throw new Error(`Resend responded ${res.status}: ${(await res.text()).slice(0, 500)}`);
     } else if (process.env.EMAIL_PROVIDER === 'webhook') {
       const res = await fetch(process.env.EMAIL_WEBHOOK_URL!, {
         method: 'POST',
@@ -37,7 +53,22 @@ export async function queueEmail(input: { to: string; subject: string; body: str
     await prisma.emailOutbox.update({ where: { id: record.id }, data: { status: 'SENT', sentAt: new Date() } });
     return { id: record.id, delivered: true as const };
   } catch (err) {
-    await prisma.emailOutbox.update({ where: { id: record.id }, data: { status: 'FAILED', error: String(err) } });
+    await prisma.emailOutbox.update({ where: { id: record.id }, data: { status: 'FAILED', error: String(err).slice(0, 1000) } });
     return { id: record.id, delivered: false as const, reason: String(err) };
   }
+}
+
+export async function queueTemplateEmail(input: {
+  to: string;
+  template: EmailTemplateKey;
+  variables?: EmailTemplateVariables;
+}) {
+  const rendered = renderEmailTemplate(input.template, input.variables ?? {});
+  return queueEmail({
+    to: input.to,
+    subject: rendered.subject,
+    body: rendered.text,
+    html: rendered.html,
+    template: input.template,
+  });
 }
