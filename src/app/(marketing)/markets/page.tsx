@@ -31,7 +31,7 @@ const STEPS = [
   {
     n: '02',
     title: 'Fund your wallet',
-    body: 'Deposits post to a double-entry ledger with a counterparty entry. Crypto deposits are verified on-chain; other rails queue for finance review with an honest status.',
+    body: 'Paper balances are simulated; automated deposit verification is not connected and funding is not ready for real money.',
     cta: { href: '/deposits-withdrawals', label: 'Funding methods' },
     points: ['On-chain crypto verification', 'Finance review queue', 'No fabricated credits'],
   },
@@ -46,7 +46,7 @@ const STEPS = [
 
 const DESKS = [
   { href: '/trading/forex', symbol: 'EUR/USD', title: 'Forex & CFDs', body: 'Seven majors, five indices, four commodities. Leverage to 200× with continuous margin and liquidation monitoring.', tag: '16 markets' },
-  { href: '/trading/crypto', symbol: 'BTC/USDT', title: 'Crypto spot', body: 'Ten USDT markets with reserved-balance accounting, holdings and a live depth model around the true top of book.', tag: '10 pairs' },
+  { href: '/trading/crypto', symbol: 'BTC/USDT', title: 'Crypto spot', body: 'Ten USDT markets with reserved-balance accounting, holdings and a indicative depth model around provider quotes.', tag: '10 pairs' },
   { href: '/trading/futures', symbol: 'ETH/USDT', title: 'Perpetual futures', body: 'Long or short with cross or isolated margin, funding accrual and a liquidation price recomputed every tick.', tag: 'up to 100×' },
   { href: '/trading/short-expiry', symbol: 'EUR/USD', title: 'Short-expiry', body: 'CALL/PUT contracts from 30 seconds to one hour, settled against server-timestamped quotes — provably, not by hand.', tag: '30s–1h' },
 ];
@@ -62,7 +62,7 @@ const ADVANTAGES = [
   ['24/7 platform access', 'Terminals, wallet and support tickets are always available. Market hours are shown per instrument.'],
   ['Withdrawals with visible state', 'Requests reserve funds, require re-authentication and move through finance review with an auditable trail.'],
   ['Paper trading first', 'A funded simulated account on every registration, labelled PAPER everywhere it appears.'],
-  ['Multiple funding rails', 'Crypto on-chain verification plus card and bank rails that queue for review when a provider is not connected.'],
+  ['Multiple funding rails', 'Funding integrations and automated deposit verification are not connected in this demonstration.'],
   ['Data protection', 'bcrypt credentials, hashed session tokens with device history, TOTP two-factor and full audit logging.'],
   ['No invented numbers', 'Payouts, bonuses and statistics are computed from real records or clearly marked as unavailable.'],
 ];
@@ -143,7 +143,7 @@ export default function MarketsPage() {
             {[
               ['Forex majors', 'Seven majors with institutional-style spreads, 2–200× leverage and market, limit and stop order support.', 'FOREX'],
               ['Indices & commodities', 'Cash indices and commodity CFDs with server-side margin monitoring and liquidation protection.', 'CFD'],
-              ['Crypto spot', 'Ten USDT markets with order book, holdings accounting and locked-balance reservation.', 'SPOT'],
+              ['Crypto spot', 'Ten seeded USDT markets with indicative depth, holdings accounting and locked-balance reservation.', 'SPOT'],
               ['Perpetual futures', 'Leveraged derivatives with funding, cross or isolated margin and liquidation pricing.', 'FUTURES'],
             ].map(([title, body, category]) => (
               <div key={title}>
@@ -207,8 +207,8 @@ export default function MarketsPage() {
           <Reveal delay={0.08}>
             <div className="space-y-2.5">
               {[
-                ['Crypto deposit', 'On-chain verification (mempool / Etherscan / TronGrid) then ledger credit', 'verified', 'lime'],
-                ['Card or bank deposit', 'Queued for finance review when no payment provider is connected', 'review', 'amber'],
+                ['Crypto deposit', 'Automated verification is not connected; do not deposit real funds', 'unavailable', 'amber'],
+                ['Card or bank deposit', 'Card and bank payment integrations are not implemented', 'unavailable', 'amber'],
                 ['Withdrawal request', 'Re-authentication + KYC gate, funds locked, then finance decision', 'locked', 'blue'],
                 ['Withdrawal paid', 'Completed only with a transaction hash on record', 'paid', 'green'],
               ].map(([title, body, badge, tone]) => (
@@ -249,7 +249,7 @@ export default function MarketsPage() {
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-white/[0.06] bg-ink-900/50 px-4 py-3">
           <Logo size={22} withWordmark={false} href={null} />
           <p className="text-[11px] leading-relaxed text-muted">
-            Vanta Markets is an independent platform. Instrument names and marks belong to their respective owners and are used for
+            PRIMEVEST is an independent platform. Instrument names and marks belong to their respective owners and are used for
             identification only. Trading leveraged products carries a high risk of loss; simulated results do not reflect live performance.
           </p>
         </div>

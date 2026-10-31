@@ -30,9 +30,9 @@ export default function WalletPage() {
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => {
-    const other = accounts.find((a) => a.id !== accountId);
-    if (other && !transfer.to) setTransfer((t) => ({ ...t, to: other.id }));
-  }, [accounts, accountId, transfer.to]);
+    const eligible = accounts.filter((a) => a.id !== accountId && a.type === active?.type);
+    setTransfer((t) => eligible.some((a) => a.id === t.to) ? t : { ...t, to: eligible[0]?.id ?? '' });
+  }, [accounts, accountId, active?.type]);
 
   const doTransfer = async () => {
     setBusy(true);
@@ -105,7 +105,7 @@ export default function WalletPage() {
         <div className="space-y-4">
           <section className="panel p-4">
             <p className="text-[13px] font-semibold text-white">Move funds between accounts</p>
-            <p className="mt-1 text-[11.5px] leading-relaxed text-muted">Transfers post two ledger entries (out and in) in a single database transaction.</p>
+            <p className="mt-1 text-[11.5px] leading-relaxed text-muted">Only accounts of the same type can transfer between each other. Paper and live balances cannot be mixed.</p>
             <div className="mt-3 space-y-2.5">
               <label className="block">
                 <span className="label">From</span>
@@ -113,8 +113,9 @@ export default function WalletPage() {
               </label>
               <label className="block">
                 <span className="label">To</span>
-                <select value={transfer.to} onChange={(e) => setTransfer((t) => ({ ...t, to: e.target.value }))} className="field mt-1.5">
-                  {accounts.filter((a) => a.id !== accountId).map((a) => <option key={a.id} value={a.id}>{a.type} account</option>)}
+                <select disabled={!accounts.some((a) => a.id !== accountId && a.type === active?.type)} value={transfer.to} onChange={(e) => setTransfer((t) => ({ ...t, to: e.target.value }))} className="field mt-1.5">
+                  <option value="">No eligible destination</option>
+                  {accounts.filter((a) => a.id !== accountId && a.type === active?.type).map((a) => <option key={a.id} value={a.id}>{a.type} account</option>)}
                 </select>
               </label>
               <label className="block">

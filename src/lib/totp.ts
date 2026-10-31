@@ -47,6 +47,6 @@ export function verifyToken(secret: string, token: string, window = 1) {
   return false;
 }
 
-export function otpauthUrl(secret: string, label: string, issuer = 'Vanta Markets') {
+export function otpauthUrl(secret: string, label: string, issuer = 'PRIMEVEST') {
   return `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(label)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
 }

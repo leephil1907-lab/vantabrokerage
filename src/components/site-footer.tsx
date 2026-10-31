@@ -45,7 +45,7 @@ export function SiteFooter() {
           <div>
             <Logo />
             <p className="mt-4 max-w-xs text-[12.5px] leading-relaxed text-muted">
-              A multi-asset brokerage terminal combining forex, CFDs, short-expiry trading and a full cryptocurrency stack — one wallet, one ledger, one audited back office.
+              A multi-asset brokerage terminal combining forex, CFDs, short-expiry trading and a full cryptocurrency stack — one wallet, one ledger, an audit-logged back office.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <span className="chip">Double-entry ledger</span>
@@ -77,9 +77,9 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-8 flex flex-col justify-between gap-3 border-t border-white/[0.07] pt-6 text-[11.5px] text-muted sm:flex-row">
-          <p>© {new Date().getFullYear()} Vanta Markets. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} PRIMEVEST. All rights reserved.</p>
           <p className="max-w-2xl leading-relaxed">
-            Vanta Markets is a technology demonstration platform. Trading capabilities are enabled per deployment based on connected execution, custody and payment providers.
+            PRIMEVEST is a technology demonstration platform. Live trading, automated custody and payment processing are not connected. Do not deposit real funds.
           </p>
         </div>
       </div>

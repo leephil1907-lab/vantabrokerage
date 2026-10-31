@@ -59,7 +59,7 @@ function HeroTerminal({ markets, source }: { markets: M[]; source: string | null
             <span className="h-2 w-2 rounded-full bg-white/15" />
             <span className="h-2 w-2 rounded-full bg-lime/70" />
           </span>
-          <span className="ml-1 text-[10.5px] uppercase tracking-[0.16em] text-muted">Vanta terminal</span>
+          <span className="ml-1 text-[10.5px] uppercase tracking-[0.16em] text-muted">PRIMEVEST terminal</span>
         </div>
         <FeedStatus state={market?.stale ? 'delayed' : 'live'} label={market?.stale ? 'Delayed' : source ? `Live · ${source}` : 'Live'} />
       </div>
@@ -191,17 +191,17 @@ function SparkArea({ symbol, up, tick }: { symbol: string; up: boolean; tick: nu
 /* ── Data sections ────────────────────────────────────────────────────────── */
 
 const INSTRUMENTS = [
-  { title: 'Forex', href: '/trading/forex', symbol: 'EUR/USD', copy: 'Seven majors with tight institutional spreads, market, limit and stop orders and up to 200× leverage.', tag: '7 pairs' },
+  { title: 'Forex', href: '/trading/forex', symbol: 'EUR/USD', copy: 'Seven seeded FX majors, modeled spreads, paper order types and instrument-specific leverage limits.', tag: '7 pairs' },
   { title: 'Indices & CFDs', href: '/trading/cfd', symbol: 'NAS100', copy: 'NASDAQ, S&P 500, Dow, DAX and FTSE, marked and margined by a server-side risk engine.', tag: '5 indices' },
   { title: 'Commodities', href: '/trading/cfd', symbol: 'XAUUSD', copy: 'Gold, silver, WTI crude and natural gas CFDs priced from live futures feeds.', tag: '4 markets' },
-  { title: 'Crypto spot', href: '/trading/crypto', symbol: 'BTC/USDT', copy: 'Ten USDT markets with order book, depth, holdings and locked-balance accounting.', tag: '10 pairs' },
+  { title: 'Crypto spot', href: '/trading/crypto', symbol: 'BTC/USDT', copy: 'Crypto paper markets with indicative depth, holdings and locked-balance accounting.', tag: '10 pairs' },
   { title: 'Perpetual futures', href: '/trading/futures', symbol: 'ETH/USDT', copy: 'Long and short with cross or isolated margin, funding, liquidation price and risk engine.', tag: 'Up to 100×' },
   { title: 'Short-expiry', href: '/trading/short-expiry', symbol: 'SOL/USDT', copy: 'CALL / PUT contracts from 30 seconds to 1 hour, settled on verifiable price timestamps.', tag: '30s–1h' },
 ];
 
 const STEPS = [
   { n: '01', title: 'Create your account', body: 'Register with an email address. A live account and a simulated paper account are provisioned instantly — no payment details required.', href: '/register', cta: 'Register' },
-  { n: '02', title: 'Fund your wallet', body: 'Deposits are credited to a double-entry ledger. Crypto deposits are verified on-chain; other rails queue for finance review and show their status honestly.', href: '/deposits-withdrawals', cta: 'Funding methods' },
+  { n: '02', title: 'Explore your paper balance', body: 'Paper balances are simulated. Funding is not ready for live use; automated deposit verification is not connected.', href: '/accounts', cta: 'Account environments' },
   { n: '03', title: 'Trade the markets', body: 'Choose an instrument, size the position server-side and execute. Every fill records its quote, provider and timestamp so nothing is invented.', href: '/markets', cta: 'Browse markets' },
 ];
 
@@ -209,8 +209,8 @@ const ADVANTAGES = [
   { title: 'Server-side execution', body: 'Every fill is priced from a server-fetched quote and written to an immutable execution record with its quote timestamp.', icon: 'server' },
   { title: 'Double-entry ledger', body: 'Balances are never a mutable number. Each movement is a balanced transaction with a counterparty entry, reconcilable to the cent.', icon: 'ledger' },
   { title: 'Continuous risk engine', body: 'Mark prices, margin ratios, liquidation prices and funding are recomputed by a background worker — never by the browser.', icon: 'shield' },
-  { title: 'Paper and live separated', body: 'Simulated balances are labelled PAPER throughout. Live trading activates only when an execution provider is connected.', icon: 'split' },
-  { title: 'Audited back office', body: 'Administrators act through logged workflows. Every approval, restriction and configuration change records actor, IP and timestamp.', icon: 'audit' },
+  { title: 'Paper and live separated', body: 'Simulated balances are labelled PAPER throughout. Live orders are disabled; no live execution provider has been integrated.', icon: 'split' },
+  { title: 'Audit-logged back office', body: 'Administrators act through logged workflows. Every approval, restriction and configuration change records actor, IP and timestamp.', icon: 'audit' },
   { title: 'Verifiable market data', body: 'Prices come from named providers — Kraken, Coinbase and Yahoo Finance — and every quote stores its source and fetch time.', icon: 'feed' },
 ];
 
@@ -224,8 +224,8 @@ const ICONS: Record<string, React.ReactNode> = {
 };
 
 const FAQS = [
-  ['Is this a live brokerage?', 'The platform is a complete brokerage application: authentication, KYC, order management, position accounting, ledger, wallet, back office. Live trading, custody and payment rails activate only when the corresponding providers are configured for a deployment. Until then the platform runs with clearly-labelled paper trading so every workflow can be exercised end to end.'],
-  ['Where do the prices come from?', 'Market data is pulled server-side from named providers — Kraken and Coinbase for crypto, Yahoo Finance for FX, indices and commodities. Each quote records its provider and fetch time, and stale quotes are labelled as delayed rather than silently served.'],
+  ['Is this a live brokerage?', 'No. PRIMEVEST is a technology demonstration offering paper trading. Live order routing, automated custody and verified deposits are not implemented. Do not deposit real funds.'],
+  ['Where do the prices come from?', 'Market data is pulled server-side from named providers — Kraken, Coinbase and Yahoo Finance for configured instruments. Each quote records its provider and fetch time, and stale quotes are labelled as delayed rather than silently served.'],
   ['How are balances protected from client manipulation?', 'Balances live in a double-entry ledger on the server. The browser never sends a price, a fill or a resulting balance — it sends an intent, and the server validates, prices and settles it.'],
   ['Can I try it without depositing?', 'Yes. Every account is created with a paper trading account funded with a simulated balance. Paper trades are flagged as PAPER everywhere they appear.'],
   ['What do I need before withdrawing?', 'Identity verification must be approved, and withdrawals re-authenticate the session (password plus two-factor if enabled) before reserving funds and queueing them for finance review.'],
@@ -260,10 +260,10 @@ export function LiveHome({ markets }: { markets: M[] }) {
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald" />
               </span>
               <span className="text-[11px] font-medium text-white/85">
-                Market data {source ? `live from ${source}` : 'streaming'}
+                {source ? `Quotes from ${source}` : 'Quotes subject to availability'}
               </span>
               <span className="h-3 w-px bg-white/15" />
-              <span className="text-[11px] text-muted">44 instruments</span>
+              <span className="text-[11px] text-muted">Paper trading demo</span>
             </motion.div>
 
             <motion.h1
@@ -285,8 +285,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
               transition={{ duration: 0.6, ease: EASE, delay: 0.12 }}
               className="mt-5 max-w-xl text-[14.5px] leading-relaxed text-muted"
             >
-              One account across five terminals — forex and CFDs, perpetual futures, crypto spot and 30-second CALL/PUT contracts.
-              Executed server-side, settled in a double-entry ledger, reconciled to the cent.
+              Explore forex and crypto across five paper-trading terminals with simulated funds and provider-sourced market data. Live execution is not available; do not deposit real funds.
             </motion.p>
 
             <motion.div
@@ -309,7 +308,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
               className="mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-white/[0.07] pt-5"
             >
               {[
-                { v: 44, suffix: '', label: 'Tradable markets' },
+                { v: 44, suffix: '', label: 'Seeded instruments' },
                 { v: 5, suffix: '', label: 'Terminals' },
                 { v: 100, suffix: '%', label: 'Server-side pricing' },
               ].map((s) => (
@@ -500,8 +499,8 @@ export function LiveHome({ markets }: { markets: M[] }) {
       <section className="border-y border-white/[0.07] bg-ink-900/40">
         <div className="shell grid gap-10 py-16 sm:py-20 lg:grid-cols-[0.85fr_1.15fr]">
           <Reveal>
-            <p className="eyebrow">Why Vanta</p>
-            <h2 className="display mt-2 text-[26px] sm:text-[30px]">Built like a brokerage, not a demo</h2>
+            <p className="eyebrow">Why PRIMEVEST</p>
+            <h2 className="display mt-2 text-[26px] sm:text-[30px]">A closer look at the platform</h2>
             <p className="mt-3 text-[13.5px] leading-relaxed text-muted">
               The visible charts are the smallest part of the system. Underneath sit authentication with device history, a KYC
               review queue, order management, margin and liquidation logic, ledger accounting and a permissioned back office.

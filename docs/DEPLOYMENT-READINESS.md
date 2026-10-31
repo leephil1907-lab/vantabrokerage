@@ -1,6 +1,6 @@
-# Vanta Markets — deployment readiness
+# PRIMEVEST — deployment readiness
 
-Assessment: 31 October 2026. This is a technical review of this repository, not a legal opinion or an independent security audit.
+Assessment: 31 October 2026; updated for the PRIMEVEST rebrand and transfer safeguard. This is a technical review of this repository, not a legal opinion or an independent security audit.
 
 ## Decision
 
@@ -9,7 +9,7 @@ Assessment: 31 October 2026. This is a technical review of this repository, not 
 ## What is implemented and what is not
 
 - Forex and crypto terminals use TradingView Lightweight Charts and provider-sourced quotes; availability and freshness depend on upstream feeds. Yahoo-derived bid/ask and some other spreads are modeled, not exchange-native executable quotes. Depth is modeled and the quote tape is sampled, not an exchange order book or trade history. Provider licensing, redistribution, latency and accuracy need independent review.
-- Paper orders, positions and account balances are simulations. Live-account order entry is hard-blocked regardless of `EXECUTION_MODE`; short-expiry and background settlement are likewise restricted to paper accounts. There is **no live broker or exchange adapter**. Do not interpret account creation or an environment setting as enabling live execution.
+- Paper orders, positions and account balances are simulations. Transfers between paper and live account types are now blocked in both directions. Earlier versions allowed such transfers; inspect existing databases and reconcile any historical cross-environment transfers before any deployment with funds. Live-account order entry is hard-blocked regardless of `EXECUTION_MODE`; short-expiry and background settlement are likewise restricted to paper accounts. There is **no live broker or exchange adapter**. Do not interpret account creation or an environment setting as enabling live execution.
 - On-chain deposit verification is **not implemented**. A submitted hash is not proof of destination, network, asset, amount or finality. Manual credit is possible in the current staff tools; do not configure deposit addresses or accept money in staging. A custody integration and controlled reconciliation/approval workflow are required for production. No provider environment variable alone supplies an integration.
 - Email delivery supports Resend or an HTTP webhook; it has no SMTP outbox-flush worker. Failed emails remain in the database. Verification and reset links are no longer returned by the APIs, but email outbox records contain sensitive links and require access controls, retention policy and secure handling.
 - The legal pages are draft product copy, not approved legal documents. Entity, licences, permitted jurisdictions, product restrictions and consumer disclosures need counsel review. Short-expiry products and leverage may be restricted or prohibited depending on location.
@@ -32,4 +32,4 @@ Assessment: 31 October 2026. This is a technical review of this repository, not 
 
 ## Verification in this pass
 
-Production build and TypeScript checks passed. On a local disposable database: the e2e suite reported 129 passed/0 failed; public route QA covered home, markets, forex, crypto, contact, forgot-password and register at desktop/mobile sizes; authenticated route smoke tests covered eight dashboard/admin routes. A separate local server started with `EXECUTION_MODE=live` rejected live forex, crypto and short-expiry orders and reported live execution disabled; reset-token exposure, tablet navigation, keyboard navigation, reduced-motion styling and the browser icon were also checked. These are limited functional checks, not an independent audit.
+Production build and TypeScript checks passed. On a local disposable database: the e2e suite reported 131 passed/0 failed; public route QA covered home, markets, forex, crypto, contact, forgot-password and register at desktop/mobile sizes; authenticated route smoke tests covered eight dashboard/admin routes. A separate local server started with `EXECUTION_MODE=live` rejected live forex, crypto and short-expiry orders and reported live execution disabled; reset-token exposure, tablet navigation, keyboard navigation, reduced-motion styling and the browser icon were also checked. These are limited functional checks, not an independent audit.

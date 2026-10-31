@@ -83,7 +83,7 @@ export default async function TradingConditionsPage() {
           <SpecTable
             columns={['Rule', 'Value']}
             rows={[
-              ['Execution mode', 'Paper unless a provider is connected'],
+              ['Execution mode', 'Paper only; live execution unavailable'],
               ['Order types', 'Market · limit · stop'],
               ['Margin reservation', 'On placement, released on cancel/fill'],
               ['Liquidation', 'Continuous, engine-priced'],

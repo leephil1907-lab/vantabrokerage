@@ -100,7 +100,7 @@ export default function SettingsPage() {
                   const blob = new Blob([JSON.stringify(res ?? {}, null, 2)], { type: 'application/json' });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a');
-                  a.href = url; a.download = 'vanta-portfolio-export.json'; a.click();
+                  a.href = url; a.download = 'primevest-portfolio-export.json'; a.click();
                   URL.revokeObjectURL(url);
                   push({ tone: 'success', title: 'Portfolio exported' });
                 }}

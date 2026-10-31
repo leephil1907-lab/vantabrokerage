@@ -14,7 +14,7 @@ export default function AmlPage() {
           <p>Identity verification is required before withdrawals. Submissions are reviewed by compliance and either approved or rejected with a stated reason. Document data is stored against your verification record and is visible only to authorised staff.</p>
         ) },
         { id: 'monitoring', title: 'Transaction monitoring', body: (
-          <p>Deposits require on-chain verification or manual finance review. Duplicate transaction hashes are rejected. Withdrawals require re-authentication, reservation of funds and finance authorisation, and completion is recorded with a transaction reference.</p>
+          <p>Automated deposit verification is not connected; deposits require independent finance review. Duplicate transaction hashes are rejected. Withdrawals require re-authentication, reservation of funds and finance authorisation, and completion is recorded with a transaction reference.</p>
         ) },
         { id: 'records', title: 'Record keeping', body: (
           <p>All wallet, trading and administrative actions are recorded with timestamps and, for administrative actions, the responsible staff member, IP address and before/after state. Ledger entries are immutable and reconciled by automated checks.</p>

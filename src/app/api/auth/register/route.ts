@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         kyc: { create: { status: 'NOT_SUBMITTED' } },
         notifications: {
           create: [
-            { type: 'ACCOUNT', title: 'Welcome to Vanta Markets', body: 'Your account is ready. Your paper trading account has been funded with a simulated balance so you can explore every terminal.' },
+            { type: 'ACCOUNT', title: 'Welcome to PRIMEVEST', body: 'Your account is ready. Your paper trading account has been funded with a simulated balance so you can explore every terminal.' },
             { type: 'SECURITY', title: 'Confirm your email address', body: 'Verify your email to unlock deposits, withdrawals and account verification.' },
           ],
         },
@@ -64,8 +64,8 @@ export async function POST(req: NextRequest) {
     const link = `${process.env.APP_URL ?? 'http://localhost:3000'}/verify-email?token=${token}`;
     const delivery = await queueEmail({
       to: user.email,
-      subject: 'Verify your Vanta Markets account',
-      body: `Welcome to Vanta Markets.\n\nConfirm your email address:\n${link}\n\nThis link expires in 24 hours.`,
+      subject: 'Verify your PRIMEVEST account',
+      body: `Welcome to PRIMEVEST.\n\nConfirm your email address:\n${link}\n\nThis link expires in 24 hours.`,
       template: 'verify_email',
     });
 

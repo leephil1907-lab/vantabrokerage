@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Logo, VantaGlyph } from './brand';
+import { Logo, PrimevestGlyph } from './brand';
 import { Badge } from './ui';
 import { PageTransition } from './motion/page-transition';
 import { MotionIndicator } from './motion/primitives';

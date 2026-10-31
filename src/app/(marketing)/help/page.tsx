@@ -10,14 +10,14 @@ const TOPICS = [
     items: [
       { q: 'How do I create an account?', a: 'Use the registration form with your email and country. You receive a live account and a funded paper account immediately, plus a verification email.' },
       { q: 'What is the paper account?', a: 'A simulated account funded on registration. It uses the same terminals, order path and risk engine, but with simulated balances labelled PAPER everywhere.' },
-      { q: 'Do I need to deposit to start?', a: 'No. You can explore every terminal with your paper balance before funding a live account.' },
+      { q: 'Do I need to deposit to start?', a: 'No. You can explore the terminals with simulated funds. Live execution and funding are not ready for real money.' },
       { q: 'How do I enable two-factor authentication?', a: 'Sign in → Security → Enable 2FA. Scan the QR code with an authenticator app and confirm a code. 2FA is then required at sign-in and for withdrawals.' },
     ],
   },
   {
     title: 'Trading',
     items: [
-      { q: 'Where do prices come from?', a: 'Server-side from Kraken and Coinbase for crypto, and Yahoo Finance for FX, indices and commodities. Each quote stores its provider and fetch timestamp; stale quotes are labelled.' },
+      { q: 'Where do prices come from?', a: 'Server-side from Kraken, Coinbase and Yahoo Finance for configured instruments. Each quote stores its provider and fetch timestamp; stale quotes are labelled.' },
       { q: 'How are orders priced?', a: 'Market orders fill at the quoted side (ask for buys, bid for sells). Limit and stop orders rest with margin reserved until the worker triggers them.' },
       { q: 'What does liquidation mean?', a: 'When equity falls below the maintenance requirement the risk engine closes the position at an engine-computed price and records the loss.' },
       { q: 'Can I close part of a position?', a: 'Yes — positions support partial and full closes, with realised P/L posted to the ledger at close.' },
@@ -26,7 +26,7 @@ const TOPICS = [
   {
     title: 'Funding',
     items: [
-      { q: 'How do I deposit?', a: 'Dashboard → Deposits. Crypto deposits require a transaction hash which is verified with the configured explorer; other rails queue for finance review.' },
+      { q: 'How do I deposit?', a: 'Do not deposit real funds. Automated on-chain verification, card and bank payment integrations are not connected in this demonstration.' },
       { q: 'Why is my withdrawal pending?', a: 'Withdrawals move through re-authentication → locked → finance review → paid. Your dashboard shows the current state and the last actor.' },
       { q: 'What do I need before withdrawing?', a: 'Approved KYC, re-authentication (password plus 2FA if enabled) and available balance.' },
     ],

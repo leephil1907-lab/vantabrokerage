@@ -1,4 +1,4 @@
-import { VantaGlyph } from '../brand';
+import { PrimevestGlyph } from '../brand';
 
 /** Chart placeholder that mimics the real chart frame while candles load. */
 export function ChartSkeleton({ height = 320 }: { height?: number }) {
@@ -104,7 +104,7 @@ export function FeedStatus({ state, label }: { state: 'live' | 'delayed' | 'offl
 export function LogoPulse() {
   return (
     <span className="inline-flex items-center gap-2">
-      <span className="brand-pulse"><VantaGlyph size={18} /></span>
+      <span className="brand-pulse"><PrimevestGlyph size={18} /></span>
       <span className="skeleton-shimmer h-2.5 w-16" />
     </span>
   );

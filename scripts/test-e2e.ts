@@ -161,6 +161,10 @@ async function main() {
     paperAccountId = paper.id;
     liveAccountId = live.id;
     check('live execution reported as not enabled', res.body?.liveExecutionEnabled === false);
+    const crossEnv = await client.post('/api/wallet/transfer', { fromAccountId: paperAccountId, toAccountId: liveAccountId, amount: 10 });
+    check('paper funds cannot be transferred to a live account', crossEnv.status === 409 && crossEnv.body?.error?.code === 'CROSS_ENVIRONMENT_TRANSFER', crossEnv.body);
+    const reverse = await client.post('/api/wallet/transfer', { fromAccountId: liveAccountId, toAccountId: paperAccountId, amount: 1 });
+    check('live funds cannot be transferred to a paper account', reverse.status === 409 && reverse.body?.error?.code === 'CROSS_ENVIRONMENT_TRANSFER', reverse.body);
 
     const liveOrder = await client.post('/api/trades/orders', { accountId: liveAccountId, symbol: 'BTC/USDT-PERP', side: 'BUY', type: 'MARKET', qty: 0.001 });
     check('live order rejected while execution provider absent', liveOrder.status === 409 && liveOrder.body?.error?.code === 'LIVE_EXECUTION_UNAVAILABLE', liveOrder.body);

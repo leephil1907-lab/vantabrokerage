@@ -8,7 +8,7 @@ const FAQS = [
   { q: 'How long do withdrawals take?', a: 'The platform does not advertise a fixed SLA it cannot verify. A request moves through: re-authentication → funds locked → finance review → paid (recorded with a transaction hash). Each step has a timestamp and an actor, and the current state is visible in your dashboard at all times.' },
   { q: 'Why is my deposit pending?', a: 'Automated deposit verification is not connected. A finance operator must independently review the transaction before it can be credited. Pending means no credit has been posted.' },
   { q: 'What do I need to withdraw?', a: 'Approved identity verification, re-authentication with your password plus two-factor if enabled, and available balance. Requests lock the amount immediately so it cannot be spent twice.' },
-  { q: 'Can I deposit by card or bank?', a: 'The rails are implemented as reviewable workflows. Card and bank processors are provider-dependent; if no provider is configured your deposit queues for finance review rather than failing silently or auto-crediting.' },
+  { q: 'Can I deposit by card or bank?', a: 'Card and bank deposit integrations are not implemented in this demonstration. Do not deposit real funds.' },
   { q: 'Are there deposit fees?', a: 'Network fees on crypto deposits are set by the blockchain, not the platform. Trading fees are listed per instrument on the trading-conditions page.' },
 ];
 
@@ -17,18 +17,18 @@ export default function DepositsPage() {
     <>
       <PageHero
         eyebrow="Funding"
-        title="Deposits and withdrawals with controls you can see"
-        body="Funding runs through a reviewable workflow: independent finance review, reservation, then release. Automated on-chain verification is not connected. Every movement posts to a double-entry ledger — no balance is ever edited in place."
+        title="Funding workflows in demonstration mode"
+        body="Do not deposit real funds. Automated verification, custody and card or bank payment integrations are not connected. The current screens demonstrate review and ledger workflows only."
         breadcrumbs={[{ label: 'Deposits & withdrawals' }]}
         aside={<StatBand items={[
           { k: '4', label: 'Withdrawal states', sub: 'locked → review → paid' },
-          { k: '2FA', label: 'Required to withdraw', sub: 'plus password' },
+          { k: '2FA', label: 'Withdrawal check', sub: 'when enabled, plus password' },
           { k: 'KYC', label: 'Gate before payout', sub: 'approved only' },
-          { k: 'txHash', label: 'Proof of payment', sub: 'on completion' },
+          { k: 'txHash', label: 'Payment reference', sub: 'recorded by finance' },
         ]} />}
       >
         <div className="flex flex-wrap gap-2">
-          {['Crypto (on-chain)', 'Card (review)', 'Bank transfer (review)', 'Wallet transfer'].map((t) => <span key={t} className="chip">{t}</span>)}
+          {['Crypto review (demo)', 'Card unavailable', 'Bank unavailable', 'Same-environment transfers'].map((t) => <span key={t} className="chip">{t}</span>)}
         </div>
       </PageHero>
 
@@ -38,7 +38,7 @@ export default function DepositsPage() {
             <div className="space-y-3">
               {[
                 ['1 · Request', 'You submit a deposit hash or a withdrawal request. Withdrawals require your password and, if enabled, a TOTP code.'],
-                ['2 · Verify', 'Crypto deposits are checked against the configured explorer. Withdrawal requests are checked against KYC status and available balance.'],
+                ['2 · Verify', 'Automated on-chain deposit verification is not connected. Withdrawal requests are checked against KYC status and available balance.'],
                 ['3 · Reserve or review', 'Withdrawal funds are locked immediately. Anything needing a provider or a human decision enters the finance queue with a reason recorded.'],
                 ['4 · Post to ledger', 'Credits, debits and releases are written as balanced double-entry transactions — visible in your transactions list.'],
               ].map(([t, b]) => (
@@ -73,7 +73,7 @@ export default function DepositsPage() {
       <Section eyebrow="Controls" title="Why funding is gated">
         <FeatureGrid items={[
           { title: 'KYC before payout', body: 'Withdrawals require approved identity verification. Submissions are reviewed by compliance with a stated decision.' },
-          { title: 'Re-authentication', body: 'A stolen session cannot move money: withdrawals require your password and two-factor code again.' },
+          { title: 'Re-authentication', body: 'Withdrawals require your password and, when enabled, your two-factor code again.' },
           { title: 'Duplicate-hash rejection', body: 'A crypto transaction hash can only be credited once, checked at submission and again at credit.' },
           { title: 'Locked balances', body: 'Requested funds leave your available balance immediately, so the same money cannot be used for trading and a payout.' },
           { title: 'Finance audit trail', body: 'Approvals, rejections and completions record the staff member, IP address and before/after state.' },
@@ -88,7 +88,7 @@ export default function DepositsPage() {
         body="Complete verification once and every future deposit and withdrawal stays inside an auditable workflow."
         primary={{ href: '/register', label: 'Create account' }}
         secondary={{ href: '/trading-conditions', label: 'Fees & conditions' }}
-        footnote="Deposits are credited only after verification or finance approval. Simulated accounts never hold real funds."
+        footnote="Automated verification is not connected. Do not deposit real funds in this demonstration."
       />
     </>
   );

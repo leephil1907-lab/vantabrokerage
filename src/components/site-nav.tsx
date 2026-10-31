@@ -13,17 +13,17 @@ const PRIMARY: { label: string; href?: string; items?: Item[] }[] = [
   { label: 'Trading', items: [
     { href: '/trading/forex', label: 'Forex & CFDs', desc: 'Majors plus indices and commodities with server-side margin' },
     { href: '/trading/short-expiry', label: 'Short-Expiry', desc: 'CALL / PUT contracts from 30 seconds to 1 hour' },
-    { href: '/trading/crypto', label: 'Crypto Spot', desc: 'Ten USDT markets with order book and holdings' },
+    { href: '/trading/crypto', label: 'Crypto Spot', desc: 'Crypto paper markets with indicative depth and holdings' },
     { href: '/trading/futures', label: 'Perpetual Futures', desc: 'Long/short, cross or isolated margin, funding' },
   ] },
   { label: 'Markets', href: '/markets' },
   { label: 'Accounts', items: [
-    { href: '/accounts', label: 'Account types', desc: 'Paper, Standard and Pro — compare conditions' },
+    { href: '/accounts', label: 'Account types', desc: 'Paper and live account environments' },
     { href: '/trading-conditions', label: 'Trading conditions', desc: 'Spreads, leverage limits, swap and expiry rules' },
     { href: '/deposits-withdrawals', label: 'Deposits & withdrawals', desc: 'Funding methods, review windows and limits' },
   ] },
   { label: 'Company', items: [
-    { href: '/company/about', label: 'About Vanta', desc: 'Who runs the platform and how it is built' },
+    { href: '/company/about', label: 'About PRIMEVEST', desc: 'Who runs the platform and how it is built' },
     { href: '/contact', label: 'Contact', desc: 'Support and escalation channels' },
     { href: '/help', label: 'Help centre', desc: 'Platform guides and trading walkthroughs' },
   ] },

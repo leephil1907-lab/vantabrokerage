@@ -19,15 +19,15 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Vanta Markets — Multi-asset brokerage, forex, CFDs and crypto',
-    template: '%s · Vanta Markets',
+    default: 'PRIMEVEST — Multi-asset brokerage, forex, CFDs and crypto',
+    template: '%s · PRIMEVEST',
   },
   description:
-    'Vanta Markets is a multi-asset brokerage platform: forex, CFDs, short-expiry CALL/PUT, crypto spot and perpetual futures — with a unified wallet, full portfolio accounting and an audited back office.',
-  applicationName: 'Vanta Markets',
+    'PRIMEVEST is a multi-asset brokerage platform: forex, CFDs, short-expiry CALL/PUT, crypto spot and perpetual futures — with a unified wallet, full portfolio accounting and an audit-logged back office.',
+  applicationName: 'PRIMEVEST',
   robots: { index: true, follow: true },
   openGraph: {
-    title: 'Vanta Markets — Multi-asset brokerage terminal',
+    title: 'PRIMEVEST — Multi-asset brokerage terminal',
     description: 'Forex, CFDs, short-expiry, crypto spot and perpetual futures in one multi-asset terminal.',
     type: 'website',
   },

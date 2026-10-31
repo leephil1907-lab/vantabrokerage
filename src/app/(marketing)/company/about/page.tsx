@@ -1,11 +1,11 @@
 import { PageHero, Section, StatBand, FeatureGrid, Split, Callout, CTASection, SpecTable } from '@/components/marketing-ui';
 import { Accordion } from '@/components/accordion';
 
-export const metadata = { title: 'About Vanta Markets' };
+export const metadata = { title: 'About PRIMEVEST' };
 
 const FAQS = [
-  { q: 'Is Vanta a broker or a platform?', a: 'Vanta Markets is a brokerage application: the full stack — authentication, KYC, order management, position accounting, risk engine, ledger, wallet, back office — is implemented and running. Live routing to a liquidity provider activates only when an execution provider is configured for the deployment, and the platform says so on screen until then.' },
-  { q: 'Where does your market data come from?', a: 'Named public providers: Kraken and Coinbase for crypto, Yahoo Finance for FX, indices and commodities. Each quote stores its provider and fetch timestamp.' },
+  { q: 'Is PRIMEVEST a broker or a platform?', a: 'PRIMEVEST is a trading-platform demonstration with paper execution. Live order routing is not implemented and live accounts cannot place orders.' },
+  { q: 'Where does your market data come from?', a: 'Named public providers: Kraken, Coinbase and Yahoo Finance for configured instruments. Each quote stores its provider and fetch timestamp.' },
   { q: 'How is the platform built?', a: 'Next.js (App Router) with React server components, Prisma over PostgreSQL, a background worker for settlements, marks, funding and liquidation checks, and a strictly typed API layer shared by the web client.' },
   { q: 'How do you prove integrity?', a: 'Every balance movement is a balanced double-entry transaction. The test suite reconciles wallets against ledger entries, checks that no transaction is unbalanced and asserts that no balance is negative.' },
 ];
@@ -21,14 +21,14 @@ export default function AboutPage() {
         aside={<StatBand items={[
           { k: '5', label: 'Execution desks', sub: 'FX · CFD · spot · perps · binaries' },
           { k: '44', label: 'Instruments', sub: 'database-driven' },
-          { k: '127', label: 'e2e assertions', sub: 'passing' },
+          { k: 'paper', label: 'Execution', sub: 'simulated funds' },
           { k: '2×', label: 'Ledger entries', sub: 'per movement' },
         ]} />}
       />
       <Section eyebrow="What we build" title="Five desks, one account">
         <FeatureGrid items={[
           { title: 'Forex & CFDs', body: 'Seven majors, cash indices and commodities with reserved-margin order handling and a continuous risk engine.', symbol: 'EUR/USD' },
-          { title: 'Crypto spot', body: 'Eleven USDT markets with holdings accounting, reserve-then-settle flow and on-chain deposit verification.', symbol: 'BTC/USDT' },
+          { title: 'Crypto spot', body: 'Crypto paper markets with holdings accounting and a reserve-then-settle flow. Automated deposit verification is not connected.', symbol: 'BTC/USDT' },
           { title: 'Perpetual futures', body: 'Cross or isolated margin, funding accrual, mark-price P/L and forced liquidation.', symbol: 'ETH/USDT' },
           { title: 'Short-expiry', body: 'CALL/PUT contracts settled against stored server quotes, with entry and exit timestamps on every trade.', symbol: 'SOL/USDT' },
           { title: 'Unified wallet', body: 'One double-entry ledger covering deposits, trades, fees, funding, transfers and withdrawals.' },
@@ -62,13 +62,12 @@ export default function AboutPage() {
                   ['Charts', 'TradingView Lightweight Charts'],
                   ['Motion', 'Framer Motion + WebGL (code-split)'],
                   ['Jobs', 'Background worker (marks, funding, settlement)'],
-                  ['Tests', '127-assertion end-to-end suite'],
+                  ['Tests', 'End-to-end integration suite'],
                 ]}
                 caption="No third-party analytics or advertising scripts are loaded."
               />
               <Callout tone="info" title="Open about limits">
-                Live execution, custody and payment rails are provider-dependent. When they are not connected the platform reports that
-                plainly instead of simulating success.
+                Live execution and automated deposit verification are not implemented. This demonstration is not ready for real funds.
               </Callout>
             </div>
           }

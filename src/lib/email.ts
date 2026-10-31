@@ -1,15 +1,14 @@
 import { prisma } from './db';
 
 /**
- * Email delivery. When SMTP/provider credentials are configured (EMAIL_PROVIDER=resend
- * + RESEND_API_KEY, or EMAIL_PROVIDER=webhook + EMAIL_WEBHOOK_URL) messages are sent and
+ * Email delivery. When provider credentials are configured (EMAIL_PROVIDER=resend
+ * + RESEND_API_KEY and EMAIL_FROM, or EMAIL_PROVIDER=webhook + EMAIL_WEBHOOK_URL) messages are sent and
  * logged. Otherwise messages are queued in `EmailOutbox` and flagged as NOT_DELIVERED so
- * the UI can surface verification/reset links to developers without ever pretending an
- * email was delivered.
+ * delivery failures remain visible without exposing verification/reset links.
  */
 export function emailConfigured() {
   const p = process.env.EMAIL_PROVIDER;
-  if (p === 'resend') return !!process.env.RESEND_API_KEY;
+  if (p === 'resend') return !!(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
   if (p === 'webhook') return !!process.env.EMAIL_WEBHOOK_URL;
   return false;
 }
@@ -24,7 +23,7 @@ export async function queueEmail(input: { to: string; subject: string; body: str
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: process.env.EMAIL_FROM || 'no-reply@vantamarkets.com', to: input.to, subject: input.subject, text: input.body }),
+        body: JSON.stringify({ from: process.env.EMAIL_FROM, to: input.to, subject: input.subject, text: input.body }),
       });
       if (!res.ok) throw new Error(`Resend responded ${res.status}`);
     } else if (process.env.EMAIL_PROVIDER === 'webhook') {

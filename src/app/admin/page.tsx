@@ -55,7 +55,7 @@ export default function AdminOverview() {
             ))}
           </dl>
           <p className="mt-3 text-[10.5px] leading-relaxed text-muted">
-            Unconfigured providers are reported here rather than hidden. Live execution, automated custody payouts and card deposits are disabled until the matching provider is connected.
+            Unconfigured providers are reported here rather than hidden. Live execution, automated custody payouts and card deposits are not implemented.
           </p>
         </section>
 

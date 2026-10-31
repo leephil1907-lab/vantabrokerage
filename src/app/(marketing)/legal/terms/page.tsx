@@ -6,7 +6,7 @@ export default function TermsPage() {
   return (
     <LegalPage
       title="Terms and conditions"
-      summary="The agreement between you and Vanta Markets covering your account, orders, balances and the platform's obligations."
+      summary="The agreement between you and PRIMEVEST covering your account, orders, balances and the platform's obligations."
       breadcrumb="Terms"
       updated="31 October 2026"
       sections={[
@@ -30,7 +30,7 @@ export default function TermsPage() {
         ) },
         { id: 'funding', title: 'Deposits and withdrawals', body: (
           <>
-            <p>Deposits are credited only after on-chain verification or finance approval. Withdrawal requests require approved identity verification and re-authentication, and move through a reviewable state machine; completion is recorded with a transaction reference.</p>
+            <p>Automated deposit verification is not connected. Deposit crediting requires finance approval in this demonstration. Withdrawal requests require approved identity verification and re-authentication, and move through a reviewable state machine; completion is recorded with a transaction reference.</p>
             <p>We may decline a withdrawal where the source of funds cannot be verified, where a payment provider is unavailable, or where an investigation is open.</p>
           </>
         ) },

@@ -201,7 +201,7 @@ async function main() {
     ['trading.paperEnabled', true, 'trading'],
     ['trading.liveEnabled', false, 'trading'],
     ['binary.payoutCap', 0.9, 'trading'],
-    ['platform.name', 'Vanta Markets', 'general'],
+    ['platform.name', 'PRIMEVEST', 'general'],
     ['kyc.requireForWithdrawal', true, 'compliance'],
   ];
   for (const [key, value, category] of configs) {

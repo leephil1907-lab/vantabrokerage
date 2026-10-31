@@ -28,12 +28,11 @@ export default function ShortExpiryPage() {
           { k: '30s', label: 'Shortest expiry', sub: 'to 1 hour' },
           { k: '8', label: 'Expiry steps', sub: 'fixed intervals' },
           { k: '2×', label: 'Quotes stored', sub: 'entry + settlement' },
-          { k: 'paper', label: 'Environment', sub: 'until provider connected' },
+          { k: 'paper', label: 'Environment', sub: 'live execution unavailable' },
         ]} />}
       >
         <Callout tone="warn" title="High risk">
-          A losing short-expiry contract forfeits the entire stake within minutes. Until an approved execution provider is connected,
-          contracts run in the <strong>paper environment</strong> and are labelled PAPER throughout the platform.
+          A losing short-expiry contract forfeits the entire stake within minutes. Contracts run only in the <strong>paper environment</strong> and are labelled PAPER throughout the platform.
         </Callout>
       </PageHero>
 

@@ -1,3 +1,5 @@
+> Historical comparison: this document describes an earlier Vanta-branded build. The site is now branded PRIMEVEST; current screenshots may reflect the new identity. For current deployment limits, see [DEPLOYMENT-READINESS.md](DEPLOYMENT-READINESS.md). Earlier product claims in this document are not a current release guarantee.
+
 # Vanta Markets vs Videforex — design, structure and navigation comparison
 
 **Reference:** <https://videforex.com/> (fetched 31 Oct 2026)

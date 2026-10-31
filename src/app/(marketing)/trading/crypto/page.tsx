@@ -7,9 +7,9 @@ export const metadata = { title: 'Crypto spot trading' };
 export const dynamic = 'force-dynamic';
 
 const FAQS = [
-  { q: 'Which crypto markets are listed?', a: 'Eleven USDT markets: BTC, ETH, SOL, XRP, LTC, DOGE, BNB, ADA, TRX, USDC and USDT. The live table below is generated from the platform’s instrument configuration, so it always matches what the terminals allow.' },
+  { q: 'Which crypto markets are listed?', a: 'The seeded catalogue has ten USDT pairs: BTC, ETH, SOL, XRP, LTC, DOGE, BNB, ADA, TRX and USDC. The live table below is generated from the platform’s instrument configuration, so it always matches what the terminals allow.' },
   { q: 'How are balances held?', a: 'Crypto bought on spot is recorded as holdings per asset, and cash leg movements post through the double-entry ledger. Selling reserves the base asset first, then credits the quote asset on fill.' },
-  { q: 'Can I deposit crypto?', a: 'Yes, when deposit addresses are configured for the deployment. You submit the transaction hash and the platform verifies it with the configured explorer provider; without one, the deposit queues for finance review instead of pretending to credit itself.' },
+  { q: 'Can I deposit crypto?', a: 'Automated crypto deposit verification is not connected. The current workflow requires independent finance review and is not ready for real funds.' },
   { q: 'Is this an exchange order book?', a: 'No. The depth ladder in the terminal is a labelled model around the live top of book from the connected provider. It is explicitly marked as a model so it is never mistaken for exchange-native depth.' },
 ];
 
@@ -19,14 +19,14 @@ export default function CryptoPage() {
       <PageHero
         eyebrow="Crypto spot"
         title="Spot crypto with holdings and locked-balance accounting"
-        body="Eleven USDT markets with reserved-balance settlement, per-asset holdings and on-chain deposit verification. Prices come from Kraken and Coinbase; if a feed is stale the platform says so instead of guessing."
+        body="Explore crypto spot on paper with reserved-balance settlement and per-asset holdings. Quotes are provider-sourced and labelled when stale; live trading and automated deposit verification are not connected."
         breadcrumbs={[{ href: '/markets', label: 'Markets' }, { label: 'Crypto spot' }]}
         symbol="BTC/USDT"
-        badge="11 markets"
+        badge="Paper trading"
         aside={<StatBand items={[
-          { k: '11', label: 'USDT markets', sub: 'majors + stablecoins' },
-          { k: '2', label: 'Price providers', sub: 'Kraken · Coinbase' },
-          { k: 'on-chain', label: 'Deposit checks', sub: 'mempool · Etherscan · TronGrid' },
+          { k: '10', label: 'Seeded USDT pairs', sub: 'subject to availability' },
+          { k: '3', label: 'Price sources', sub: 'Kraken · Coinbase · Yahoo' },
+          { k: 'paper', label: 'Execution', sub: 'simulated funds' },
           { k: '24/7', label: 'Availability', sub: 'unlike FX sessions' },
         ]} />}
       />
@@ -39,7 +39,7 @@ export default function CryptoPage() {
             { title: 'Reserve, then settle', body: 'A buy reserves quote balance; a sell reserves base holdings. Settlement credits the opposite leg atomically.' },
             { title: 'Holdings ledger', body: 'Asset balances are tracked per asset and reconciled against ledger entries, not stored as free-floating numbers.' },
             { title: 'Fees recorded', body: 'Taker fees are captured per execution with the venue and quote timestamp.' },
-            { title: 'Deposit verification', body: 'Transaction hashes are checked against the configured explorer before any credit is posted.' },
+            { title: 'Deposit verification', body: 'Automated deposit verification is not connected; submissions require independent finance review.' },
           ]} />}
           right={
             <div className="space-y-3">
@@ -61,7 +61,7 @@ export default function CryptoPage() {
         />
       </Section>
       <Section eyebrow="Questions" title="Crypto spot FAQ" tight><Accordion items={FAQS} /></Section>
-      <CTASection title="Buy your first crypto on paper" body="Practise buying, selling and tracking holdings with simulated funds, then switch to live once your account is verified." primary={{ href: '/register', label: 'Create account' }} secondary={{ href: '/deposits-withdrawals', label: 'Funding methods' }} />
+      <CTASection title="Buy your first crypto on paper" body="Practise buying, selling and tracking holdings with simulated funds. Live execution is not available in this deployment." primary={{ href: '/register', label: 'Create account' }} secondary={{ href: '/deposits-withdrawals', label: 'Funding methods' }} />
     </>
   );
 }

@@ -53,7 +53,7 @@ async function getJson(url: string, headers: Record<string, string> = {}) {
     const res = await fetch(url, {
       signal,
       cache: 'no-store',
-      headers: { 'User-Agent': 'VantaMarkets/1.0 (market-data service)', Accept: 'application/json', ...headers },
+      headers: { 'User-Agent': 'PRIMEVEST/1.0 (market-data service)', Accept: 'application/json', ...headers },
     });
     if (!res.ok) throw new AppError('DATA_PROVIDER_ERROR', `Market data provider responded ${res.status}`, 502);
     return (await res.json()) as any;
