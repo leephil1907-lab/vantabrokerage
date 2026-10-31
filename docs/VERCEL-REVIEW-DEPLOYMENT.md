@@ -4,7 +4,7 @@ This runbook prepares the current Next.js website for a **private, access-contro
 
 ## 1. Prepare infrastructure first
 
-- Create an isolated PostgreSQL database for this review. Never use a customer, existing staging or production database. Ensure network access, TLS, backups and suitable connection pooling for Vercel's serverless instances. Keep preview and production databases and secrets separate. For Prisma 6, use a direct PostgreSQL URL for migrations and a provider-supported pooled URL for app traffic when appropriate.
+- Create an isolated PostgreSQL database for this review. Never use a customer, existing staging or production database. Ensure network access, TLS, backups and suitable connection pooling for Vercel's serverless instances. Keep preview and production databases and secrets separate. For Prisma 6, configure `DATABASE_URL` as the provider-supported pooled URL for app traffic and `DIRECT_URL` as the direct PostgreSQL URL for migrations.
 - Enable deployment protection for **every URL/environment** that will be created, including the initial Production deployment and any custom domain, not just preview URLs. Check whether your Vercel plan supports the protection method you require. If you cannot protect the initial deployment, do not deploy this build. Vercel's first CLI deployment of a new project can be a Production deployment even without `--prod`; Git pushes to the production branch also create Production deployments. Do not assume a URL is private because it is called a preview.
 - No real funds, real customer personal information or real API credentials for financial services. No external customer signups. The review database and accounts must be disposable and access-controlled.
 
@@ -29,6 +29,7 @@ Import the GitHub repository as a new Next.js project; use the repository root. 
 | Variable | Value / purpose |
 | --- | --- |
 | `DATABASE_URL` | Server-side pooled connection URL for the isolated PostgreSQL database; never a local `127.0.0.1` URL. |
+| `DIRECT_URL` | Direct, non-pooled connection URL for Prisma migrations. For a review database without a pooler, this may be the same URL as `DATABASE_URL`. |
 | `SESSION_SECRET` | A unique cryptographically random secret, at least 32 characters; e.g. generate locally with `openssl rand -hex 32`. Do not share or commit it. |
 | `APP_URL` | The exact stable protected HTTPS origin for that environment, without a path; verification and reset emails use this origin. Do not copy a production URL into Preview. |
 | `PAPER_STARTING_BALANCE` | `0` for review; this does not disable legacy simulated actions. |
