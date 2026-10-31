@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { MarketList, type MarketRow } from '@/components/market-selector';
-import { LiveTicket } from '@/components/terminal/live-ticket';
+import { OrderPanel } from '@/components/terminal/order-panel';
 import { useAccount } from '@/components/terminal/account-bar';
 import { TerminalWorkspace } from '@/components/terminal/workspace';
 import { ProChart } from '@/components/charts/pro-chart';
@@ -25,19 +25,19 @@ export type DeskKind = 'forex' | 'crypto' | 'futures';
 const CFG: Record<DeskKind, { title: string; sub: string; categories: string[]; defaultSymbol: string }> = {
   forex: {
     title: 'Forex & CFD desk',
-    sub: 'Explore forex markets and review the trading workspace. Prices are external references, not PRIMEVEST execution quotes.',
+    sub: 'Trade forex and CFD instruments in the internal paper environment using provider-fed reference quotes.',
     categories: ['FOREX', 'CFD'],
     defaultSymbol: 'EUR/USD',
   },
   crypto: {
     title: 'Crypto spot desk',
-    sub: 'Explore crypto markets and review the trading workspace. Prices are external references, not PRIMEVEST execution quotes.',
+    sub: 'Trade spot crypto in the internal paper environment using provider-fed reference quotes.',
     categories: ['SPOT'],
     defaultSymbol: 'BTC/USDT',
   },
   futures: {
     title: 'Perpetual futures desk',
-    sub: 'Explore the futures workspace. Live execution and product availability have not been configured.',
+    sub: 'Trade supported perpetual futures in the internal paper environment using provider-fed reference quotes.',
     categories: ['FUTURES'],
     defaultSymbol: 'BTC/USDT-PERP',
   },
@@ -47,7 +47,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
   const cfg = CFG[kind];
   const { markets, error: marketsError } = useMarkets();
   const tradable = useMemo(() => markets.filter((m) => cfg.categories.includes(m.category)), [markets, cfg.categories]);
-  const { accountId, active, reloadAccounts } = useAccount({ liveOnly: true });
+  const { accountId, active, reloadAccounts } = useAccount({ paperOnly: true });
   const { push } = useToast();
 
   const search = useSearchParams();
@@ -247,17 +247,17 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
               {quote?.stale && <span className="ml-1 text-[9px] text-amber-300">DELAYED</span>}
             </span>
           </div>
-          <LiveTicket symbol={symbol} />
+          <OrderPanel market={meta} accountId={accountId} accountType={active.type} available={active.available} quote={quote} onPlaced={() => { load(); reloadAccounts(); }} />
           <div className="mt-4 rounded-xl border border-white/[0.06] bg-ink-950/40">
             <div className="border-b border-white/[0.06] px-3 py-2"><p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">PRIMEVEST order book</p></div>
-            <div className="px-3 py-5 text-center"><div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-muted">≋</div><p className="mt-3 text-xs font-medium text-white">Order book unavailable</p><p className="mt-1 text-[11px] leading-relaxed text-muted">No internal matching engine is connected. No order depth is being displayed.</p></div>
+            <div className="px-3 py-5 text-center"><div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-muted">≋</div><p className="mt-3 text-xs font-medium text-white">Order book unavailable</p><p className="mt-1 text-[11px] leading-relaxed text-muted">Internal paper orders execute against the server-side bid/ask quote. This is not a public exchange order book or external liquidity.</p></div>
           </div>
           <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40">
             <p className="border-b border-white/[0.06] px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Reference market statistics</p>
             <SessionStats symbol={symbol} quote={quote} />
           </div>
           <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40 p-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Recent trades</p><p className="mt-3 text-[11px] leading-relaxed text-muted">PRIMEVEST trade history will appear when matching is available.</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Recent trades</p><p className="mt-3 text-[11px] leading-relaxed text-muted">Completed internal paper fills are listed in the Fills tab.</p>
           </div>
         </>
       ) : (
@@ -273,7 +273,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-[.22em] text-lime">Trading / Workspace</p>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-[26px] font-semibold tracking-tight text-white">{cfg.title}</h1>
-            <Badge tone="amber">Live trading unavailable</Badge>
+            <Badge tone="blue">Internal paper trading</Badge>
           </div>
           <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted">{cfg.sub}</p>
         </div>
