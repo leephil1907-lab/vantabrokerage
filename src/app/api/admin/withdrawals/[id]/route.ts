@@ -38,11 +38,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         // Approval without a custody provider only moves the request to "approved — awaiting manual payout".
         const u = await prisma.withdrawal.update({ where: { id }, data: { status: 'APPROVED', reviewedById: staff.id, reviewedAt: new Date(), reviewNote: body.note ?? 'Approved — awaiting manual payout (no custody provider configured).' } });
         await queueTemplateEmail({ to: w.wallet.account.user.email, template: 'withdrawal_approved', variables: { firstName: w.wallet.account.user.profile?.firstName ?? undefined, amount: amount.toFixed(8), asset: w.asset, network: w.network ?? undefined, reference: id } }).catch((error) => console.error('[withdrawal approval email]', error));
-        await queueTemplateEmail({ to: w.wallet.account.user.email, template: 'withdrawal_approved', variables: { firstName: w.wallet.account.user.profile?.firstName ?? undefined, amount: amount.toFixed(8), asset: w.asset, network: w.network ?? undefined, reference: id } }).catch((error) => console.error('[withdrawal approval email]', error));
-      await audit({ actorId: staff.id, action: 'withdrawal.approve', targetType: 'Withdrawal', targetId: id, before: { status: w.status }, after: { status: u.status }, ip: clientIp(req) });
+        await audit({ actorId: staff.id, action: 'withdrawal.approve', targetType: 'Withdrawal', targetId: id, before: { status: w.status }, after: { status: u.status }, ip: clientIp(req) });
         return json({ ok: true, status: u.status, note: 'No custody provider configured: payout must be sent manually and marked completed with a transaction hash.' });
       }
       const u = await prisma.withdrawal.update({ where: { id }, data: { status: 'PROCESSING', reviewedById: staff.id, reviewedAt: new Date(), reviewNote: body.note ?? null } });
+      await queueTemplateEmail({ to: w.wallet.account.user.email, template: 'withdrawal_approved', variables: { firstName: w.wallet.account.user.profile?.firstName ?? undefined, amount: amount.toFixed(8), asset: w.asset, network: w.network ?? undefined, reference: id } }).catch((error) => console.error('[withdrawal approval email]', error));
       await audit({ actorId: staff.id, action: 'withdrawal.approve', targetType: 'Withdrawal', targetId: id, before: { status: w.status }, after: { status: u.status }, ip: clientIp(req) });
       return json({ ok: true, status: u.status });
     }
