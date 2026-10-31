@@ -147,6 +147,10 @@ export function ProChart({
         fontSize: 11,
         attributionLogo: false,
       },
+      // Pin the locale: lightweight-charts otherwise derives it from
+      // navigator.language, which can be empty in embedded/headless browsers
+      // and throws "Incorrect locale information provided", aborting the paint.
+      localization: { locale: 'en-GB' },
       grid: {
         vertLines: { color: 'rgba(255,255,255,0.035)' },
         horzLines: { color: 'rgba(255,255,255,0.045)' },

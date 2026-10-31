@@ -43,7 +43,7 @@ for (const route of routes) {
   await p.waitForTimeout(3500);
   await p.addStyleTag({ content: FREEZE }).catch(() => {});
   const metrics = await p.evaluate(() => ({
-    overflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    overflowX: (document.documentElement?.scrollWidth ?? 0) - (document.documentElement?.clientWidth ?? 0),
     canvases: document.querySelectorAll('canvas').length,
     skeletons: document.querySelectorAll('.skeleton, .skeleton-shimmer').length,
     emptySvgs: [...document.querySelectorAll('svg')].filter((s) => !s.innerHTML.trim()).length,
