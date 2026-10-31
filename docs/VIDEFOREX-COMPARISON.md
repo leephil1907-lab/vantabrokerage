@@ -121,10 +121,24 @@ Screenshots: `docs/screenshots/` (`home-desktop`, `home-mobile`, `markets-deskto
 
 ## 8. Gaps still open (stated plainly)
 
+Closed since the first pass:
+
+- **All marketing routes now share one page kit.** Every public page composes the same primitives from `src/components/marketing-ui.tsx` — `PageHero` (breadcrumbs + eyebrow + title + body + live stat band aside), `Section`, `FeatureGrid`, `Split`, `SpecTable`, `Callout`, `Accordion`, `CTASection`. Routes rebuilt this pass: `/trading/forex`, `/trading/cfd`, `/trading/futures`, `/trading/crypto`, `/trading/short-expiry`, `/accounts`, `/company/about`, `/deposits-withdrawals`, `/trading-conditions`, `/referral-program`, `/contact`, `/help`. Legal documents (`/legal/terms`, `/privacy`, `/risk-disclosure`, `/aml`, `/cookies`) use a new `LegalPage` layout with a sticky table of contents, version and effective date.
+- **`/trading-conditions` is data-driven** — it reads every enabled instrument, leverage cap, taker/maker fee, precision and payout rate from the database at request time, so the published page cannot drift from the engine's configuration.
+- Mobile horizontal overflow on the split/table pages was found by `scripts/visual-qa.mjs` and fixed at the source (`min-w-0` on grid children containing `overflow-x-auto` tables).
+
+Still open:
+
 | Gap | Impact | Effort |
 |---|---|---|
-| Marketing sub-pages (`/trading/*`, `/accounts`, `/help`, `/trading-conditions`, `/deposits-withdrawals`) still use the earlier section styling — consistent and functional, but only `/` and `/markets` were re-composed in the reference-informed layout | Visual consistency step-change on 8 routes | ~1 pass |
 | No language switcher (reference is multi-locale) | Single-locale (`en`) only | Medium (i18n routing) |
 | No live video-chat / manager widget (reference's differentiator) | Missing feature, not a design flaw | Large (needs a provider) |
 | Login is a page, not a modal | Different UX pattern | Small |
 | Bonus table and payout percentages not published | Intentional (see §6) | Needs your figures |
+
+### Verification for this pass
+
+- `npx tsc --noEmit` clean after every page written.
+- `npx next build` → exit 0.
+- `scripts/visual-qa.mjs` across the rebuilt routes → **all clean** (desktop + mobile, console errors, overflow, skeleton residue).
+- `scripts/app-qa.mjs` across authenticated routes → unchanged, still clean.

@@ -1,73 +1,113 @@
 import { prisma } from '@/lib/db';
-import { PageHero, Section, CTASection } from '@/components/marketing-ui';
-import { fmtPrice } from '@/lib/format';
+import { PageHero, Section, StatBand, Callout, CTASection, SpecTable } from '@/components/marketing-ui';
+import { AssetMark } from '@/components/asset-mark';
 
 export const metadata = { title: 'Trading conditions' };
 export const dynamic = 'force-dynamic';
 
+const pct = (v: unknown) => `${(Number(v) * 100).toFixed(3).replace(/0+$/, '').replace(/\.$/, '')}%`;
+
 export default async function TradingConditionsPage() {
   const pairs = await prisma.tradingPair.findMany({ where: { enabled: true }, orderBy: [{ category: 'asc' }, { symbol: 'asc' }] });
   const groups = pairs.reduce<Record<string, typeof pairs>>((acc, p) => { (acc[p.category] ||= []).push(p); return acc; }, {});
+  const maxLev = Math.max(...pairs.map((p) => p.maxLeverage));
 
   return (
     <>
       <PageHero
         eyebrow="Trading conditions"
         title="Leverage, spreads, fees and settlement — stated plainly"
-        body="These values are read live from the platform's market configuration. Administrators can adjust instrument availability, leverage caps, fees and payout rates; changes are audit-logged."
+        body="Every value below is read live from the platform's instrument configuration at request time. Administrators can change availability, leverage caps, fees and payout rates; each change is written to the audit log with actor and before/after state."
+        breadcrumbs={[{ label: 'Trading conditions' }]}
+        aside={<StatBand items={[
+          { k: String(pairs.length), label: 'Enabled instruments', sub: 'live from database' },
+          { k: `${maxLev}×`, label: 'Highest leverage', sub: 'per-instrument caps' },
+          { k: String(Object.keys(groups).length), label: 'Market groups', sub: Object.keys(groups).join(' · ').toLowerCase() },
+          { k: 'audited', label: 'Config changes', sub: 'actor + timestamp' },
+        ]} />}
       />
-      <div className="mx-auto max-w-7xl space-y-10 px-5 py-12">
-        {Object.entries(groups).map(([category, list]) => (
-          <section key={category}>
-            <h2 className="text-[15px] font-semibold uppercase tracking-wide text-white">{category} instruments</h2>
-            <div className="mt-3 overflow-x-auto rounded-2xl border border-white/[0.07]">
-              <table className="w-full min-w-[720px]">
-                <thead className="bg-white/[0.02]">
-                  <tr><th className="th">Symbol</th><th className="th">Instrument</th><th className="th text-right">Max leverage</th><th className="th text-right">Taker fee</th><th className="th text-right">Maker fee</th><th className="th text-right">Min qty</th><th className="th text-right">Payout</th></tr>
-                </thead>
-                <tbody>
-                  {list.map((p) => (
-                    <tr key={p.id} className="table-row">
-                      <td className="td font-medium text-white">{p.symbol}</td>
-                      <td className="td text-muted">{p.displayName}</td>
-                      <td className="td text-right value-mono">{p.maxLeverage}×</td>
-                      <td className="td text-right value-mono">{(Number(p.takerFee) * 100).toFixed(3)}%</td>
-                      <td className="td text-right value-mono">{(Number(p.makerFee) * 100).toFixed(3)}%</td>
-                      <td className="td text-right value-mono">{fmtPrice(Number(p.minQty), 6)}</td>
-                      <td className="td text-right value-mono">{p.payoutRate ? `${(Number(p.payoutRate) * 100).toFixed(0)}%` : '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+      <Section eyebrow="Instrument table" title="All enabled markets" body="Taker and maker fees are charged on notional. Payout applies to short-expiry contracts only.">
+        <div className="space-y-8">
+          {Object.entries(groups).map(([category, list]) => (
+            <div key={category}>
+              <div className="mb-2.5 flex items-center gap-2">
+                <h3 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-white">{category}</h3>
+                <span className="chip">{list.length} instruments</span>
+              </div>
+              <div className="overflow-hidden rounded-2xl border border-white/[0.07]">
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[760px]">
+                    <thead className="bg-white/[0.02]">
+                      <tr>
+                        <th className="th">Instrument</th>
+                        <th className="th text-right">Max leverage</th>
+                        <th className="th text-right">Taker fee</th>
+                        <th className="th text-right">Maker fee</th>
+                        <th className="th text-right">Min qty</th>
+                        <th className="th text-right">Precision</th>
+                        <th className="th text-right">Payout</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {list.map((p) => (
+                        <tr key={p.id} className="table-row">
+                          <td className="td">
+                            <span className="flex items-center gap-2.5">
+                              <AssetMark symbol={p.symbol} size={20} />
+                              <span>
+                                <span className="block font-medium text-white">{p.symbol}</span>
+                                <span className="block text-[10px] text-muted">{p.displayName}</span>
+                              </span>
+                            </span>
+                          </td>
+                          <td className="td text-right value-mono">{p.maxLeverage}×</td>
+                          <td className="td text-right value-mono">{pct(p.takerFee)}</td>
+                          <td className="td text-right value-mono">{pct(p.makerFee)}</td>
+                          <td className="td text-right value-mono">{Number(p.minQty)}</td>
+                          <td className="td text-right value-mono text-muted">{p.pricePrecision} dp</td>
+                          <td className="td text-right value-mono">{p.payoutRate != null ? pct(p.payoutRate) : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-          </section>
-        ))}
+          ))}
+        </div>
+      </Section>
 
-        <section className="panel p-5">
-          <h2 className="text-[15px] font-semibold text-white">Deposits & withdrawals</h2>
-          <ul className="mt-3 space-y-2 text-[12.5px] leading-relaxed text-muted">
-            <li>• Minimum withdrawal: 20.00 USD-equivalent. Fee: 0.5% (minimum 1.00).</li>
-            <li>• Daily withdrawal limit applies per client and is enforced server-side.</li>
-            <li>• Identity verification must be approved before a withdrawal can be requested.</li>
-            <li>• Withdrawals require password re-authentication and, where enabled, a two-factor code.</li>
-            <li>• Crypto deposits are verified on-chain through a configured provider; without a provider they queue for manual finance review.</li>
-            <li>• Reserved funds for a rejected withdrawal are returned to the available balance automatically.</li>
-          </ul>
-        </section>
+      <Section eyebrow="Platform rules" title="Execution, settlement and fees">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <SpecTable
+            columns={['Rule', 'Value']}
+            rows={[
+              ['Execution mode', 'Paper unless a provider is connected'],
+              ['Order types', 'Market · limit · stop'],
+              ['Margin reservation', 'On placement, released on cancel/fill'],
+              ['Liquidation', 'Continuous, engine-priced'],
+              ['Funding interval', '8h default, per instrument'],
+              ['Price providers', 'Kraken · Coinbase · Yahoo Finance'],
+            ]}
+            caption="Execution mode is shown in the header of every authenticated screen."
+          />
+          <div className="space-y-3">
+            <Callout tone="info" title="How to read the fee columns">
+              Fees are a fraction of notional, not of margin. A 0.10% taker fee on a $10,000 notional position is $10, regardless of leverage.
+            </Callout>
+            <Callout tone="warn" title="Leverage increases risk">
+              Higher leverage reduces the price move needed to liquidate a position. Caps below are maximums, not recommendations.
+            </Callout>
+            <Callout tone="ok" title="Values are live">
+              This page queries the database on every request. If an administrator changes leverage or fees, the table reflects it immediately
+              and the change is audit-logged.
+            </Callout>
+          </div>
+        </div>
+      </Section>
 
-        <section className="panel p-5">
-          <h2 className="text-[15px] font-semibold text-white">Execution & settlement</h2>
-          <ul className="mt-3 space-y-2 text-[12.5px] leading-relaxed text-muted">
-            <li>• Market orders fill at the server-side quoted bid/ask; the quote timestamp is stored on the execution.</li>
-            <li>• Limit and stop orders rest with reserved margin and are matched by a background worker against live quotes.</li>
-            <li>• Derivative margin, liquidation price, unrealised P/L and funding are computed on the backend.</li>
-            <li>• Maintenance margin rate is 0.5%; liquidation triggers below 50% of the maintenance requirement, with warnings at 80%.</li>
-            <li>• Short-expiry contracts settle against a fresh quote at expiry; tie outcomes return the stake with no P/L.</li>
-            <li>• Where a live execution provider is not connected, live trading is reported as unavailable rather than simulated.</li>
-          </ul>
-        </section>
-      </div>
-      <CTASection title="Ready to trade these conditions?" body="Open an account and inspect every value in your terminal before placing an order." primary={{ href: '/register', label: 'Open account' }} secondary={{ href: '/deposits-withdrawals', label: 'Funding options' }} />
+      <CTASection title="Trade on these conditions" body="Open a paper account and see every fee applied to a real order before you commit capital." primary={{ href: '/register', label: 'Create account' }} secondary={{ href: '/legal/risk-disclosure', label: 'Risk disclosure' }} />
     </>
   );
 }
