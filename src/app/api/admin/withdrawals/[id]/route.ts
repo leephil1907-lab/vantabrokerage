@@ -6,6 +6,7 @@ import { requireStaff } from '@/lib/auth';
 import { audit } from '@/lib/audit';
 import { unlockFunds, settleLocked, d, getOrCreateWallet } from '@/lib/ledger';
 import { AppError } from '@/lib/errors';
+import { queueTemplateEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     if (!['ADMIN', 'SUPERADMIN', 'FINANCE'].includes(staff.role)) throw new AppError('FORBIDDEN', 'Finance or admin role required.', 403);
     const { id } = await ctx.params;
     const body = await parseBody(req, z.object({ action: z.enum(['approve', 'reject', 'mark_completed']), note: z.string().max(500).optional(), txHash: z.string().max(120).optional() }));
-    const w = await prisma.withdrawal.findUnique({ where: { id }, include: { wallet: { include: { account: true } } } });
+    const w = await prisma.withdrawal.findUnique({ where: { id }, include: { wallet: { include: { account: { include: { user: { include: { profile: true } } } } } } } });
     if (!w) throw new AppError('NOT_FOUND', 'Withdrawal not found.', 404);
     const amount = d(w.amount);
 
@@ -26,6 +27,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         await tx.notification.create({ data: { userId: w.wallet.account.userId, type: 'WITHDRAWAL', title: 'Withdrawal rejected', body: `Your withdrawal of ${amount.toFixed(2)} was rejected and the funds returned to your available balance. ${body.note ?? ''}`.trim() } });
         return u;
       });
+      await queueTemplateEmail({ to: w.wallet.account.user.email, template: 'withdrawal_rejected', variables: { firstName: w.wallet.account.user.profile?.firstName ?? undefined, amount: amount.toFixed(8), asset: w.asset, network: w.network ?? undefined, reason: body.note ?? 'Please contact support for assistance.', reference: id } }).catch((error) => console.error('[withdrawal rejection email]', error));
       await audit({ actorId: staff.id, action: 'withdrawal.reject', targetType: 'Withdrawal', targetId: id, before: { status: w.status }, after: { status: updated.status, note: body.note }, ip: clientIp(req) });
       return json({ ok: true, status: updated.status });
     }
@@ -35,7 +37,9 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       if (!process.env.CUSTODY_PROVIDER) {
         // Approval without a custody provider only moves the request to "approved — awaiting manual payout".
         const u = await prisma.withdrawal.update({ where: { id }, data: { status: 'APPROVED', reviewedById: staff.id, reviewedAt: new Date(), reviewNote: body.note ?? 'Approved — awaiting manual payout (no custody provider configured).' } });
-        await audit({ actorId: staff.id, action: 'withdrawal.approve', targetType: 'Withdrawal', targetId: id, before: { status: w.status }, after: { status: u.status }, ip: clientIp(req) });
+        await queueTemplateEmail({ to: w.wallet.account.user.email, template: 'withdrawal_approved', variables: { firstName: w.wallet.account.user.profile?.firstName ?? undefined, amount: amount.toFixed(8), asset: w.asset, network: w.network ?? undefined, reference: id } }).catch((error) => console.error('[withdrawal approval email]', error));
+        await queueTemplateEmail({ to: w.wallet.account.user.email, template: 'withdrawal_approved', variables: { firstName: w.wallet.account.user.profile?.firstName ?? undefined, amount: amount.toFixed(8), asset: w.asset, network: w.network ?? undefined, reference: id } }).catch((error) => console.error('[withdrawal approval email]', error));
+      await audit({ actorId: staff.id, action: 'withdrawal.approve', targetType: 'Withdrawal', targetId: id, before: { status: w.status }, after: { status: u.status }, ip: clientIp(req) });
         return json({ ok: true, status: u.status, note: 'No custody provider configured: payout must be sent manually and marked completed with a transaction hash.' });
       }
       const u = await prisma.withdrawal.update({ where: { id }, data: { status: 'PROCESSING', reviewedById: staff.id, reviewedAt: new Date(), reviewNote: body.note ?? null } });
@@ -54,6 +58,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       await tx.notification.create({ data: { userId: w.wallet.account.userId, type: 'WITHDRAWAL', title: 'Withdrawal completed', body: `Your withdrawal of ${amount.toFixed(2)} has been sent. Transaction: ${body.txHash}`, href: '/dashboard/withdrawals' } });
       return u;
     });
+    await queueTemplateEmail({ to: w.wallet.account.user.email, template: 'withdrawal_completed', variables: { firstName: w.wallet.account.user.profile?.firstName ?? undefined, amount: amount.toFixed(8), asset: w.asset, network: w.network ?? undefined, txHash: body.txHash, reference: id } }).catch((error) => console.error('[withdrawal completion email]', error));
     await audit({ actorId: staff.id, action: 'withdrawal.complete', targetType: 'Withdrawal', targetId: id, before: { status: w.status }, after: { status: updated.status, txHash: body.txHash }, ip: clientIp(req) });
     return json({ ok: true, status: updated.status });
   } catch (err) {
