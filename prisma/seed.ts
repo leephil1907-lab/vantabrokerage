@@ -82,8 +82,12 @@ const CRYPTO = [
 ];
 
 async function main() {
-  console.log('Seeding markets…');
-  const all: PairSeed[] = [
+  const reviewMarketsOnly = process.argv.includes('--review-markets-only');
+  if (!reviewMarketsOnly && (process.env.NODE_ENV === 'production' || process.env.VERCEL === '1')) {
+    throw new Error('The development seed creates default staff accounts and is not allowed in production or Vercel. Use the market-only review seed on an isolated review database.');
+  }
+  console.log(reviewMarketsOnly ? 'Seeding reference market definitions for review…' : 'Seeding markets…');
+  let all: PairSeed[] = [
     ...FOREX.map(withDefaults),
     ...INDICES,
     ...COMMODITIES,
@@ -146,6 +150,12 @@ async function main() {
     })),
   ];
 
+  if (reviewMarketsOnly) {
+    // Reference instruments only; never seed USD tickers as USDT markets, and
+    // leave leveraged, short-expiry and other simulated products unconfigured.
+    all = all.filter((p) => p.category === 'FOREX' || (p.category === 'SPOT' && p.dataSource === 'kraken'));
+  }
+
   for (const p of all) {
     await prisma.tradingPair.upsert({
       where: { symbol: p.symbol },
@@ -188,6 +198,11 @@ async function main() {
       : ['EUR', 'GBP', 'JPY', 'CHF', 'AUD', 'CAD', 'NZD', 'USD'].includes(a) ? 'FOREX'
       : ['NAS100', 'SPX500', 'US30', 'GER40', 'UK100'].includes(a) ? 'INDEX' : 'COMMODITY';
     await prisma.asset.upsert({ where: { symbol: a }, create: { symbol: a, name: a, assetClass: cls as never, decimals: 8 }, update: {} });
+  }
+
+  if (reviewMarketsOnly) {
+    console.log(`Review reference definitions ready: ${all.length}. No staff, funding, transactions or example trading data were created.`);
+    return;
   }
 
   // System configuration

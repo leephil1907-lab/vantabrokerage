@@ -11,7 +11,9 @@
     "db:migrate": "prisma migrate deploy",
     "worker": "tsx src/worker/index.ts",
     "test": "tsx scripts/test-e2e.ts",
-    "dev:once": "next dev -p 3000 -H 0.0.0.0"
+    "dev:once": "next dev -p 3000 -H 0.0.0.0",
+    "vercel-build": "node scripts/check-vercel-env.mjs && prisma generate && next build",
+    "db:seed-review": "tsx prisma/seed.ts --review-markets-only"
   },
   "keywords": [],
   "author": "",

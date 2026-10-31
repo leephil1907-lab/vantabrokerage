@@ -138,9 +138,8 @@ export async function fetchProviderQuote(pair: { symbol: string; assetClass: str
   if (!isFinite(q.bid) || q.bid <= 0) q.bid = q.last;
   if (!isFinite(q.ask) || q.ask <= 0) q.ask = q.last;
   if (q.bid > q.ask) [q.bid, q.ask] = [q.ask, q.bid];
-  // Some providers report a last trade outside the current top of book; keep the book coherent.
-  if (q.last < q.bid) q.last = q.bid;
-  if (q.last > q.ask) q.last = q.ask;
+  // Last trade and the current bid/ask are distinct observations; never clamp the
+  // provider's actual last trade to the spread.
   if (q.bid === q.ask) {
     const half = spreadFor(pair.assetClass, q.last) / 2;
     q.bid = round(q.last - half, 8);

@@ -177,7 +177,7 @@ async function main() {
     const btc = res.body.markets.find((m: any) => m.symbol === 'BTC/USDT');
     check('crypto quote has provider attribution', !!btc?.source, btc);
     check('crypto quote has positive price', (btc?.last ?? 0) > 0);
-    check('bid <= last <= ask', btc.bid <= btc.last + 1e-6 && btc.last <= btc.ask + 1e-6, btc);
+    check('bid and ask are positive and ordered; last trade may lie outside the spread', btc.bid > 0 && btc.ask > 0 && btc.bid <= btc.ask, btc);
     const eur = res.body.markets.find((m: any) => m.symbol === 'EUR/USD');
     check('forex quote priced', (eur?.last ?? 0) > 0);
 
