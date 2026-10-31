@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { usePolling, Badge, StatusBadge, EmptyState, Skeleton, apiFetch, useToast, SectionHeader } from '@/components/ui';
 import { fmtMoney, fmtPct, fmtPrice, fmtSigned, fmtQty, priceDp, relTime, countdown } from '@/lib/format';
-import { AccountSwitcher, useAccount } from '@/components/terminal/account-bar';
+import { useAccount } from '@/components/terminal/account-bar';
 
 type Overview = {
   profile: { firstName: string | null; lastName: string | null; email: string; kycStatus: string; emailVerified: boolean };
@@ -21,7 +21,7 @@ type Overview = {
 };
 
 export default function DashboardOverview() {
-  const { accounts, accountId, select, active, liveEnabled } = useAccount();
+  const { accountId, select } = useAccount({ liveOnly: true });
   const [now] = useState(() => Date.now());
   const { data, error, loading, refresh } = usePolling<Overview>(accountId ? `/api/overview?accountId=${accountId}` : null, 12_000);
   const { push } = useToast();
@@ -48,15 +48,14 @@ export default function DashboardOverview() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-white">
-            Welcome back{data?.profile.firstName ? `, ${data.profile.firstName}` : ''}
-          </h1>
-          <p className="mt-1 text-[12.5px] text-muted">Balance, exposure and market activity across your accounts.</p>
+      <section className="relative overflow-hidden rounded-2xl border border-white/[.08] bg-[#111916] px-5 py-7 sm:px-8 sm:py-9">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-32 h-80 w-80 rounded-full bg-lime/[.09] blur-3xl" />
+        <div className="relative flex flex-wrap items-end justify-between gap-6">
+          <div><p className="text-[10px] font-semibold uppercase tracking-[.22em] text-lime">Your workspace / Overview</p><h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Welcome back{data?.profile.firstName ? `, ${data.profile.firstName}` : ''}<span className="text-lime">.</span></h1><p className="mt-3 max-w-xl text-sm leading-relaxed text-white/50">Your markets, activity and account in one place.</p>
+            <div className="mt-6 flex flex-wrap gap-2"><Link href="/dashboard/crypto" className="btn-primary px-4 py-2.5 text-xs">Explore trading <span aria-hidden="true">↗</span></Link><Link href="/dashboard/deposits" className="btn-ghost px-4 py-2.5 text-xs">Deposit funds</Link></div></div>
+          <div className="min-w-[210px] rounded-xl border border-white/[.08] bg-black/20 p-4"><p className="text-[10px] uppercase tracking-[.16em] text-white/45">Live trading</p><p className="mt-2 flex items-center gap-2 text-sm font-medium text-white"><span className="h-2 w-2 rounded-full bg-amber-400" /> Not connected</p><p className="mt-1 text-[11px] text-white/45">Execution and funding unavailable</p></div>
         </div>
-        <AccountSwitcher accounts={accounts} accountId={accountId} onSelect={select} active={active} liveEnabled={liveEnabled} />
-      </div>
+      </section>
 
       {data && data.profile.kycStatus !== 'APPROVED' && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-siren/25 bg-siren/[0.07] px-4 py-3">
@@ -104,10 +103,10 @@ export default function DashboardOverview() {
         <>
           {/* KPI row */}
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Stat label="Total equity" value={fmtMoney(data.equity.equity)} sub={`${fmtMoney(data.equity.available)} available`} accent />
+            <Stat label="Account equity" value={fmtMoney(data.equity.equity)} sub="Ledger balance · custody not connected" accent />
             <Stat label="Unrealised P/L" value={fmtSigned(data.equity.unrealizedPnl)} sub={`${data.openPositions.length} open positions`} tone={data.equity.unrealizedPnl >= 0 ? 'up' : 'down'} />
             <Stat label="Margin in use" value={fmtMoney(data.equity.marginUsed)} sub={`${fmtMoney(data.equity.locked)} locked balance`} />
-            <Stat label="Short-expiry at risk" value={fmtMoney(data.equity.binaryAtRisk)} sub={`${data.openBinary.length} active contracts`} />
+            <Stat label="Open orders" value={String(data.openOrders.length)} sub="Orders on this account" />
           </div>
 
           <div className="grid gap-4 xl:grid-cols-[1.55fr_1fr]">
@@ -115,11 +114,11 @@ export default function DashboardOverview() {
               {/* Positions */}
               <section className="panel overflow-hidden">
                 <div className="flex items-center justify-between border-b border-white/[0.07] px-4 py-3">
-                  <SectionHeader title="Open positions" subtitle="Marked to live bid/ask, recomputed server-side" />
+                  <SectionHeader title="Open positions" subtitle="Your account positions" />
                   <Link href="/dashboard/positions" className="text-[11.5px] text-lime hover:underline">All positions</Link>
                 </div>
                 {data.openPositions.length === 0 ? (
-                  <EmptyState title="No open positions" body="Place a market order from any terminal to open a position. Margin, liquidation price and P/L are tracked live." action={<Link href="/dashboard/forex" className="btn-primary px-3 py-1.5 text-[12px]">Open terminal</Link>} />
+                  <EmptyState title="No open positions" body="Your positions will appear here when live trading is available." action={<Link href="/dashboard/forex" className="btn-primary px-3 py-1.5 text-[12px]">Open terminal</Link>} />
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[640px]">
@@ -202,9 +201,9 @@ export default function DashboardOverview() {
             <div className="space-y-4">
               {/* Accounts */}
               <section className="panel p-4">
-                <SectionHeader title="Accounts" subtitle="Live and paper balances are separated at the ledger level" />
+                <SectionHeader title="Accounts" subtitle="Recorded account balances" />
                 <div className="mt-3 space-y-2">
-                  {data.accounts.map((a) => (
+                  {data.accounts.filter((a) => a.type === 'LIVE').map((a) => (
                     <button
                       key={a.id}
                       onClick={() => select(a.id)}
@@ -229,7 +228,7 @@ export default function DashboardOverview() {
               {/* Market watch */}
               <section className="panel p-4">
                 <div className="flex items-center justify-between">
-                  <SectionHeader title="Market watch" subtitle={`${data.executionMode === 'live' ? 'Live execution' : 'Paper execution'} · quotes stamped by provider`} />
+                  <SectionHeader title="Market watch" subtitle="External reference prices · not execution quotes" />
                 </div>
                 <div className="mt-2 divide-y divide-white/[0.05]">
                   {data.markets.slice(0, 8).map((m) => {
@@ -238,7 +237,7 @@ export default function DashboardOverview() {
                       <Link key={m.symbol} href="/dashboard/markets" className="flex items-center justify-between py-2">
                         <div>
                           <p className="text-[12px] font-medium text-white">{m.symbol}</p>
-                          <p className="text-[9.5px] uppercase tracking-wide text-muted">{m.source ?? 'provider'}{m.stale ? ' · stale' : ''}</p>
+                          <p className="text-[9.5px] uppercase tracking-wide text-muted">{m.stale ? 'Delayed reference' : 'Reference price'}</p>
                         </div>
                         <div className="text-right">
                           <p className="value-mono text-[11.5px] text-white">{fmtPrice(m.last, priceDp(m.symbol))}</p>
@@ -257,7 +256,7 @@ export default function DashboardOverview() {
                   <Link href="/dashboard/transactions" className="text-[11.5px] text-lime hover:underline">All</Link>
                 </div>
                 {data.recentTransactions.length === 0 ? (
-                  <p className="mt-3 text-[11.5px] text-muted">No ledger entries yet. Fund your live account or use your paper balance to start.</p>
+                  <p className="mt-3 text-[11.5px] text-muted">No ledger entries yet. Deposits are currently unavailable.</p>
                 ) : (
                   <div className="mt-2 space-y-2">
                     {data.recentTransactions.map((t) => (

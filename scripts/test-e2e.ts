@@ -10,7 +10,7 @@
  *  6.  limit order placement, reservation, cancellation
  *  7.  spot buy/sell with holdings accounting
  *  8.  short-expiry contract lifecycle + settlement
- *  9.  deposit submission + finance credit + ledger balance check
+ *  9.  deposit fail-closed + finance credit of a test-only fixture + ledger balance check
  *  10. withdrawal request, reservation, rejection and refund
  *  11. KYC submission + compliance approval + withdrawal gate
  *  12. referral qualification + commission accrual
@@ -19,7 +19,8 @@
  *  15. authorization matrix (client cannot reach admin APIs)
  *  16. ledger integrity (every transaction nets to zero)
  *
- * Run: npm run test   (requires the web server on BASE_URL, default :3000)
+ * Run only with an isolated disposable database and web server: npm run test
+ * Test-only deposit fixtures are written directly to the database; never run on production.
  */
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
@@ -276,18 +277,19 @@ async function main() {
     check('result is a terminal state', ['WIN', 'LOSS', 'DRAW'].includes(settled?.result), settled?.result);
   });
 
-  await section('9. Deposit submission, finance credit and ledger integrity', async () => {
+  await section('9. Deposit gate, historical fixture credit and ledger integrity', async () => {
     // Client cannot self-credit.
     const selfCredit = await client.post('/api/admin/deposits/anything', { action: 'credit' });
     check('client cannot credit deposits', selfCredit.status === 403, selfCredit.body);
 
     const dep = await client.post('/api/wallet/deposits', { accountId: liveAccountId, asset: 'USDT', amount: 500, txHash: `0x${randomBytes(16).toString('hex')}`, network: 'TRC20' });
-    check('deposit recorded for review', dep.status === 201, dep.body);
-    depositId = dep.body.deposit.id;
-    check('deposit not auto-credited', dep.body.deposit.status !== 'CREDITED', dep.body.deposit.status);
-
-    const dupe = await client.post('/api/wallet/deposits', { accountId: liveAccountId, asset: 'USDT', amount: 500, txHash: dep.body.verification ? (await prisma.deposit.findUnique({ where: { id: depositId } }))!.txHash! : 'x' });
-    check('duplicate transaction hash rejected', dupe.status === 409, dupe.body);
+    check('deposit submission fails closed', dep.status === 503 && dep.body?.error?.code === 'DEPOSITS_UNAVAILABLE', dep.body);
+    // Test-only fixture for exercising legacy staff workflows. This does not represent
+    // a real or verified deposit and must only run against an isolated disposable DB.
+    const wallet = await prisma.wallet.findUniqueOrThrow({ where: { accountId: liveAccountId } });
+    const fixture = await prisma.deposit.create({ data: { walletId: wallet.id, method: 'CRYPTO', asset: 'USDT', network: 'TRC20', amount: 500, txHash: `0x${randomBytes(16).toString('hex')}`, status: 'PENDING' } });
+    depositId = fixture.id;
+    check('fixture is not automatically credited', fixture.status === 'PENDING');
 
     // Admin logs in with the seeded superadmin (real credentials in DB).
     const adminLogin = await admin.post('/api/auth/login', { email: process.env.SEED_ADMIN_EMAIL || 'admin@vantamarkets.com', password: process.env.SEED_ADMIN_PASSWORD || 'Vanta!Admin2026' });
@@ -373,8 +375,9 @@ async function main() {
 
     const accounts = await referred.get('/api/accounts');
     const refLive = accounts.body.accounts.find((a: any) => a.type === 'LIVE');
-    const dep = await referred.post('/api/wallet/deposits', { accountId: refLive.id, asset: 'USDT', amount: 200, txHash: `0x${randomBytes(16).toString('hex')}`, network: 'TRC20' });
-    await admin.post(`/api/admin/deposits/${dep.body.deposit.id}`, { action: 'credit', amount: 200 });
+    const refWallet = await prisma.wallet.findUniqueOrThrow({ where: { accountId: refLive.id } });
+    const fixture = await prisma.deposit.create({ data: { walletId: refWallet.id, method: 'CRYPTO', asset: 'USDT', network: 'TRC20', amount: 200, txHash: `0x${randomBytes(16).toString('hex')}`, status: 'PENDING' } });
+    await admin.post(`/api/admin/deposits/${fixture.id}`, { action: 'credit', amount: 200 });
 
     const after = await client.get('/api/referrals');
     check('referral recorded', after.body.referrals.some((r: any) => r.email === `referred.${stamp}@example.test`), after.body.referrals);

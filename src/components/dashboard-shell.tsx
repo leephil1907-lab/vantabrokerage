@@ -235,11 +235,8 @@ export function DashboardShell({
             <button className="rounded-lg border border-white/10 p-2 text-muted lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu">
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 5h12M2 11h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
             </button>
-            <div className="hidden items-center gap-1.5 text-[12px] text-muted sm:flex">
-              <span className="flex items-center gap-1.5 rounded-lg border border-white/[0.07] bg-ink-900 px-2 py-1">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald" /> feed live
-              </span>
-              <span className="rounded-lg border border-white/[0.07] bg-ink-900 px-2 py-1">{process.env.NEXT_PUBLIC_EXECUTION_LABEL ?? 'paper'}</span>
+            <div className="hidden items-center gap-2 text-[12px] text-muted sm:flex">
+              <span className="text-white/50">Workspace</span><span className="text-white/20">/</span><span className="font-medium text-white">{activeItem?.label ?? 'Dashboard'}</span>
             </div>
             <div className="min-w-0 sm:hidden">
               <p className="truncate text-[13px] font-semibold text-white">{activeItem?.label ?? 'Dashboard'}</p>

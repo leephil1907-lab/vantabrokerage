@@ -1,14 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { MarketList, type MarketRow } from '@/components/market-selector';
-import { OrderPanel } from '@/components/terminal/order-panel';
-import { AccountSwitcher, useAccount } from '@/components/terminal/account-bar';
+import { LiveTicket } from '@/components/terminal/live-ticket';
+import { useAccount } from '@/components/terminal/account-bar';
 import { TerminalWorkspace } from '@/components/terminal/workspace';
 import { ProChart } from '@/components/charts/pro-chart';
-import { DepthPanel, SessionStats, TradesTape } from '@/components/charts/analysis';
+import { SessionStats } from '@/components/charts/analysis';
 import { Tabs, Badge, apiFetch, useToast, EmptyState } from '@/components/ui';
 import { AssetMark } from '@/components/asset-mark';
 import { AnimatedNumber } from '@/components/motion/primitives';
@@ -25,19 +25,19 @@ export type DeskKind = 'forex' | 'crypto' | 'futures';
 const CFG: Record<DeskKind, { title: string; sub: string; categories: string[]; defaultSymbol: string }> = {
   forex: {
     title: 'Forex & CFD desk',
-    sub: 'Majors, indices and commodities with market, limit and stop orders, server-side margin and liquidation monitoring.',
+    sub: 'Explore forex markets and review the trading workspace. Prices are external references, not PRIMEVEST execution quotes.',
     categories: ['FOREX', 'CFD'],
     defaultSymbol: 'EUR/USD',
   },
   crypto: {
     title: 'Crypto spot desk',
-    sub: 'Ten USDT markets settled against a reserved-balance ledger, with holdings, depth and locked-balance accounting.',
+    sub: 'Explore crypto markets and review the trading workspace. Prices are external references, not PRIMEVEST execution quotes.',
     categories: ['SPOT'],
     defaultSymbol: 'BTC/USDT',
   },
   futures: {
     title: 'Perpetual futures desk',
-    sub: 'Long and short with cross or isolated margin, funding accrual, liquidation price and a continuous risk engine.',
+    sub: 'Explore the futures workspace. Live execution and product availability have not been configured.',
     categories: ['FUTURES'],
     defaultSymbol: 'BTC/USDT-PERP',
   },
@@ -47,13 +47,14 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
   const cfg = CFG[kind];
   const { markets, error: marketsError } = useMarkets();
   const tradable = useMemo(() => markets.filter((m) => cfg.categories.includes(m.category)), [markets, cfg.categories]);
-  const { accounts, accountId, select, active, liveEnabled, reloadAccounts } = useAccount();
+  const { accountId, active, reloadAccounts } = useAccount({ liveOnly: true });
   const { push } = useToast();
 
   const search = useSearchParams();
   const requested = search.get('symbol');
   const [symbol, setSymbol] = useState(requested ?? cfg.defaultSymbol);
   const [quote, setQuote] = useState<Quote | null>(null);
+  const requestSeq = useRef(0);
   const [positions, setPositions] = useState<Position[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [executions, setExecutions] = useState<Execution[]>([]);
@@ -81,6 +82,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
 
   const load = useCallback(async () => {
     if (!accountId) return;
+    const seq = ++requestSeq.current;
     try {
       const [q, p, o, h] = await Promise.all([
         apiFetch<Quote>(`/api/markets/${encodeURIComponent(symbol)}/quote`),
@@ -88,6 +90,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
         apiFetch<{ orders: Order[] }>(`/api/trades/orders?accountId=${accountId}&status=open`),
         apiFetch<{ executions: Execution[] }>(`/api/trades/history?accountId=${accountId}`).catch(() => ({ executions: [] })),
       ]);
+      if (seq !== requestSeq.current) return;
       setQuote(q);
       setPositions(p.positions);
       setOrders(o.orders);
@@ -96,9 +99,10 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
   }, [accountId, symbol]);
 
   useEffect(() => {
+    setQuote(null);
     load();
     const id = setInterval(load, 9000);
-    return () => clearInterval(id);
+    return () => { ++requestSeq.current; clearInterval(id); };
   }, [load]);
 
   const toggleWatch = async (s: string) => {
@@ -140,7 +144,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
   const center = (
     <div className="flex h-full min-h-0 flex-col">
       <div className="min-h-0 flex-1">
-      <ProChart symbol={symbol} height={kind === 'futures' ? 430 : 400} onQuote={(q) => setQuote((prev) => ({ ...(prev ?? { bid: q.last, ask: q.last }), ...q }))} />
+      <ProChart symbol={symbol} height={kind === 'futures' ? 430 : 400} />
       </div>
       <div className="shrink-0 border-t border-white/[0.06]">
         <Tabs
@@ -154,7 +158,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
         />
         <div className="max-h-[220px] overflow-auto scroll-thin">
           {tab === 'positions' && (deskPositions.length === 0 ? (
-            <EmptyState title="No open positions" body="Positions you open on this desk appear here with live P/L, margin and liquidation price." />
+            <EmptyState title="No open positions" body="Your positions will appear here when live trading is available." />
           ) : (
             <table className="w-full min-w-[780px]">
               <thead><tr><th className="th">Market</th><th className="th">Side</th><th className="th text-right">Qty</th><th className="th text-right">Entry</th><th className="th text-right">Mark</th><th className="th text-right">Margin</th><th className="th text-right">P/L</th><th className="th text-right">Liq.</th><th className="th" /></tr></thead>
@@ -198,7 +202,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
             </table>
           ))}
           {tab === 'history' && (executions.length === 0 ? (
-            <EmptyState title="No fills yet" body="Every execution is recorded with venue, fee and timestamp." />
+            <EmptyState title="No fills yet" body="Your confirmed fills will appear here once trading is available." />
           ) : (
             <table className="w-full min-w-[620px]">
               <thead><tr><th className="th">Market</th><th className="th">Side</th><th className="th text-right">Qty</th><th className="th text-right">Price</th><th className="th text-right">Fee</th><th className="th">Venue</th><th className="th">Time</th></tr></thead>
@@ -240,29 +244,20 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
             <span className="value-mono text-[11.5px] text-white">
               <AnimatedNumber value={quote?.last} decimals={dp} />
               {quote && <span className={`ml-1.5 ${(quote.change24h ?? 0) >= 0 ? 'text-emerald' : 'text-danger'}`}>{fmtPct(quote.change24h)}</span>}
+              {quote?.stale && <span className="ml-1 text-[9px] text-amber-300">DELAYED</span>}
             </span>
           </div>
-          <OrderPanel
-            market={{ symbol: meta.symbol, displayName: meta.displayName, category: meta.category, maxLeverage: meta.maxLeverage, pricePrecision: meta.pricePrecision, baseAsset: meta.baseAsset, takerFee: 0.001 }}
-            accountId={accountId ?? ''}
-            accountType={active.type}
-            available={active.available}
-            quote={quote ? { last: quote.last, bid: quote.bid, ask: quote.ask, source: quote.source } : null}
-            onPlaced={() => { load(); reloadAccounts(); }}
-            defaultType="MARKET"
-            compact
-          />
-          <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40">
-            <p className="border-b border-white/[0.06] px-2.5 py-1.5 text-[9.5px] font-semibold uppercase tracking-[0.15em] text-muted">Indicative depth model</p>
-            <DepthPanel symbol={symbol} quote={quote} />
+          <LiveTicket symbol={symbol} />
+          <div className="mt-4 rounded-xl border border-white/[0.06] bg-ink-950/40">
+            <div className="border-b border-white/[0.06] px-3 py-2"><p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">PRIMEVEST order book</p></div>
+            <div className="px-3 py-5 text-center"><div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-muted">≋</div><p className="mt-3 text-xs font-medium text-white">Order book unavailable</p><p className="mt-1 text-[11px] leading-relaxed text-muted">No internal matching engine is connected. No order depth is being displayed.</p></div>
           </div>
           <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40">
-            <p className="border-b border-white/[0.06] px-2.5 py-1.5 text-[9.5px] font-semibold uppercase tracking-[0.15em] text-muted">Session statistics</p>
+            <p className="border-b border-white/[0.06] px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Reference market statistics</p>
             <SessionStats symbol={symbol} quote={quote} />
           </div>
-          <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40">
-            <p className="border-b border-white/[0.06] px-2.5 py-1.5 text-[9.5px] font-semibold uppercase tracking-[0.15em] text-muted">Recent prints</p>
-            <TradesTape symbol={symbol} />
+          <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40 p-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Recent trades</p><p className="mt-3 text-[11px] leading-relaxed text-muted">PRIMEVEST trade history will appear when matching is available.</p>
           </div>
         </>
       ) : (
@@ -275,21 +270,22 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
     <div className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-[19px] font-semibold tracking-tight text-white">{cfg.title}</h1>
-            <Badge tone={liveEnabled ? 'lime' : 'blue'}>{liveEnabled ? 'live enabled' : 'paper execution'}</Badge>
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[.22em] text-lime">Trading / Workspace</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-[26px] font-semibold tracking-tight text-white">{cfg.title}</h1>
+            <Badge tone="amber">Live trading unavailable</Badge>
           </div>
           <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted">{cfg.sub}</p>
         </div>
         <div className="flex items-center gap-2">
-          <AccountSwitcher accounts={accounts} accountId={accountId} onSelect={select} active={active} liveEnabled={liveEnabled} />
+          <Link href="/dashboard/deposits" className="btn-ghost px-3 py-2 text-[12px]">Funding</Link>
           <Link href="/dashboard/positions" className="btn-ghost hidden px-3 py-2 text-[12px] sm:inline-flex">All positions</Link>
         </div>
       </div>
 
       {marketsError && (
         <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-2.5 text-[12px] text-danger">
-          Market data error: {marketsError}. Prices may be stale until the provider reconnects — orders remain server-priced.
+          Market data error: {marketsError}. Prices may be stale until the provider reconnects.
         </div>
       )}
 
