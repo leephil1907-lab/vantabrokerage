@@ -10,7 +10,7 @@ This runbook prepares the current Next.js website for a **private, access-contro
 
 ## 2. Initialize the database (once, deliberately)
 
-From a trusted machine with Node.js, the repository and the **isolated review database's direct URL** configured as `DATABASE_URL` in its process environment:
+From a trusted machine with Node.js, the repository and the **isolated review database's direct URL** configured as `DIRECT_URL` in its process environment. If no pooler is used, set `DATABASE_URL` to the same direct URL:
 
 ```sh
 npm ci
