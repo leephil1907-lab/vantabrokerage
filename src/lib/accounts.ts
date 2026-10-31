@@ -39,8 +39,6 @@ export async function ensureAccounts(userId: string) {
   }
   await prisma.account.updateMany({ where: { userId, type: 'LIVE' }, data: { isDefault: false } });
   await prisma.account.updateMany({ where: { userId, type: 'PAPER' }, data: { isDefault: true } });
-  await prisma.account.updateMany({ where: { userId, type: 'LIVE' }, data: { isDefault: false } });
-  await prisma.account.updateMany({ where: { userId, type: 'PAPER' }, data: { isDefault: true } });
   return existing;
 }
 
