@@ -104,9 +104,9 @@ function Globe() {
 
 function Rig() {
   const { camera, pointer } = useThree();
-  useFrame(() => {
-    camera.position.x += (pointer.x * 0.5 - camera.position.x) * 0.03;
-    camera.position.y += (-pointer.y * 0.32 + 0.1 - camera.position.y) * 0.03;
+  useFrame((_, delta) => {
+    camera.position.x = THREE.MathUtils.damp(camera.position.x, pointer.x * 0.5, 2, delta);
+    camera.position.y = THREE.MathUtils.damp(camera.position.y, -pointer.y * 0.32 + 0.1, 2, delta);
     camera.lookAt(0, 0, 0);
   });
   return null;

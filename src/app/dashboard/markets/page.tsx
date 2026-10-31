@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Badge, Tabs, EmptyState } from '@/components/ui';
+import { AssetMark } from '@/components/asset-mark';
+import { CryptoDiscovery } from '@/components/crypto-discovery';
 import { useMarkets } from '@/lib/use-markets';
 import { fmtPct, fmtPrice, fmtQty, priceDp, relTime } from '@/lib/format';
 
@@ -72,6 +74,7 @@ export default function MarketsPage() {
                           <button onClick={() => toggle(m.symbol)} className="text-white/20 transition hover:text-lime" aria-label="Watchlist">
                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M6 1.2 7.5 4.3l3.4.5-2.45 2.4.57 3.4L6 8.9l-3.02 1.7.57-3.4L1.1 4.8l3.4-.5z" /></svg>
                           </button>
+                          <AssetMark symbol={m.symbol} size={24} />
                           <div>
                             <p className="font-medium text-white">{m.symbol}</p>
                             <p className="text-[10px] text-muted">{m.displayName}</p>
@@ -86,7 +89,7 @@ export default function MarketsPage() {
                       <td className="td text-right value-mono text-muted">{m.volume24h ? fmtQty(m.volume24h, 0) : '—'}</td>
                       <td className="td text-[11px] uppercase tracking-wide text-muted">{m.source ?? (m.stale ? 'stale' : '—')}</td>
                       <td className="td text-right text-[11px] text-muted">{relTime(m.fetchedAt)}</td>
-                      <td className="td text-right"><Link href={tradingHref} className="rounded-md border border-white/10 px-2 py-1 text-[10.5px] font-medium text-lime hover:border-lime/40">Open</Link></td>
+                      <td className="td text-right"><Link href={`${tradingHref}?symbol=${encodeURIComponent(m.symbol)}`} className="rounded-md border border-white/10 px-2 py-1 text-[10.5px] font-medium text-lime hover:border-lime/40">Open</Link></td>
                     </tr>
                   );
                 })}
@@ -95,6 +98,7 @@ export default function MarketsPage() {
           </div>
         )}
       </div>
+      <div className="pt-5"><CryptoDiscovery compactLayout /></div>
     </div>
   );
 }

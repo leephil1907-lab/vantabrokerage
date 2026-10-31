@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AssetMark } from '@/components/asset-mark';
 import { AnimatedNumber, EASE, Reveal, Stagger, StaggerItem, Counter } from '@/components/motion/primitives';
 import { HeroScene } from '@/components/three/hero-scene';
-import { MarketSparkline } from '@/components/market-visual';
+import { CryptoPreview } from '@/components/crypto-discovery';
 import { FeedStatus } from '@/components/motion/skeletons';
 import { fmtPct, fmtPrice, priceDp } from '@/lib/format';
 import { useMarkets } from '@/lib/use-markets';
@@ -95,7 +95,7 @@ function HeroTerminal({ markets, source }: { markets: M[]; source: string | null
               <AssetMark symbol={current.id} size={34} />
               <div>
                 <p className="text-[14px] font-semibold leading-none text-white">{current.label}</p>
-                <p className="mt-1 text-[10.5px] leading-none text-muted">{current.kind} · {market?.source ?? 'provider'}</p>
+                <p className="mt-1 text-[10.5px] leading-none text-muted">{current.kind} · Market overview</p>
               </div>
             </div>
             <div className="text-right">
@@ -260,7 +260,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald" />
               </span>
               <span className="text-[11px] font-medium text-white/85">
-                {source ? `Quotes from ${source}` : 'Quotes subject to availability'}
+                Market prices · subject to availability
               </span>
               <span className="h-3 w-px bg-white/15" />
               <span className="text-[11px] text-muted">Paper trading demo</span>
@@ -355,23 +355,23 @@ export function LiveHome({ markets }: { markets: M[] }) {
                   <AnimatedNumber value={m.last} decimals={priceDp(m.symbol)} className="text-[15px] font-semibold text-white" />
                   <span className={`value-mono text-[11px] ${up ? 'text-emerald' : 'text-danger'}`}>{fmtPct(m.change24h)}</span>
                 </div>
-                <div className="mt-1.5 h-6">
-                  <MarketSparkline series={[m.low24h ?? m.last ?? 0, m.last ?? 0, m.high24h ?? m.last ?? 0].filter((v) => v > 0)} up={up} />
-                </div>
+                <p className="mt-1.5 text-[10px] text-muted">{m.stale ? 'Delayed quote' : 'Provider quote'}</p>
               </Reveal>
             );
           })}
         </div>
       </section>
 
+      <CryptoPreview />
+
       {/* ── MARKET OVERVIEW ──────────────────────────────────────────────── */}
       <section className="shell py-16 sm:py-20">
         <Reveal className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="eyebrow">Market overview</p>
-            <h2 className="display mt-2 text-[26px] sm:text-[30px]">Live prices, named sources</h2>
+            <h2 className="display mt-2 text-[26px] sm:text-[30px]">The markets at a glance</h2>
             <p className="mt-2.5 max-w-xl text-[13.5px] leading-relaxed text-muted">
-              Every quote is fetched server-side and stamped with the provider that produced it. Stale feeds are labelled, never hidden.
+              Follow indicative forex, commodity and digital-asset quotes. Provider and freshness details remain visible alongside each market.
             </p>
           </div>
           <Link href="/markets" className="group inline-flex items-center gap-1.5 text-[13px] font-medium text-lime">
@@ -390,7 +390,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
                   <th className="th text-right">Ask</th>
                   <th className="th text-right">24h</th>
                   <th className="th hidden text-right sm:table-cell">Source</th>
-                  <th className="th hidden text-right md:table-cell">Trend</th>
+                  <th className="th hidden text-right md:table-cell">24h range</th>
                 </tr>
               </thead>
               <tbody>
@@ -420,9 +420,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
                       <td className={`td text-right value-mono ${up ? 'text-emerald' : 'text-danger'}`}>{fmtPct(m.change24h)}</td>
                       <td className="td hidden text-right text-[11px] uppercase tracking-[0.1em] text-muted sm:table-cell">{m.source ?? (m.stale ? 'delayed' : '—')}</td>
                       <td className="td hidden md:table-cell">
-                        <div className="ml-auto w-24">
-                          <MarketSparkline series={[m.low24h ?? m.last ?? 0, m.last ?? 0, m.high24h ?? m.last ?? 0].filter((v) => v > 0)} up={up} />
-                        </div>
+                        <span className="block whitespace-nowrap text-right value-mono text-[11px] text-muted">{m.low24h != null ? fmtPrice(m.low24h, dp) : '—'} – {m.high24h != null ? fmtPrice(m.high24h, dp) : '—'}</span>
                       </td>
                     </motion.tr>
                   );

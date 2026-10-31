@@ -33,7 +33,7 @@ export function LiveMarketTable({ category, limit = 30 }: { category?: string; l
                   </span>
                 </td>
                 <td className="td hidden sm:table-cell"><Badge tone="gray">{m.category}</Badge></td>
-                <td className="td text-right value-mono">{fmtPrice(m.last, dp)}</td>
+                <td className="td text-right value-mono">{fmtPrice(m.last, dp)}{m.stale && <span className="ml-1 block text-[9px] text-siren">Delayed</span>}</td>
                 <td className="td hidden text-right value-mono text-muted sm:table-cell">{fmtPrice(m.bid, dp)}</td>
                 <td className="td hidden text-right value-mono text-muted sm:table-cell">{fmtPrice(m.ask, dp)}</td>
                 <td className={`td text-right value-mono ${up ? 'text-emerald' : 'text-danger'}`}>{fmtPct(m.change24h)}</td>

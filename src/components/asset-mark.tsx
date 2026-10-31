@@ -2,7 +2,7 @@
 
 import { ASSET_COLORS, CRYPTO_PNG, CRYPTO_SVG } from './asset-marks';
 
-/** ISO country codes for currency flags (flagcdn / emoji fallback). */
+/** ISO country codes for locally hosted FlagCDN country flags. */
 const CURRENCY_COUNTRY: Record<string, string> = {
   USD: 'us', EUR: 'eu', GBP: 'gb', JPY: 'jp', CHF: 'ch', AUD: 'au', CAD: 'ca', NZD: 'nz',
   CNY: 'cn', TRY: 'tr', ZAR: 'za', SEK: 'se', NOK: 'no', MXN: 'mx', SGD: 'sg', HKD: 'hk',
@@ -16,7 +16,7 @@ function baseOf(symbol: string) {
   return symbol.split('/')[0].replace('-PERP', '').replace('-BIN', '').trim();
 }
 
-/** Currency flag from a consistent CDN asset library, with a typographic fallback. */
+/** Currency flag from locally hosted real flag assets, with a typographic fallback. */
 export function CurrencyFlag({ code, size = 20 }: { code: string; size?: number }) {
   const country = CURRENCY_COUNTRY[code];
   if (!country) {
@@ -33,12 +33,10 @@ export function CurrencyFlag({ code, size = 20 }: { code: string; size?: number 
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={`https://flagcdn.com/w40/${country}.png`}
-      srcSet={`https://flagcdn.com/w80/${country}.png 2x`}
+      src={`/flags/${country}.png`}
       alt={`${code} flag`}
       width={size}
       height={size}
-      loading="lazy"
       decoding="async"
       className="rounded-full object-cover ring-1 ring-white/15"
       style={{ width: size, height: size }}

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { PageHero, Section, StatBand, Split, FeatureGrid, Callout, CTASection, SpecTable } from '@/components/marketing-ui';
 import { LiveMarketTable } from '@/components/live-market-table';
+import { CryptoDiscovery } from '@/components/crypto-discovery';
 import { Accordion } from '@/components/accordion';
 
 export const metadata = { title: 'Crypto spot trading' };
@@ -33,6 +34,7 @@ export default function CryptoPage() {
       <Section eyebrow="Live quotes" title="Spot markets" body="Every quote is stamped with its provider and fetch time; stale rows are labelled." aside={<Link href="/dashboard/crypto" className="btn-ghost px-4 py-2 text-[12.5px]">Open the desk →</Link>}>
         <LiveMarketTable category="SPOT" limit={12} />
       </Section>
+      <section className="shell pb-14"><CryptoDiscovery compactLayout /></section>
       <Section eyebrow="Accounting" title="How a spot trade settles">
         <Split
           left={<FeatureGrid cols={2} items={[
