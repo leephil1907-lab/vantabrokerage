@@ -1,6 +1,6 @@
 # Vercel deployment: protected design review
 
-This runbook prepares the current Next.js website for a **private, access-controlled review**, not a public brokerage launch. Vercel deployment itself has not been tested yet. Real-money execution is hard-blocked, the customer deposit endpoint returns 503, no internal matching engine or custody/payment provider is connected, and the displayed external prices are references—not PRIMEVEST executable quotes. Some legacy pages and APIs still include simulated features; this deployment is not a no-simulation production system.
+This runbook prepares the current Next.js website for a **private, access-controlled review**, not a public brokerage launch. Vercel deployment itself has not been tested yet. Real-money execution is hard-blocked, the customer deposit endpoint returns 503, and no external broker, custody or payment provider is connected. Internal paper orders are matched by PRIMEVEST against provider-sourced reference quotes; those quotes are not external executable liquidity. Some legacy pages and APIs still include simulated features; this deployment is not a no-simulation production system.
 
 ## 1. Prepare infrastructure first
 
