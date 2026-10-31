@@ -56,7 +56,12 @@ function value(vars: EmailTemplateVariables, key: string, fallback = '') {
 export function renderEmailTemplate(template: EmailTemplateKey, vars: EmailTemplateVariables = {}) {
   const definition = CATALOG[template];
   const firstName = value(vars, 'firstName', 'there');
-  const actionUrl = value(vars, 'actionUrl');
+  const requestedActionUrl = value(vars, 'actionUrl');
+  let actionUrl = '';
+  try {
+    const parsed = new URL(requestedActionUrl);
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') actionUrl = parsed.toString();
+  } catch { /* An invalid action URL is omitted from the email. */ }
   const action = definition.action && actionUrl
     ? `<tr><td align="center" style="padding:28px 0 8px"><a href="${escapeHtml(actionUrl)}" style="display:inline-block;background:${BRAND.lime};color:${BRAND.ink};font-weight:700;text-decoration:none;padding:14px 22px;border-radius:8px;font-size:14px">${escapeHtml(definition.action)}</a></td></tr>`
     : '';
