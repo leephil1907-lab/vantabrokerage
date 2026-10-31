@@ -6,7 +6,6 @@ import { requireUser } from '@/lib/auth';
 import { placeOrder, matchRestingOrders } from '@/lib/execution';
 import { getAccountForUser } from '@/lib/accounts';
 import { serializeOrder } from '@/lib/serialize';
-import { queueTemplateEmail } from '@/lib/email';
 
 const orderSchema = z.object({
   accountId: z.string().min(1),
@@ -28,10 +27,6 @@ export async function POST(req: NextRequest) {
     await rateLimit(`order:${user.id}`, 30, 60);
     const body = await parseBody(req, orderSchema);
     const result = await placeOrder({ userId: user.id, ...body });
-    if (result.filled) {
-      const accountOwner = await prisma.user.findUnique({ where: { id: user.id }, select: { email: true, profile: { select: { firstName: true } } } });
-      if (accountOwner) await queueTemplateEmail({ to: accountOwner.email, template: 'trade_executed', variables: { firstName: accountOwner.profile?.firstName ?? undefined, symbol: result.order.symbol, side: result.order.side, quantity: String(result.order.filledQty), averagePrice: String(result.order.avgFillPrice ?? '') } }).catch((error) => console.error('[trade execution email]', error));
-    }
     // Resting orders may already be marketable — try to match immediately.
     if (!result.filled) matchRestingOrders(body.symbol).catch(() => undefined);
     return json({
