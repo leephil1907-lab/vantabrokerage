@@ -93,7 +93,7 @@ const INDEX_GLYPH: Record<string, string> = {
 };
 
 /** Instrument icon for indices and commodities — consistent geometry, instrument-specific. */
-export function InstrumentMark({ asset, size = 20 }: { asset: string; size?: number }) {
+export function InstrumentMark({ asset, size = 20, className = '' }: { asset: string; size?: number; className?: string }) {
   const key = asset.toUpperCase();
   const color = ASSET_COLORS[key] ?? '#8a97a6';
   const path = INDEX_GLYPH[key];
