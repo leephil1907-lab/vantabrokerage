@@ -158,7 +158,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
         />
         <div className="max-h-[220px] overflow-auto scroll-thin">
           {tab === 'positions' && (deskPositions.length === 0 ? (
-            <EmptyState title="No open positions" body="Your positions will appear here when live trading is available." />
+            <EmptyState title="No open positions" body="Your internal paper positions will appear here after your first fill." />
           ) : (
             <table className="w-full min-w-[780px]">
               <thead><tr><th className="th">Market</th><th className="th">Side</th><th className="th text-right">Qty</th><th className="th text-right">Entry</th><th className="th text-right">Mark</th><th className="th text-right">Margin</th><th className="th text-right">P/L</th><th className="th text-right">Liq.</th><th className="th" /></tr></thead>
