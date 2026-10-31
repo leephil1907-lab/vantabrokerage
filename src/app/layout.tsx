@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   openGraph: {
     title: 'Vanta Markets — Multi-asset brokerage terminal',
-    description: 'Forex, CFDs, short-expiry, crypto spot and perpetual futures in one institutional-grade terminal.',
+    description: 'Forex, CFDs, short-expiry, crypto spot and perpetual futures in one multi-asset terminal.',
     type: 'website',
   },
 };
@@ -43,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${plexMono.variable}`}>
       <body className="min-h-screen antialiased">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-lime focus:px-4 focus:py-2 focus:text-ink-950">Skip to content</a>
         <RouteProgress />
         {children}
       </body>

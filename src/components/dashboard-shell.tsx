@@ -263,7 +263,7 @@ export function DashboardShell({
             <Link href="/dashboard/forex" className="btn-primary px-3.5 py-1.5 text-[12px]">Trade</Link>
           </div>
         </header>
-        <main className="min-w-0 flex-1 px-4 pb-[76px] pt-5 lg:px-6 lg:pb-6 lg:pt-6">
+        <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 px-4 pb-[76px] pt-5 lg:px-6 lg:pb-6 lg:pt-6">
           <PageTransition>{children}</PageTransition>
         </main>
       </div>

@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
       })),
       markets: markets.slice(0, 14),
       unreadNotifications: notifCount,
-      executionMode: process.env.EXECUTION_MODE === 'live' ? 'live' : 'paper',
+      executionMode: 'paper',
     }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (err) {
     return fail(err);

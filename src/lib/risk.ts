@@ -28,7 +28,7 @@ export type PositionValuation = {
  */
 export async function revaluePositions(accountId?: string): Promise<PositionValuation[]> {
   const positions = await prisma.position.findMany({
-    where: { status: 'OPEN', ...(accountId ? { accountId } : {}) },
+    where: { status: 'OPEN', account: { type: 'PAPER' }, ...(accountId ? { accountId } : {}) },
     include: { account: true },
     take: 500,
   });
@@ -133,7 +133,7 @@ export async function runLiquidationEngine() {
 
 /** Evaluate TP/SL triggers against live marks. */
 export async function runProtectiveExitEngine() {
-  const positions = await prisma.position.findMany({ where: { status: 'OPEN', OR: [{ takeProfit: { not: null } }, { stopLoss: { not: null } }] } });
+  const positions = await prisma.position.findMany({ where: { status: 'OPEN', account: { type: 'PAPER' }, OR: [{ takeProfit: { not: null } }, { stopLoss: { not: null } }] } });
   const closed: string[] = [];
   for (const pos of positions) {
     const pair = await prisma.tradingPair.findUnique({ where: { id: pos.pairId } });
@@ -158,7 +158,7 @@ export async function settleFunding() {
   const pairs = await prisma.tradingPair.findMany({ where: { category: 'FUTURES', enabled: true } });
   const results: { symbol: string; payments: number }[] = [];
   for (const pair of pairs) {
-    const positions = await prisma.position.findMany({ where: { symbol: pair.symbol, status: 'OPEN' } });
+    const positions = await prisma.position.findMany({ where: { symbol: pair.symbol, status: 'OPEN', account: { type: 'PAPER' } } });
     if (!positions.length) continue;
     const quote = await getQuote(pair.id, 5000);
     // Funding rate derived from premium of mark over 24h reference; bounded to ±0.03%/8h.

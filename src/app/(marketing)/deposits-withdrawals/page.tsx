@@ -6,7 +6,7 @@ export const metadata = { title: 'Deposits and withdrawals' };
 
 const FAQS = [
   { q: 'How long do withdrawals take?', a: 'The platform does not advertise a fixed SLA it cannot verify. A request moves through: re-authentication → funds locked → finance review → paid (recorded with a transaction hash). Each step has a timestamp and an actor, and the current state is visible in your dashboard at all times.' },
-  { q: 'Why is my deposit pending?', a: 'Either the on-chain transaction has not reached the required confirmations, or no payment provider is connected for that rail and a finance operator must approve it. Pending means pending — the platform will not show a credit that has not happened.' },
+  { q: 'Why is my deposit pending?', a: 'Automated deposit verification is not connected. A finance operator must independently review the transaction before it can be credited. Pending means no credit has been posted.' },
   { q: 'What do I need to withdraw?', a: 'Approved identity verification, re-authentication with your password plus two-factor if enabled, and available balance. Requests lock the amount immediately so it cannot be spent twice.' },
   { q: 'Can I deposit by card or bank?', a: 'The rails are implemented as reviewable workflows. Card and bank processors are provider-dependent; if no provider is configured your deposit queues for finance review rather than failing silently or auto-crediting.' },
   { q: 'Are there deposit fees?', a: 'Network fees on crypto deposits are set by the blockchain, not the platform. Trading fees are listed per instrument on the trading-conditions page.' },
@@ -18,7 +18,7 @@ export default function DepositsPage() {
       <PageHero
         eyebrow="Funding"
         title="Deposits and withdrawals with controls you can see"
-        body="Funding runs through a reviewable workflow: on-chain verification or finance approval, reservation, then release. Every movement posts to a double-entry ledger — no balance is ever edited in place."
+        body="Funding runs through a reviewable workflow: independent finance review, reservation, then release. Automated on-chain verification is not connected. Every movement posts to a double-entry ledger — no balance is ever edited in place."
         breadcrumbs={[{ label: 'Deposits & withdrawals' }]}
         aside={<StatBand items={[
           { k: '4', label: 'Withdrawal states', sub: 'locked → review → paid' },

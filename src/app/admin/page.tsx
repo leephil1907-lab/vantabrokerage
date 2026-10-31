@@ -6,7 +6,7 @@ import { Badge, apiFetch } from '@/components/ui';
 import { fmtMoney, fmtQty, relTime } from '@/lib/format';
 
 type Stats = {
-  totals: { users: number; activeUsers: number; pendingKyc: number; totalDeposits: number; totalWithdrawals: number; volume: number; fees: number; openPositions: number; orders: number; pendingWithdrawals: number; pendingDeposits: number; openTickets: number; revenue: number };
+  totals: { users: number; activeUsers: number; pendingKyc: number; totalDeposits: number; totalWithdrawals: number; volume: number; fees: number; openPositions: number; orders: number; pendingWithdrawals: number; pendingDeposits: number; openTickets: number };
   health: Record<string, string>;
   recentAudit: { id: string; action: string; targetType: string; targetId: string | null; actor: string; createdAt: string }[];
 };
@@ -38,7 +38,7 @@ export default function AdminOverview() {
         <Card label="Total deposits credited" value={fmtMoney(data.totals.totalDeposits)} sub={`${data.totals.pendingDeposits} pending review`} href="/admin/wallets" />
         <Card label="Total withdrawals" value={fmtMoney(data.totals.totalWithdrawals)} sub={`${data.totals.pendingWithdrawals} awaiting action`} tone={data.totals.pendingWithdrawals > 0 ? 'warn' : undefined} href="/admin/wallets" />
         <Card label="Trading volume" value={fmtMoney(data.totals.volume)} sub={`${fmtQty(data.totals.orders, 0)} orders`} />
-        <Card label="Fees collected" value={fmtMoney(data.totals.fees)} sub={`net revenue ${fmtMoney(data.totals.revenue)}`} />
+        <Card label="Fees collected" value={fmtMoney(data.totals.fees)} sub="Recorded trading fees" />
         <Card label="Open positions" value={String(data.totals.openPositions)} sub="across all accounts" href="/admin/trading" />
         <Card label="Open support tickets" value={String(data.totals.openTickets)} sub="client enquiries" href="/admin/support" />
       </div>

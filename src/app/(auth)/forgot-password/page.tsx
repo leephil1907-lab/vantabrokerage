@@ -7,7 +7,6 @@ import { apiFetch, useToast } from '@/components/ui';
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
-  const [link, setLink] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const { push } = useToast();
 
@@ -15,10 +14,9 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      const res = await apiFetch<{ delivery: { delivered: boolean; url: string | null } }>('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) });
+      await apiFetch<{ ok: boolean }>('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) });
       setSent(true);
-      setLink(res.delivery.url);
-      push({ tone: 'success', title: 'Request received', body: res.delivery.delivered ? 'Check your inbox for the reset link.' : 'No email provider configured — use the link shown.' });
+      push({ tone: 'success', title: 'Request received', body: 'If the account exists, check your inbox for a reset link.' });
     } catch (err) { push({ tone: 'error', title: 'Request failed', body: (err as Error).message }); }
     finally { setBusy(false); }
   };
@@ -29,8 +27,7 @@ export default function ForgotPasswordPage() {
       <p className="mt-1 text-[12.5px] text-muted">We will send a one-hour reset link to your registered email.</p>
       {sent ? (
         <div className="mt-4 space-y-3">
-          <p className="rounded-lg border border-emerald/25 bg-emerald/10 px-3 py-2 text-[11.5px] text-emerald">If an account exists for {email}, a reset link has been issued.</p>
-          {link && <Link href={link.replace(/^https?:\/\/[^/]+/, '')} className="btn-primary w-full py-2 text-[12.5px]">Open reset link</Link>}
+          <p className="rounded-lg border border-emerald/25 bg-emerald/10 px-3 py-2 text-[11.5px] text-emerald">If an account exists for {email}, you will receive a reset link if email delivery is available.</p>
           <Link href="/login" className="block text-center text-[12px] text-muted hover:text-white">Back to sign in</Link>
         </div>
       ) : (

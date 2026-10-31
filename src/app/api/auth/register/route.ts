@@ -76,8 +76,6 @@ export async function POST(req: NextRequest) {
       emailDelivery: {
         configured: emailConfigured(),
         delivered: delivery.delivered,
-        // Only surfaced when no email provider is configured, so the account can still be verified.
-        verificationUrl: delivery.delivered ? null : link,
       },
     }, { status: 201 });
   } catch (err) {

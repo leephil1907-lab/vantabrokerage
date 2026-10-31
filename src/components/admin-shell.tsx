@@ -57,7 +57,7 @@ export function AdminShell({ children, role, email }: { children: React.ReactNod
           })}
         </nav>
       </header>
-      <main className="mx-auto max-w-[1600px] px-4 py-5">{children}</main>
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1600px] px-4 py-5">{children}</main>
     </div>
   );
 }

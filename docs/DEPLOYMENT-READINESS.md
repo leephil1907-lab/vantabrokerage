@@ -1,0 +1,35 @@
+# Vanta Markets — deployment readiness
+
+Assessment: 31 October 2026. This is a technical review of this repository, not a legal opinion or an independent security audit.
+
+## Decision
+
+**Suitable for a private, isolated staging/demo deployment after the staging controls below are applied. Not ready for a public production launch, customer funds, live forex or live crypto trading.** The existing interface supports forex and crypto paper trading using provider-sourced market data. A successful build or passing smoke test is not evidence of financial, security, regulatory or operational readiness.
+
+## What is implemented and what is not
+
+- Forex and crypto terminals use TradingView Lightweight Charts and provider-sourced quotes; availability and freshness depend on upstream feeds. Yahoo-derived bid/ask and some other spreads are modeled, not exchange-native executable quotes. Depth is modeled and the quote tape is sampled, not an exchange order book or trade history. Provider licensing, redistribution, latency and accuracy need independent review.
+- Paper orders, positions and account balances are simulations. Live-account order entry is hard-blocked regardless of `EXECUTION_MODE`; short-expiry and background settlement are likewise restricted to paper accounts. There is **no live broker or exchange adapter**. Do not interpret account creation or an environment setting as enabling live execution.
+- On-chain deposit verification is **not implemented**. A submitted hash is not proof of destination, network, asset, amount or finality. Manual credit is possible in the current staff tools; do not configure deposit addresses or accept money in staging. A custody integration and controlled reconciliation/approval workflow are required for production. No provider environment variable alone supplies an integration.
+- Email delivery supports Resend or an HTTP webhook; it has no SMTP outbox-flush worker. Failed emails remain in the database. Verification and reset links are no longer returned by the APIs, but email outbox records contain sensitive links and require access controls, retention policy and secure handling.
+- The legal pages are draft product copy, not approved legal documents. Entity, licences, permitted jurisdictions, product restrictions and consumer disclosures need counsel review. Short-expiry products and leverage may be restricted or prohibited depending on location.
+
+## Private staging prerequisites
+
+1. Use a non-public, access-controlled environment, isolated PostgreSQL and disposable test accounts/data. Do not use real customer personal information or money. Set `EXECUTION_MODE=paper`, leave `CRYPTO_DEPOSIT_ADDRESSES` empty and do not connect payment/custody rails. Staff interfaces and manual credit functions are not a substitute for production money controls.
+2. Use TLS, a unique high-entropy `SESSION_SECRET`, correct `APP_URL`, restricted network/database access and a managed secrets store. Review reverse-proxy IP forwarding: the current rate limiter reads forwarded headers and must not trust client-supplied IP headers. Configure and test supported email delivery; without it users cannot verify emails or reset passwords through the UI.
+3. Run `npm ci`, `npx prisma migrate deploy`, `npm run build`, then `npm start`; run `npm run worker` as a separate supervised process for paper order matching and settlement. Do not run multiple workers until concurrency, scheduling and idempotency have been independently verified. `prisma/seed.ts` contains demo/bootstrap behavior and default credentials; never use defaults or unreviewed demo data on an exposed environment.
+4. Use disposable test infrastructure to run `npx tsx scripts/test-e2e.ts` (it creates users and financial records and changes settings), `node scripts/visual-qa.mjs / /markets /trading/forex /trading/crypto`, and `node scripts/app-qa.mjs`. `scripts/release-safeguards.mjs` intentionally creates a user; run it only against an isolated test deployment started with `EXECUTION_MODE=live`, to confirm the live-account fail-closed guard. Never point these scripts at customer data.
+5. Monitor feed freshness, failed jobs, email failures, application errors and database health. Test backup restoration and worker recovery. These checks do not make the system ready to handle real money.
+
+## Blocking work before a live-money launch
+
+- **Execution & data:** select and integrate authorized forex and crypto venues/brokers; implement order routing, acknowledgments, partial fills, rejections, cancellations, idempotency, reconciliation, safe reconnects, accurate position/P&L, real market depth/trades where offered, and kill switches. Use appropriately licensed market data and make staleness and pricing methodology explicit.
+- **Funds & accounting:** integrate regulated custody/payments and verified on-chain deposits, enforce destination/asset/amount/chain/finality checks and replay prevention; implement segregated funds, reconciliations, withdrawal authorization, approvals, transaction concurrency controls, audit integrity and recovery. Independently validate the ledger and margin/liquidation/funding algorithms under concurrency and failure conditions. Existing e2e checks are not a financial audit.
+- **Security & privacy:** independent threat model, penetration test, RBAC/CSRF/session/2FA review, encryption and retention of identity documents and secrets, abuse protection using trusted proxy configuration, vulnerability remediation, incident response and tested backups. Review plaintext email outbox links and token lifecycle. A production dependency audit on this date reported 5 advisories (4 high, 1 moderate); evaluate and remediate compatible versions rather than applying an untested major upgrade.
+- **Compliance:** engage qualified counsel and compliance officers for jurisdiction-specific licensing, AML/KYC/sanctions, suitability, risk disclosures, marketing claims, crypto custody, privacy and product restrictions. Replace draft legal and commercial terms with approved versions; verify permission to use third-party trademarks/icons.
+- **Operations:** configure production email and alerting, durable job supervision and monitoring, disaster recovery, capacity/load and race-condition tests, audit-log retention, deployment rollback, admin procedures and ongoing reconciliation. Set up a repeatable CI pipeline and a release sign-off process.
+
+## Verification in this pass
+
+Production build and TypeScript checks passed. On a local disposable database: the e2e suite reported 129 passed/0 failed; public route QA covered home, markets, forex, crypto, contact, forgot-password and register at desktop/mobile sizes; authenticated route smoke tests covered eight dashboard/admin routes. A separate local server started with `EXECUTION_MODE=live` rejected live forex, crypto and short-expiry orders and reported live execution disabled; reset-token exposure, tablet navigation, keyboard navigation, reduced-motion styling and the browser icon were also checked. These are limited functional checks, not an independent audit.

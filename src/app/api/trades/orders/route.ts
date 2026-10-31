@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       order: serializeOrder(result.order),
       filled: result.filled,
       quote: result.quote,
-      executionMode: process.env.EXECUTION_MODE === 'live' ? 'live' : 'paper',
+      executionMode: 'paper',
     }, { status: 201 });
   } catch (err) {
     return fail(err);

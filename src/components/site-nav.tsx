@@ -24,7 +24,7 @@ const PRIMARY: { label: string; href?: string; items?: Item[] }[] = [
   ] },
   { label: 'Company', items: [
     { href: '/company/about', label: 'About Vanta', desc: 'Who runs the platform and how it is built' },
-    { href: '/company/contact', label: 'Contact', desc: 'Support desk, video sessions and escalation' },
+    { href: '/contact', label: 'Contact', desc: 'Support and escalation channels' },
     { href: '/help', label: 'Help centre', desc: 'Platform guides and trading walkthroughs' },
   ] },
 ];
@@ -66,7 +66,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
       <div className="hidden border-b border-white/[0.05] bg-ink-900/60 lg:block">
         <div className="shell flex h-9 items-center justify-between text-[11.5px] text-muted">
           <div className="flex items-center gap-5">
-            <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald" />Market data streaming</span>
+            <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald" />Provider-sourced market data</span>
             <span className="hidden xl:inline">Server-side execution · Double-entry ledger</span>
           </div>
           <div className="flex items-center gap-4">
@@ -80,7 +80,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
       <div className="shell flex h-[64px] items-center justify-between gap-6">
         <Logo />
 
-        <nav className="hidden items-center gap-0.5 lg:flex" onMouseLeave={leave}>
+        <nav aria-label="Main navigation" className="hidden items-center gap-0.5 lg:flex" onMouseLeave={leave} onKeyDown={(e) => { if (e.key === 'Escape') { const trigger = e.currentTarget.querySelector<HTMLButtonElement>('button[aria-expanded="true"]'); setActive(null); trigger?.focus(); } }} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setActive(null); }}>
           {PRIMARY.map((item) => {
             const activeNow = isActive(item);
             return (
@@ -94,6 +94,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
                   <button
                     type="button"
                     aria-expanded={active === item.label}
+                    onClick={() => setActive((current) => current === item.label ? null : item.label)}
                     className={`relative flex items-center gap-1 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${active === item.label || activeNow ? 'text-white' : 'text-white/85 hover:text-white'}`}
                   >
                     {(active === item.label || activeNow) && <MotionIndicator layoutId="nav-active" className="absolute inset-0 -z-10 rounded-lg bg-white/[0.07]" />}
@@ -142,7 +143,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
         </div>
 
         <button
-          className="rounded-lg border border-white/10 p-2 md:hidden"
+          className="rounded-lg border border-white/10 p-2 lg:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
@@ -158,7 +159,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
         <motion.div
           initial={reduce ? undefined : { height: 0, opacity: 0 }}
           animate={reduce ? undefined : { height: 'auto', opacity: 1 }}
-          className="overflow-hidden border-t border-white/[0.07] bg-ink-950/98 px-5 py-4 md:hidden"
+          className="overflow-hidden border-t border-white/[0.07] bg-ink-950/98 px-5 py-4 lg:hidden"
         >
           <div className="space-y-4">
             {PRIMARY.map((item) => (

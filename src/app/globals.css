@@ -149,6 +149,6 @@ body {
 .float-y { animation: floatY 6s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ticker-track, .brand-pulse, .sweep, .float-y { animation: none !important; }
+  .ticker-track, .brand-pulse, .sweep, .float-y, .skeleton, .skeleton-shimmer { animation: none !important; }
   * { transition-duration: 0.01ms !important; }
 }

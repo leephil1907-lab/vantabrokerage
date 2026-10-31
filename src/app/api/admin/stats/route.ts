@@ -31,12 +31,11 @@ export async function GET() {
       totals: {
         users, activeUsers, pendingKyc, totalDeposits, totalWithdrawals, volume, fees: Math.round(fees * 100) / 100,
         openPositions: positions, orders, pendingWithdrawals, pendingDeposits, openTickets,
-        revenue: Math.round((fees - totalWithdrawals * 0.005) * 100) / 100,
       },
       health: {
         database: 'ok',
         marketDataMode: process.env.MARKET_DATA_MODE ?? 'live',
-        executionMode: process.env.EXECUTION_MODE ?? 'paper',
+        executionMode: 'paper',
         emailProvider: emailConfigured() ? 'configured' : 'not-configured',
         custodyProvider: process.env.CUSTODY_PROVIDER ?? 'not-configured',
         paymentProvider: process.env.PAYMENT_PROVIDER ?? 'not-configured',

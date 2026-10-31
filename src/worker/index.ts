@@ -8,7 +8,6 @@
  *  - short-expiry settlement
  *  - funding settlement for perpetuals
  *  - market quote refresh for the catalogue
- *  - email outbox flush (when a provider is configured)
  *
  * Run with:  npm run worker
  */

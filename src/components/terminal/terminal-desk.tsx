@@ -253,7 +253,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
             compact
           />
           <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40">
-            <p className="border-b border-white/[0.06] px-2.5 py-1.5 text-[9.5px] font-semibold uppercase tracking-[0.15em] text-muted">Order book</p>
+            <p className="border-b border-white/[0.06] px-2.5 py-1.5 text-[9.5px] font-semibold uppercase tracking-[0.15em] text-muted">Indicative depth model</p>
             <DepthPanel symbol={symbol} quote={quote} />
           </div>
           <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40">

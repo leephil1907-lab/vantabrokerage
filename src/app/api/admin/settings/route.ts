@@ -14,7 +14,7 @@ export async function GET() {
     return json({
       configs: configs.map((c) => ({ key: c.key, value: c.value, category: c.category, updatedAt: c.updatedAt.toISOString() })),
       environment: {
-        executionMode: process.env.EXECUTION_MODE ?? 'paper',
+        executionMode: 'paper',
         marketDataMode: process.env.MARKET_DATA_MODE ?? 'live',
         emailProvider: process.env.EMAIL_PROVIDER ?? null,
         custodyProvider: process.env.CUSTODY_PROVIDER ?? null,

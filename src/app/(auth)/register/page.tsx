@@ -11,7 +11,6 @@ function RegisterForm() {
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', country: 'Nigeria', phone: '', referralCode: params.get('ref') ?? '', acceptTerms: false });
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<string | null>(null);
-  const [verificationUrl, setVerificationUrl] = useState<string | null>(null);
   const { push } = useToast();
 
   const submit = async (e: React.FormEvent) => {
@@ -19,13 +18,12 @@ function RegisterForm() {
     setBusy(true);
     setErrors(null);
     try {
-      const res = await apiFetch<{ emailDelivery: { delivered: boolean; verificationUrl: string | null } }>('/api/auth/register', {
+      const res = await apiFetch<{ emailDelivery: { delivered: boolean } }>('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify(form),
       });
-      push({ tone: 'success', title: 'Account created', body: 'Your live and paper accounts are ready.' });
-      if (res.emailDelivery?.verificationUrl) setVerificationUrl(res.emailDelivery.verificationUrl);
-      else router.push('/dashboard');
+      push({ tone: res.emailDelivery.delivered ? 'success' : 'error', title: 'Account created', body: res.emailDelivery.delivered ? 'Check your inbox to verify your email.' : 'Email delivery is unavailable. Contact support to verify your account.' });
+      router.push('/dashboard');
       router.refresh();
     } catch (err) {
       setErrors((err as Error).message);
@@ -33,20 +31,6 @@ function RegisterForm() {
       setBusy(false);
     }
   };
-
-  if (verificationUrl) {
-    return (
-      <div className="panel p-6">
-        <h1 className="text-lg font-semibold text-white">Verify your email</h1>
-        <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
-          Your account was created. No email provider is configured on this deployment, so use this one-time verification link to confirm your address:
-        </p>
-        <Link href={verificationUrl.replace(/^https?:\/\/[^/]+/, '')} className="btn-primary mt-4 w-full py-2.5 text-[13px]">Verify email now</Link>
-        <p className="mt-2 break-all text-[10px] text-muted">{verificationUrl}</p>
-        <Link href="/dashboard" className="mt-3 block text-center text-[12px] text-lime hover:underline">Continue to dashboard</Link>
-      </div>
-    );
-  }
 
   return (
     <div className="panel p-6">

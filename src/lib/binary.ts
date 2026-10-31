@@ -2,7 +2,6 @@ import { prisma } from './db';
 import { AppError } from './errors';
 import { getQuote } from './market-data';
 import { d, lockFunds, unlockFunds, postLedger, round, money, getOrCreateWallet } from './ledger';
-import { executionMode } from './execution';
 
 export const EXPIRY_OPTIONS = [30, 60, 120, 300, 600, 900, 1800, 3600];
 export const MIN_STAKE = 1;
@@ -22,7 +21,7 @@ export async function openBinaryTrade(input: { userId: string; accountId: string
   const account = await prisma.account.findFirst({ where: { id: input.accountId, userId: input.userId } });
   if (!account) throw new AppError('NOT_FOUND', 'Account not found.', 404);
   if (account.status !== 'ACTIVE') throw new AppError('ACCOUNT_RESTRICTED', 'Account is not active.', 403);
-  if (account.type === 'LIVE' && executionMode() !== 'live') {
+  if (account.type === 'LIVE') {
     throw new AppError('LIVE_EXECUTION_UNAVAILABLE', 'Live short-expiry execution is not connected in this deployment. Use your paper account.', 409);
   }
 
@@ -64,7 +63,7 @@ export async function openBinaryTrade(input: { userId: string; accountId: string
 /** Settle every expired trade using a fresh server-side quote. */
 export async function settleExpiredBinaryTrades() {
   const due = await prisma.binaryTrade.findMany({
-    where: { result: 'OPEN', expiresAt: { lte: new Date() } },
+    where: { result: 'OPEN', expiresAt: { lte: new Date() }, account: { type: 'PAPER' } },
     include: { account: true },
     take: 100,
   });

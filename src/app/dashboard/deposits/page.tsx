@@ -46,7 +46,7 @@ export default function DepositsPage() {
       push({
         tone: 'success',
         title: form.txHash ? 'Deposit submitted for verification' : 'Deposit address issued',
-        body: form.txHash ? 'The transaction will be verified against the configured blockchain provider before the finance desk credits it.' : 'Send funds to the address shown and submit the transaction hash.',
+        body: form.txHash ? 'Automated verification is unavailable. Finance must independently review the transaction.' : 'Send funds to the address shown and submit the transaction hash.',
       });
       setForm((f) => ({ ...f, amount: '', txHash: '' }));
       load();
@@ -60,7 +60,7 @@ export default function DepositsPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-white">Deposits</h1>
-          <p className="mt-0.5 text-[12px] text-muted">Crypto deposits are verified on-chain before crediting. Balances are never credited from a hash alone.</p>
+          <p className="mt-0.5 text-[12px] text-muted">Automated on-chain verification is not connected. Submitted deposits require independent finance review.</p>
         </div>
         <AccountSwitcher accounts={accounts} accountId={accountId} onSelect={select} active={active} liveEnabled={liveEnabled} />
       </div>

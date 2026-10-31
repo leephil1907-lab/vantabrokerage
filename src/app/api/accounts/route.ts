@@ -18,7 +18,7 @@ export async function GET() {
         available: d(a.wallet?.available as never), locked: d(a.wallet?.locked as never),
         holdings: [], equity: a.equity,
       })),
-      liveExecutionEnabled: process.env.EXECUTION_MODE === 'live',
+      liveExecutionEnabled: false,
     });
   } catch (err) {
     return fail(err);

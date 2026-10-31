@@ -11,7 +11,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <Logo />
           <Link href="/" className="text-[12.5px] text-muted transition hover:text-white">← Back to site</Link>
         </header>
-        <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-10">
+        <main id="main-content" tabIndex={-1} className="relative z-10 flex flex-1 items-center justify-center px-4 py-10">
           <div className="w-full max-w-md">{children}</div>
         </main>
         <footer className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-8 text-center text-[10.5px] leading-relaxed text-muted">

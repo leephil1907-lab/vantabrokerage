@@ -79,11 +79,11 @@ export default function DashboardOverview() {
           <button
             onClick={async () => {
               try {
-                const r = await apiFetch<{ delivery: { configured: boolean; delivered: boolean; url: string | null } }>('/api/auth/resend-verification', { method: 'POST' });
+                const r = await apiFetch<{ delivery: { configured: boolean; delivered: boolean } }>('/api/auth/resend-verification', { method: 'POST' });
                 push({
                   tone: r.delivery.delivered ? 'success' : 'info',
-                  title: r.delivery.delivered ? 'Verification email sent' : 'Email provider not configured',
-                  body: r.delivery.url ? `Verification link: ${r.delivery.url}` : undefined,
+                  title: r.delivery.delivered ? 'Verification email sent' : 'Email delivery unavailable',
+                  body: r.delivery.delivered ? 'Check your inbox for the verification link.' : 'Email delivery is unavailable. Contact support.',
                 });
               } catch (e) { push({ tone: 'error', title: 'Could not resend', body: (e as Error).message }); }
             }}

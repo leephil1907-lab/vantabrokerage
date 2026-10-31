@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     await prisma.emailToken.create({ data: { userId: user.id, type: 'VERIFY_EMAIL', tokenHash: hashToken(token), expiresAt: new Date(Date.now() + 86400_000) } });
     const link = `${process.env.APP_URL ?? 'http://localhost:3000'}/verify-email?token=${token}`;
     const delivery = await queueEmail({ to: user.email, subject: 'Verify your Vanta Markets account', body: `Confirm your email:\n${link}`, template: 'verify_email' });
-    return json({ ok: true, delivery: { configured: emailConfigured(), delivered: delivery.delivered, url: delivery.delivered ? null : link } });
+    return json({ ok: true, delivery: { configured: emailConfigured(), delivered: delivery.delivered } });
   } catch (err) {
     return fail(err);
   }

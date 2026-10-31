@@ -26,7 +26,9 @@ export function isDerivative(pair: { category: string }) {
 }
 
 export function executionMode() {
-  return process.env.EXECUTION_MODE === 'live' ? 'live' : 'paper';
+  // There is no live broker adapter yet. An environment flag must never turn
+  // simulated fills into real-money execution.
+  return 'paper' as const;
 }
 
 /** PnL expressed in account currency (USD). USDT is treated as 1:1 USD. */
@@ -61,7 +63,7 @@ export async function loadAccount(userId: string, accountId: string) {
 }
 
 function assertLiveAllowed(account: Account) {
-  if (account.type === 'LIVE' && executionMode() !== 'live') {
+  if (account.type === 'LIVE') {
     throw new AppError(
       'LIVE_EXECUTION_UNAVAILABLE',
       'Live execution provider is not connected. This deployment supports paper trading only — switch to your paper account to continue.',
@@ -298,6 +300,7 @@ export async function closePosition(opts: { userId: string; positionId: string; 
   const position = await prisma.position.findUnique({ where: { id: opts.positionId }, include: { account: true } });
   if (!position) throw new AppError('NOT_FOUND', 'Position not found.', 404);
   if (position.account.userId !== opts.userId) throw new AppError('FORBIDDEN', 'You cannot close this position.', 403);
+  assertLiveAllowed(position.account);
   if (position.status !== 'OPEN') throw new AppError('POSITION_CLOSED', 'This position is already closed.', 409);
   const pair = await prisma.tradingPair.findUnique({ where: { id: position.pairId } });
   if (!pair) throw new AppError('NOT_FOUND', 'Market unavailable.', 404);
@@ -389,7 +392,7 @@ export async function matchRestingOrders(symbol?: string) {
       const pair = await prisma.tradingPair.findUnique({ where: { id: order.pairId } });
       if (!pair) continue;
       const quote = await getQuote(order.pairId, 2000);
-      if (process.env.EXECUTION_MODE !== 'live' && order.account.type === 'LIVE') continue;
+      if (order.account.type === 'LIVE') continue;
       const side = order.side;
       const price = d(order.price);
       const q = side === 'BUY' ? quote.ask : quote.bid;

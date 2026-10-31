@@ -9,7 +9,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
   return (
     <div className="flex min-h-screen flex-col pb-[62px] md:pb-0">
       <SiteNav authenticated={!!user} />
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1">
         <PageTransition>{children}</PageTransition>
       </main>
       <SiteFooter />

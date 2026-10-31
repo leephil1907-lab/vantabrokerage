@@ -108,7 +108,9 @@ async function main() {
     check('session persists on /api/auth/me', me.body?.user?.email === clientEmail, me.body);
     check('new user starts unverified', me.body?.emailVerified === false);
 
-    const verifyUrl: string | null = res.body?.emailDelivery?.verificationUrl ?? null;
+    check('registration does not expose verification token', !JSON.stringify(res.body).includes('verify-email?token='));
+    const verificationMail = await prisma.emailOutbox.findFirst({ where: { to: clientEmail, template: 'verify_email' }, orderBy: { createdAt: 'desc' } });
+    const verifyUrl: string | null = verificationMail?.body.match(/https?:\/\/[^\s]+verify-email\?token=[^\s\\]+/)?.[0] ?? null;
     if (verifyUrl) {
       const token = new URL(verifyUrl).searchParams.get('token')!;
       const v = await client.post('/api/auth/verify-email', { token });
@@ -458,7 +460,10 @@ async function main() {
   await section('17. Password reset and two-factor flows', async () => {
     const forgot = await client.post('/api/auth/forgot-password', { email: clientEmail });
     check('password reset request accepted', forgot.status === 200, forgot.body);
-    const resetUrl: string | null = forgot.body?.delivery?.url ?? null;
+    const unknown = await new Client().post('/api/auth/forgot-password', { email: `missing.${stamp}@example.test` });
+    check('password reset response does not reveal account existence or token', JSON.stringify(forgot.body) === JSON.stringify(unknown.body) && !JSON.stringify(forgot.body).includes('token='));
+    const resetMail = await prisma.emailOutbox.findFirst({ where: { to: clientEmail, template: 'reset_password' }, orderBy: { createdAt: 'desc' } });
+    const resetUrl: string | null = resetMail?.body.match(/https?:\/\/[^\s]+reset-password\?token=[^\s\\]+/)?.[0] ?? null;
     if (resetUrl) {
       const token = new URL(resetUrl).searchParams.get('token')!;
       const reset = await new Client().post('/api/auth/reset-password', { token, password: 'Vanta!Test2027' });
