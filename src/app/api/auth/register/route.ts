@@ -62,11 +62,18 @@ export async function POST(req: NextRequest) {
       data: { userId: user.id, type: 'VERIFY_EMAIL', tokenHash: hashToken(token), expiresAt: new Date(Date.now() + 86400_000) },
     });
     const link = `${process.env.APP_URL ?? 'http://localhost:3000'}/verify-email?token=${token}`;
-    const delivery = await queueTemplateEmail({
-      to: user.email,
-      template: 'verify_email',
-      variables: { firstName: body.firstName, actionUrl: link },
-    });
+    const [welcomeDelivery, delivery] = await Promise.all([
+      queueTemplateEmail({
+        to: user.email,
+        template: 'welcome',
+        variables: { firstName: body.firstName, actionUrl: process.env.APP_URL ?? 'http://localhost:3000' },
+      }),
+      queueTemplateEmail({
+        to: user.email,
+        template: 'verify_email',
+        variables: { firstName: body.firstName, actionUrl: link },
+      }),
+    ]);
 
     await createSession(user.id, { ip, userAgent: req.headers.get('user-agent') ?? undefined });
 
@@ -75,6 +82,7 @@ export async function POST(req: NextRequest) {
       emailDelivery: {
         configured: emailConfigured(),
         delivered: delivery.delivered,
+        welcomeDelivered: welcomeDelivery.delivered,
       },
     }, { status: 201 });
   } catch (err) {
