@@ -7,7 +7,7 @@ import { fmtMoney } from '@/lib/format';
 export type AccountOption = { id: string; type: 'LIVE' | 'PAPER'; available: number; locked: number; currency: string };
 
 /** Account switcher shared by every terminal. Persists the selection locally. */
-export function useAccount({ liveOnly = false }: { liveOnly?: boolean } = {}) {
+export function useAccount({ paperOnly = false }: { paperOnly?: boolean } = {}) {
   const [accounts, setAccounts] = useState<AccountOption[]>([]);
   const [accountId, setAccountId] = useState<string>('');
   const [liveEnabled, setLiveEnabled] = useState(false);
@@ -19,17 +19,17 @@ export function useAccount({ liveOnly = false }: { liveOnly?: boolean } = {}) {
       .then((r) => r.json())
       .then((b) => {
         if (cancelled || !b.accounts) return;
-        const visibleAccounts = liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : b.accounts;
+        const visibleAccounts = paperOnly ? b.accounts.filter((a: AccountOption) => a.type === 'PAPER') : b.accounts;
         setAccounts(visibleAccounts);
         setLiveEnabled(!!b.liveExecutionEnabled);
         const stored = typeof window !== 'undefined' ? window.localStorage.getItem('vanta.accountId') : null;
         const fromStore = visibleAccounts.find((a: AccountOption) => a.id === stored);
-        const fallback = visibleAccounts.find((a: AccountOption) => a.type === (liveOnly ? 'LIVE' : 'PAPER')) ?? visibleAccounts[0];
+        const fallback = visibleAccounts.find((a: AccountOption) => a.type === 'PAPER') ?? visibleAccounts[0];
         setAccountId((fromStore ?? fallback)?.id ?? '');
       })
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, [liveOnly]);
+  }, [paperOnly]);
 
   const select = (id: string) => {
     setAccountId(id);
@@ -38,7 +38,7 @@ export function useAccount({ liveOnly = false }: { liveOnly?: boolean } = {}) {
 
   const active = accounts.find((a) => a.id === accountId) ?? null;
   return { accounts, accountId, select, active, liveEnabled, loading, reloadAccounts: () => {
-    fetch('/api/accounts', { cache: 'no-store' }).then((r) => r.json()).then((b) => b.accounts && setAccounts(liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : b.accounts)).catch(() => undefined);
+    fetch('/api/accounts', { cache: 'no-store' }).then((r) => r.json()).then((b) => b.accounts && setAccounts(paperOnly ? b.accounts.filter((a: AccountOption) => a.type === 'PAPER') : b.accounts)).catch(() => undefined);
   } };
 }
 
