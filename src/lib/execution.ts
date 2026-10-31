@@ -26,9 +26,13 @@ export function isDerivative(pair: { category: string }) {
 }
 
 export function executionMode() {
-  // There is no live broker adapter yet. An environment flag must never turn
-  // simulated fills into real-money execution.
+  // Internal matching currently runs against provider quotes in the PAPER account only.
+  // No environment flag can convert these fills into real-money broker execution.
   return 'paper' as const;
+}
+
+export function paperTradingEnabled() {
+  return process.env.ENABLE_PAPER_TRADING !== 'false';
 }
 
 /** PnL expressed in account currency (USD). USDT is treated as 1:1 USD. */
@@ -76,6 +80,9 @@ export async function placeOrder(input: PlaceOrderInput) {
   const pair = await loadTradablePair(input.symbol);
   const account = await loadAccount(input.userId, input.accountId);
   assertLiveAllowed(account);
+  if (!paperTradingEnabled()) {
+    throw new AppError('PAPER_TRADING_DISABLED', 'Internal paper trading is temporarily disabled by the platform.', 503);
+  }
 
   const qty = round(Number(input.qty), pair.qtyPrecision);
   if (!isFinite(qty) || qty <= 0) throw new AppError('INVALID_QTY', 'Order quantity must be greater than zero.', 400);
