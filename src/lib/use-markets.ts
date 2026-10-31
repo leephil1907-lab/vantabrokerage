@@ -9,6 +9,7 @@ export function useMarkets(category?: string, symbols?: string[]) {
   const [error, setError] = useState<string | null>(null);
   const mounted = useRef(true);
 
+  const attempts = useRef(0);
   const load = useCallback(async () => {
     try {
       const params = new URLSearchParams();
@@ -17,9 +18,16 @@ export function useMarkets(category?: string, symbols?: string[]) {
       const res = await fetch(`/api/markets?${params.toString()}`, { cache: 'no-store' });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error?.message ?? 'Market feed unavailable');
+      attempts.current = 0;
       if (mounted.current) { setMarkets(body.markets); setError(null); }
     } catch (e) {
       if (mounted.current) setError((e as Error).message);
+      // One quick retry: a cold dev server or a brief provider hiccup should not
+      // leave a desk empty until the next 15s poll.
+      if (mounted.current && attempts.current < 1) {
+        attempts.current += 1;
+        setTimeout(() => { if (mounted.current) void load(); }, 900);
+      }
     } finally {
       if (mounted.current) setLoading(false);
     }

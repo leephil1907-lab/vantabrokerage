@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Badge } from './ui';
 import { useMarkets } from '@/lib/use-markets';
+import { AssetMark } from './asset-mark';
 import { fmtPct, fmtPrice, priceDp, relTime } from '@/lib/format';
 
 /** Live market table for public pages — real provider data, no placeholders. */
@@ -19,13 +20,22 @@ export function LiveMarketTable({ category, limit = 30 }: { category?: string; l
         <tbody>
           {markets.slice(0, limit).map((m) => {
             const up = (m.change24h ?? 0) >= 0;
+            const dp = (m as { pricePrecision?: number }).pricePrecision ?? priceDp(m.symbol);
             return (
               <tr key={m.symbol} className="table-row">
-                <td className="td font-medium text-white">{m.symbol}<span className="ml-2 hidden text-[10px] font-normal text-muted sm:inline">{m.displayName}</span></td>
+                <td className="td">
+                  <span className="flex items-center gap-2">
+                    <AssetMark symbol={m.symbol} size={20} />
+                    <span>
+                      <span className="block font-medium text-white">{m.symbol}</span>
+                      <span className="hidden text-[10px] font-normal text-muted sm:block">{m.displayName}</span>
+                    </span>
+                  </span>
+                </td>
                 <td className="td hidden sm:table-cell"><Badge tone="gray">{m.category}</Badge></td>
-                <td className="td text-right value-mono">{fmtPrice(m.last, priceDp(m.symbol))}</td>
-                <td className="td hidden text-right value-mono text-muted sm:table-cell">{fmtPrice(m.bid, priceDp(m.symbol))}</td>
-                <td className="td hidden text-right value-mono text-muted sm:table-cell">{fmtPrice(m.ask, priceDp(m.symbol))}</td>
+                <td className="td text-right value-mono">{fmtPrice(m.last, dp)}</td>
+                <td className="td hidden text-right value-mono text-muted sm:table-cell">{fmtPrice(m.bid, dp)}</td>
+                <td className="td hidden text-right value-mono text-muted sm:table-cell">{fmtPrice(m.ask, dp)}</td>
                 <td className={`td text-right value-mono ${up ? 'text-emerald' : 'text-danger'}`}>{fmtPct(m.change24h)}</td>
                 <td className="td hidden text-right text-[10.5px] uppercase tracking-wide text-muted md:table-cell">{m.source ?? (m.stale ? 'stale' : '—')}</td>
               </tr>

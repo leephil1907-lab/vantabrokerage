@@ -176,7 +176,10 @@ export function TerminalWorkspace({
     </div>
   );
 
-  const style = full ? undefined : { height: 'auto', minHeight: height };
+  // A definite row height is what lets the panels inside size their charts,
+  // scrollers and resizers correctly (no measuring, no layout thrash).
+  const rowHeight = full ? 'calc(100vh - 140px)' : `clamp(600px, calc(100vh - 210px), ${Math.max(height, 760)}px)`;
+  const style = { height: rowHeight };
 
   return (
     <div className="space-y-3">
@@ -194,7 +197,7 @@ export function TerminalWorkspace({
           </>
         ) : null}
 
-        <div className="panel min-w-0 flex-1 overflow-hidden">{center}</div>
+        <div className="panel flex min-w-0 flex-1 flex-col overflow-hidden">{center}</div>
 
         {prefs.leftSide === 'left' ? (
           <Resizer label="Resize execution panel" onDelta={(dx) => update({ rightW: Math.max(260, Math.min(460, prefs.rightW - dx)) })} />

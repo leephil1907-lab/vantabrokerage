@@ -93,6 +93,9 @@ export function ProChart({
   const [state, setState] = useState<'loading' | 'live' | 'delayed' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
   const [hline, setHline] = useState<number | null>(null);
+  // Times are rendered only after mount so SSR and client output always agree.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   /* ── data ─────────────────────────────────────────────────────────────── */
   useEffect(() => {
@@ -278,7 +281,7 @@ export function ProChart({
   );
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       {/* header */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-2">
         <div className="flex min-w-0 items-center gap-2.5">
@@ -323,7 +326,7 @@ export function ProChart({
 
       {/* canvas — the holder is always mounted so the chart can be created
           immediately; skeletons paint on top of it instead of replacing it. */}
-      <div className="relative flex-1" style={{ minHeight: height }}>
+      <div className="relative min-h-[220px] flex-1">
         <div ref={holder} className="absolute inset-0" />
         {state === 'loading' && candles.length === 0 && (
           <div className="absolute inset-0 bg-ink-850/60 backdrop-blur-[1px]">
@@ -343,7 +346,7 @@ export function ProChart({
         <div className="flex items-center gap-3">
           <span className="hidden sm:inline">TradingView Lightweight Charts</span>
           <span>{candles.length} bars</span>
-          {last && <span className="hidden sm:inline">last bar {new Date(last.time * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>}
+          {mounted && last && <span className="hidden sm:inline">last bar {new Date(last.time * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>}
         </div>
         <FeedStatus state={state === 'live' ? 'live' : state === 'delayed' ? 'delayed' : state === 'error' ? 'offline' : 'delayed'} label={state === 'live' ? 'live feed' : state === 'delayed' ? 'delayed feed' : state === 'error' ? 'feed down' : 'connecting'} />
       </div>

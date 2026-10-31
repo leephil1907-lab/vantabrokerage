@@ -69,7 +69,12 @@ for (const pathname of targets) {
     if (metrics.emptySvg) problems.push(`${vp.name}: ${metrics.emptySvg} empty <svg>`);
 
     const file = path.join(OUT, `${pathname.replace(/\W+/g, '_') || 'home'}-${vp.name}.png`);
-    await page.screenshot({ path: file, fullPage: vp.name === 'desktop' });
+    // Infinite CSS animations (ticker, pulses) can stall Playwright's
+    // font/animation stabilisation, so freeze them before capturing.
+    await page.addStyleTag({ content: '*,*::before,*::after{animation-play-state:paused !important;animation-duration:.001ms !important;transition-duration:.001ms !important}' }).catch(() => {});
+    await page.screenshot({ path: file, fullPage: vp.name === 'desktop', timeout: 60_000, animations: 'disabled', caret: 'hide' }).catch(async () => {
+      await page.screenshot({ path: file, timeout: 60_000, animations: 'disabled' });
+    });
     report.push({ pathname, viewport: vp.name, status: typeof res?.status === 'function' ? res.status() : res, file, metrics });
     await ctx.close();
   }

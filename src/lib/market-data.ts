@@ -35,6 +35,8 @@ export type Quote = {
   spread?: number;
   source: string;
   fetchedAt: string;
+  /** True when the provider could not be reached and the cached quote is served. */
+  stale?: boolean;
 };
 
 export type Candle = { time: number; open: number; high: number; low: number; close: number; volume: number };
@@ -148,7 +150,23 @@ export async function fetchProviderQuote(pair: { symbol: string; assetClass: str
 }
 
 /** Get a quote, using the DB cache for at most `maxAgeMs`. */
+/**
+ * In-flight de-duplication: terminals poll the same instrument from several
+ * panels at once (chart, order panel, depth). Sharing the pending promise keeps
+ * one upstream fetch per symbol instead of three.
+ */
+const inflight = new Map<string, Promise<Quote>>();
+
 export async function getQuote(pairId: string, maxAgeMs = 4000): Promise<Quote> {
+  const key = `${pairId}:${maxAgeMs}`;
+  const existing = inflight.get(key);
+  if (existing) return existing;
+  const pending = loadQuote(pairId, maxAgeMs).finally(() => inflight.delete(key));
+  inflight.set(key, pending);
+  return pending;
+}
+
+async function loadQuote(pairId: string, maxAgeMs = 4000): Promise<Quote> {
   const pair = await prisma.tradingPair.findUnique({ where: { id: pairId } });
   if (!pair) throw new AppError('NOT_FOUND', 'Trading pair not found', 404);
   const cached = await prisma.marketQuote.findUnique({ where: { pairId } });
@@ -168,7 +186,31 @@ export async function getQuote(pairId: string, maxAgeMs = 4000): Promise<Quote> 
       fetchedAt: cached.fetchedAt.toISOString(),
     };
   }
-  const fresh = await fetchProviderQuote(pair);
+  let fresh;
+  try {
+    fresh = await fetchProviderQuote(pair);
+  } catch (err) {
+    // Provider outage: serve the last known quote flagged as stale rather than
+    // failing the request or inventing a price.
+    if (cached) {
+      return {
+        symbol: pair.symbol,
+        bid: Number(cached.bid),
+        ask: Number(cached.ask),
+        last: Number(cached.last),
+        open24h: cached.open24h ? Number(cached.open24h) : undefined,
+        high24h: cached.high24h ? Number(cached.high24h) : undefined,
+        low24h: cached.low24h ? Number(cached.low24h) : undefined,
+        volume24h: cached.volume24h ? Number(cached.volume24h) : undefined,
+        change24h: cached.change24h ? Number(cached.change24h) : undefined,
+        spread: cached.spread ? Number(cached.spread) : undefined,
+        source: cached.source,
+        fetchedAt: cached.fetchedAt.toISOString(),
+        stale: true,
+      } as Quote;
+    }
+    throw err;
+  }
   await prisma.marketQuote.upsert({
     where: { pairId },
     create: {

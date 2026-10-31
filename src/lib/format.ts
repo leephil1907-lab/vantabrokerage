@@ -54,14 +54,28 @@ export function countdown(msRemaining: number) {
   return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}`;
 }
 
+/**
+ * Decimal places for an instrument symbol.
+ *
+ * Forex majors quote in pips — 5 dp (3 for JPY crosses) — which is why the
+ * pair branch comes first: rendering EUR/USD as 1.12 would hide the spread
+ * entirely. Crypto, metals, energy and indices follow their own conventions.
+ */
 export const priceDp = (symbol: string) => {
-  if (symbol.includes('USDT')) {
-    if (symbol.startsWith('DOGE') || symbol.startsWith('ADA') || symbol.startsWith('TRX') || symbol.startsWith('XRP')) return 5;
-    if (symbol.startsWith('SOL') || symbol.startsWith('LTC')) return 3;
+  const sym = symbol.toUpperCase();
+  if (sym.includes('USDT') || sym.includes('USDC') || sym.includes('-PERP')) {
+    const base = sym.split('/')[0].replace('-PERP', '');
+    if (['DOGE', 'ADA', 'TRX', 'XRP'].includes(base)) return 5;
+    if (['SOL', 'LTC'].includes(base)) return 3;
     return 2;
   }
-  if (symbol.startsWith('USD/JPY')) return 3;
-  if (symbol.startsWith('NATGAS')) return 4;
-  if (symbol.startsWith('XAG') || symbol.startsWith('WTI')) return 3;
+  // FX pairs: 3 dp for JPY quotes, 5 dp (pips) otherwise.
+  if (sym.includes('/') || /^(EUR|GBP|AUD|NZD|USD|CAD|CHF|JPY)[/]?(EUR|GBP|AUD|NZD|USD|CAD|CHF|JPY)$/.test(sym)) {
+    const quote = sym.includes('/') ? sym.split('/')[1] : sym.slice(3);
+    return quote === 'JPY' ? 3 : 5;
+  }
+  if (sym.startsWith('JPY')) return 3;
+  if (sym.startsWith('NATGAS')) return 4;
+  if (sym.startsWith('XAG') || sym.startsWith('WTI') || sym.startsWith('BRENT')) return 3;
   return 2;
 };

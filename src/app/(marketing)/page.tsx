@@ -1,11 +1,13 @@
-import { listMarkets } from '@/lib/markets';
+import { listMarketsFast } from '@/lib/markets';
 import { TickerTape } from '@/components/market-visual';
 import { LiveHome } from '@/components/home/live-home';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const markets = await listMarkets({});
+  // Cached quotes only: the hero must paint instantly, and the client poll
+  // refreshes the tape every 15s (stale rows are labelled).
+  const markets = await listMarketsFast({});
   const serialised = markets.map((m) => ({
     symbol: m.symbol,
     last: m.last,
@@ -17,6 +19,7 @@ export default async function HomePage() {
     source: m.source,
     stale: m.stale,
     category: m.category,
+    pricePrecision: m.pricePrecision,
   }));
 
   return (

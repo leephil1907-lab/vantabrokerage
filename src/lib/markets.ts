@@ -3,6 +3,8 @@ import { fetchProviderQuote, getQuote } from './market-data';
 import { d } from './ledger';
 import type { TradingPair } from '@prisma/client';
 
+// Background refresh window for the market list. Kept short so the public
+// tables and terminals stay live, long enough to collapse bursts of requests.
 const LIST_TTL_MS = 20_000;
 
 export type MarketRow = {
@@ -108,6 +110,34 @@ export async function getMarketRow(symbol: string) {
   if (!pair) return null;
   const rows = await listMarkets({ symbols: [symbol], refresh: true });
   return rows[0] ?? row(pair, null, true);
+}
+
+/**
+ * Router-friendly variant of `listMarkets` that never blocks on a provider:
+ * it returns the cached quotes immediately (flagged `stale` when old) and
+ * triggers a refresh in the background. Interactive pages therefore paint at
+ * database latency, and the next poll picks up the fresh quotes.
+ */
+export async function listMarketsFast(opts: { category?: string; symbols?: string[] } = {}) {
+  const pairs = await prisma.tradingPair.findMany({
+    where: { enabled: true, ...(opts.category ? { category: opts.category as never } : {}), ...(opts.symbols?.length ? { symbol: { in: opts.symbols } } : {}) },
+    orderBy: [{ category: 'asc' }, { symbol: 'asc' }],
+  });
+  const quotes = await prisma.marketQuote.findMany({ where: { pairId: { in: pairs.map((p) => p.id) } } });
+  const quoteMap = new Map(quotes.map((q) => [q.pairId, q]));
+  const needsRefresh = pairs.some((p) => {
+    const q = quoteMap.get(p.id);
+    return !q || Date.now() - q.fetchedAt.getTime() > LIST_TTL_MS;
+  });
+  if (needsRefresh) {
+    // Fire-and-forget: the request must not wait on upstream providers.
+    void listMarkets(opts).catch(() => undefined);
+  }
+  return pairs.map((p) => {
+    const q = quoteMap.get(p.id);
+    const stale = !q || Date.now() - q.fetchedAt.getTime() > 120_000;
+    return row(p, q ?? null, stale);
+  });
 }
 
 export async function quoteFor(symbol: string) {

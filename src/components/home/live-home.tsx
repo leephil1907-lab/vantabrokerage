@@ -22,6 +22,7 @@ type M = {
   source?: string | null;
   stale?: boolean;
   category: string;
+  pricePrecision?: number;
 };
 
 /* ── Hero terminal preview: real quotes, animated chrome ─────────────────── */
@@ -44,7 +45,7 @@ function HeroTerminal({ markets, source }: { markets: M[]; source: string | null
   }, []);
   useEffect(() => setTick((t) => t + 1), [market?.last]);
 
-  const dp = priceDp(current.id);
+  const dp = market?.pricePrecision ?? priceDp(current.id);
   const up = (market?.change24h ?? 0) >= 0;
   const spread = market?.bid != null && market?.ask != null ? Math.abs(market.ask - market.bid) : null;
 

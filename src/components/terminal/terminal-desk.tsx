@@ -139,8 +139,10 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
 
   const center = (
     <div className="flex h-full min-h-0 flex-col">
+      <div className="min-h-0 flex-1">
       <ProChart symbol={symbol} height={kind === 'futures' ? 430 : 400} onQuote={(q) => setQuote((prev) => ({ ...(prev ?? { bid: q.last, ask: q.last }), ...q }))} />
-      <div className="border-t border-white/[0.06]">
+      </div>
+      <div className="shrink-0 border-t border-white/[0.06]">
         <Tabs
           tabs={[
             { id: 'positions' as const, label: 'Positions', count: deskPositions.length },
@@ -226,6 +228,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
         <div className="space-y-2 p-1">
           {Array.from({ length: 7 }).map((_, i) => <div key={i} className="skeleton h-9 w-full" />)}
           <p className="pt-1 text-center text-[10.5px] text-muted">Loading account…</p>
+          <button onClick={() => reloadAccounts()} className="mt-1 w-full rounded-lg border border-white/10 py-1.5 text-[10.5px] text-muted hover:text-white">Reload accounts</button>
         </div>
       ) : meta && active ? (
         <>

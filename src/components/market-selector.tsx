@@ -84,7 +84,16 @@ export function MarketList({
         )}
       </div>
       <div className="flex-1 overflow-y-auto scroll-thin">
-        {list.length === 0 && <p className="px-3 py-6 text-center text-[11px] text-muted">No markets match your search.</p>}
+        {list.length === 0 && (
+          markets.length === 0 ? (
+            <div className="space-y-1.5 p-2">
+              {Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton-shimmer h-9 w-full" />)}
+              <p className="pt-1 text-center text-[10.5px] text-muted">Loading instruments…</p>
+            </div>
+          ) : (
+            <p className="px-3 py-6 text-center text-[11px] text-muted">No markets match your search.</p>
+          )
+        )}
         {list.map((m) => {
           const up = (m.change24h ?? 0) >= 0;
           const isActive = m.symbol === active;

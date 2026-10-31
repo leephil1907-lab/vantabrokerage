@@ -60,6 +60,8 @@ function Row({ price, size, pct, tone }: { price: string; size: number; pct: num
 export function TradesTape({ symbol }: { symbol: string }) {
   const [prints, setPrints] = useState<{ price: number; qty: number; side: 'BUY' | 'SELL'; time: number }[]>([]);
   const seq = useRef(0);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     setPrints([]);
@@ -92,7 +94,7 @@ export function TradesTape({ symbol }: { symbol: string }) {
         <div key={`${p.time}-${i}`} className="grid grid-cols-3 px-1 py-[2.5px] text-[10.5px]">
           <span className={`value-mono ${p.side === 'BUY' ? 'text-emerald' : 'text-danger'}`}>{fmtPrice(p.price, dp)}</span>
           <span className="value-mono text-right text-white/80">{p.qty.toFixed(3)}</span>
-          <span className="value-mono text-right text-muted">{new Date(p.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+          <span className="value-mono text-right text-muted">{mounted ? new Date(p.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--:--:--'}</span>
         </div>
       ))}
       <p className="mt-1.5 px-1 text-[9.5px] leading-relaxed text-muted">Quote prints sampled from the live feed, not exchange trade history.</p>
