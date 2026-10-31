@@ -4,7 +4,7 @@ Assessment: 31 October 2026; updated for the PRIMEVEST rebrand and transfer safe
 
 ## Decision
 
-**Suitable for a private, isolated staging/demo deployment after the staging controls below are applied. Not ready for a public production launch, customer funds, live forex or live crypto trading.** The redesigned overview, deposit page and forex/crypto desks use live-account views with execution and funding unavailable; other legacy pages and APIs still support forex and crypto paper trading using provider-sourced market data. A successful build or passing smoke test is not evidence of financial, security, regulatory or operational readiness.
+**Suitable for a private, isolated staging/demo deployment after the staging controls below are applied. Not ready for a public production launch, customer funds, live forex or live crypto trading.** The overview and forex/crypto/futures terminals now default to the PAPER account and submit to the internal paper execution service. The LIVE account remains isolated with order entry unavailable; funding and withdrawals remain unavailable as customer-money rails. A successful build or passing smoke test is not evidence of financial, security, regulatory or operational readiness.
 
 ## What is implemented and what is not
 
