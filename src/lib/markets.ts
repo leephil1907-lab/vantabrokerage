@@ -146,3 +146,59 @@ export async function quoteFor(symbol: string) {
   const q = await getQuote(pair.id, 3000);
   return { ...q, pairId: pair.id, pricePrecision: pair.pricePrecision, displayName: pair.displayName };
 }
+
+
+/**
+ * Public market display cache. This is deliberately isolated from MarketQuote:
+ * public market pages can show provider reference prices without writing to, or
+ * becoming the source of, the paper/live execution quote cache.
+ */
+const displayQuoteCache = new Map<string, { quote: Awaited<ReturnType<typeof fetchProviderQuote>>; cachedAt: number }>();
+const DISPLAY_QUOTE_TTL_MS = 15_000;
+const DISPLAY_QUOTE_STALE_MS = 120_000;
+
+export async function listDisplayMarkets(opts: { category?: string; symbols?: string[] } = {}) {
+  const pairs = await prisma.tradingPair.findMany({
+    where: {
+      enabled: true,
+      ...(opts.category ? { category: opts.category as never } : {}),
+      ...(opts.symbols?.length ? { symbol: { in: opts.symbols } } : {}),
+    },
+    orderBy: [{ category: 'asc' }, { symbol: 'asc' }],
+  });
+
+  const now = Date.now();
+  const needsRefresh = pairs.filter((pair) => {
+    const cached = displayQuoteCache.get(pair.id);
+    return !cached || now - cached.cachedAt >= DISPLAY_QUOTE_TTL_MS;
+  });
+
+  // Keep provider fan-out bounded; the market catalogue is intentionally small.
+  await Promise.all(needsRefresh.slice(0, 60).map(async (pair) => {
+    try {
+      const quote = await fetchProviderQuote(pair);
+      displayQuoteCache.set(pair.id, { quote, cachedAt: Date.now() });
+    } catch {
+      // Keep the last real provider observation; never synthesize a replacement.
+    }
+  }));
+
+  const timestamp = Date.now();
+  return pairs.map((pair) => {
+    const cached = displayQuoteCache.get(pair.id);
+    const tooOld = !cached || timestamp - cached.cachedAt > DISPLAY_QUOTE_STALE_MS;
+    if (!cached) return row(pair, null, true);
+    const quote = cached.quote;
+    return row(pair, {
+      bid: quote.bid,
+      ask: quote.ask,
+      last: quote.last,
+      change24h: quote.change24h ?? null,
+      high24h: quote.high24h ?? null,
+      low24h: quote.low24h ?? null,
+      volume24h: quote.volume24h ?? null,
+      source: quote.provider,
+      fetchedAt: new Date(quote.fetchedAt),
+    }, tooOld);
+  });
+}
