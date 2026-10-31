@@ -1,5 +1,6 @@
 import { prisma } from './db';
-import { EmailTemplateKey, EmailTemplateVariables, renderEmailTemplate } from './email-templates';
+import { renderEmailTemplate } from './email-templates';
+import type { EmailTemplateKey, EmailTemplateVariables } from './email-templates';
 
 /**
  * Email delivery writes a redacted audit copy to EmailOutbox. Action URLs and
@@ -27,7 +28,10 @@ export async function queueEmail(input: { to: string; subject: string; body: str
       template: input.template ?? 'generic',
     },
   });
-  if (!emailConfigured()) return { id: record.id, delivered: false as const, reason: 'no_provider' };
+  if (!emailConfigured()) {
+    await prisma.emailOutbox.update({ where: { id: record.id }, data: { status: 'FAILED', error: 'No email provider is configured. Request a fresh secure link after configuring delivery.' } });
+    return { id: record.id, delivered: false as const, reason: 'no_provider' };
+  }
   try {
     if (process.env.EMAIL_PROVIDER === 'resend') {
       const res = await fetch('https://api.resend.com/emails', {
