@@ -7,7 +7,7 @@ import { fmtMoney } from '@/lib/format';
 export type AccountOption = { id: string; type: 'LIVE' | 'PAPER'; available: number; locked: number; currency: string };
 
 /** Account switcher shared by every terminal. Persists the selection locally. */
-export function useAccount({ paperOnly = false }: { paperOnly?: boolean } = {}) {
+export function useAccount({ paperOnly = false, liveOnly = false }: { paperOnly?: boolean; liveOnly?: boolean } = {}) {
   const [accounts, setAccounts] = useState<AccountOption[]>([]);
   const [accountId, setAccountId] = useState<string>('');
   const [liveEnabled, setLiveEnabled] = useState(false);
@@ -19,7 +19,7 @@ export function useAccount({ paperOnly = false }: { paperOnly?: boolean } = {}) 
       .then((r) => r.json())
       .then((b) => {
         if (cancelled || !b.accounts) return;
-        const visibleAccounts = paperOnly ? b.accounts.filter((a: AccountOption) => a.type === 'PAPER') : b.accounts;
+        const visibleAccounts = liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : paperOnly ? b.accounts.filter((a: AccountOption) => a.type === 'PAPER') : b.accounts;
         setAccounts(visibleAccounts);
         setLiveEnabled(!!b.liveExecutionEnabled);
         const stored = typeof window !== 'undefined' ? window.localStorage.getItem('vanta.accountId') : null;
@@ -38,7 +38,7 @@ export function useAccount({ paperOnly = false }: { paperOnly?: boolean } = {}) 
 
   const active = accounts.find((a) => a.id === accountId) ?? null;
   return { accounts, accountId, select, active, liveEnabled, loading, reloadAccounts: () => {
-    fetch('/api/accounts', { cache: 'no-store' }).then((r) => r.json()).then((b) => b.accounts && setAccounts(paperOnly ? b.accounts.filter((a: AccountOption) => a.type === 'PAPER') : b.accounts)).catch(() => undefined);
+    fetch('/api/accounts', { cache: 'no-store' }).then((r) => r.json()).then((b) => b.accounts && setAccounts(liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : paperOnly ? b.accounts.filter((a: AccountOption) => a.type === 'PAPER') : b.accounts)).catch(() => undefined);
   } };
 }
 
