@@ -5,6 +5,7 @@ import { clientIp, fail, json, parseBody } from '@/lib/http';
 import { requireStaff } from '@/lib/auth';
 import { audit } from '@/lib/audit';
 import { AppError } from '@/lib/errors';
+import { queueTemplateEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     if (!['ADMIN', 'SUPERADMIN', 'FINANCE', 'SUPPORT'].includes(staff.role)) throw new AppError('FORBIDDEN', 'Not permitted.', 403);
     const { id } = await ctx.params;
     const body = await parseBody(req, z.object({ decision: z.enum(['APPROVED', 'REJECTED']), reason: z.string().max(500).optional() }));
-    const kyc = await prisma.kycRecord.findUnique({ where: { id } });
+    const kyc = await prisma.kycRecord.findUnique({ where: { id }, include: { user: { include: { profile: true } } } });
     if (!kyc) throw new AppError('NOT_FOUND', 'Verification record not found.', 404);
     const updated = await prisma.kycRecord.update({
       where: { id },
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         href: '/dashboard/verification',
       },
     });
+    await queueTemplateEmail({ to: kyc.user.email, template: body.decision === 'APPROVED' ? 'kyc_approved' : 'kyc_rejected', variables: { firstName: kyc.user.profile?.firstName ?? undefined, reason: updated.rejectionReason ?? undefined } }).catch((error) => console.error('[kyc decision email]', error));
     await audit({ actorId: staff.id, action: `kyc.${body.decision.toLowerCase()}`, targetType: 'KycRecord', targetId: id, before: { status: kyc.status }, after: { status: updated.status, reason: updated.rejectionReason }, ip: clientIp(req), userAgent: req.headers.get('user-agent') ?? undefined });
     return json({ ok: true, kyc: { id: updated.id, status: updated.status } });
   } catch (err) {
