@@ -9,6 +9,7 @@ import { getAccountForUser } from '@/lib/accounts';
 import { lockFunds, round, d } from '@/lib/ledger';
 import { AppError } from '@/lib/errors';
 import { kycGate } from '@/lib/kyc';
+import { notifyUserByEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -92,6 +93,7 @@ export async function POST(req: NextRequest) {
       return created;
     });
 
+    await notifyUserByEmail(user.id, 'withdrawal_requested');
     return json({
       withdrawal: { id: withdrawal.id, status: withdrawal.status, amount, fee, netAmount: net, address: withdrawal.address, network: withdrawal.network },
       note: process.env.CUSTODY_PROVIDER ? 'Queued for authorisation and processing.' : 'Queued for finance desk review. Automated payout requires a configured custody provider.',

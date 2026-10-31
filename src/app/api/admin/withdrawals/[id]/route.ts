@@ -6,6 +6,7 @@ import { requireStaff } from '@/lib/auth';
 import { audit } from '@/lib/audit';
 import { unlockFunds, settleLocked, d, getOrCreateWallet } from '@/lib/ledger';
 import { AppError } from '@/lib/errors';
+import { notifyUserByEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         return u;
       });
       await audit({ actorId: staff.id, action: 'withdrawal.reject', targetType: 'Withdrawal', targetId: id, before: { status: w.status }, after: { status: updated.status, note: body.note }, ip: clientIp(req) });
+      await notifyUserByEmail(w.wallet.account.userId, 'withdrawal_rejected');
       return json({ ok: true, status: updated.status });
     }
 
@@ -55,6 +57,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       return u;
     });
     await audit({ actorId: staff.id, action: 'withdrawal.complete', targetType: 'Withdrawal', targetId: id, before: { status: w.status }, after: { status: updated.status, txHash: body.txHash }, ip: clientIp(req) });
+    await notifyUserByEmail(w.wallet.account.userId, 'withdrawal_completed');
     return json({ ok: true, status: updated.status });
   } catch (err) {
     return fail(err);

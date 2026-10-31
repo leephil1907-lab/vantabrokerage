@@ -5,6 +5,7 @@ import { clientIp, fail, json, parseBody } from '@/lib/http';
 import { requireStaff } from '@/lib/auth';
 import { audit } from '@/lib/audit';
 import { AppError } from '@/lib/errors';
+import { notifyUserByEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
@@ -21,11 +22,12 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     await prisma.notification.create({
       data: {
         userId: kyc.userId, type: 'ACCOUNT', title: body.decision === 'APPROVED' ? 'Identity verified' : 'Verification rejected',
-        body: body.decision === 'APPROVED' ? 'Your identity verification was approved. Withdrawals are now available.' : `Your verification was rejected: ${updated.rejectionReason}`,
+        body: body.decision === 'APPROVED' ? 'Your identity verification was approved. Additional checks and service availability may apply.' : `Your verification was rejected: ${updated.rejectionReason}`,
         href: '/dashboard/verification',
       },
     });
     await audit({ actorId: staff.id, action: `kyc.${body.decision.toLowerCase()}`, targetType: 'KycRecord', targetId: id, before: { status: kyc.status }, after: { status: updated.status, reason: updated.rejectionReason }, ip: clientIp(req), userAgent: req.headers.get('user-agent') ?? undefined });
+    if (kyc.status !== updated.status) await notifyUserByEmail(kyc.userId, body.decision === 'APPROVED' ? 'identity_approved' : 'identity_rejected');
     return json({ ok: true, kyc: { id: updated.id, status: updated.status } });
   } catch (err) {
     return fail(err);

@@ -6,7 +6,7 @@ import { clientIp, fail, json, parseBody, rateLimit } from '@/lib/http';
 import { registerSchema } from '@/lib/validation';
 import { createSession, hashToken } from '@/lib/auth';
 import { ensureAccounts } from '@/lib/accounts';
-import { queueEmail, emailConfigured } from '@/lib/email';
+import { sendEventEmail, notifyUserByEmail, emailConfigured } from '@/lib/email';
 import { AppError } from '@/lib/errors';
 
 function makeReferralCode() {
@@ -61,13 +61,9 @@ export async function POST(req: NextRequest) {
     await prisma.emailToken.create({
       data: { userId: user.id, type: 'VERIFY_EMAIL', tokenHash: hashToken(token), expiresAt: new Date(Date.now() + 86400_000) },
     });
-    const link = `${process.env.APP_URL ?? 'http://localhost:3000'}/verify-email?token=${token}`;
-    const delivery = await queueEmail({
-      to: user.email,
-      subject: 'Verify your PRIMEVEST account',
-      body: `Welcome to PRIMEVEST.\n\nConfirm your email address:\n${link}\n\nThis link expires in 24 hours.`,
-      template: 'verify_email',
-    });
+    const delivery = await sendEventEmail(user.email, 'verify_email', { firstName: body.firstName, token })
+      .catch(() => ({ delivered: false as const }));
+    await notifyUserByEmail(user.id, 'welcome');
 
     await createSession(user.id, { ip, userAgent: req.headers.get('user-agent') ?? undefined });
 

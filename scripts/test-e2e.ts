@@ -111,6 +111,8 @@ async function main() {
 
     check('registration does not expose verification token', !JSON.stringify(res.body).includes('verify-email?token='));
     const verificationMail = await prisma.emailOutbox.findFirst({ where: { to: clientEmail, template: 'verify_email' }, orderBy: { createdAt: 'desc' } });
+    const welcomeMail = await prisma.emailOutbox.findFirst({ where: { to: clientEmail, template: 'welcome' } });
+    check('welcome and verification emails queued without token exposure', !!welcomeMail && !!verificationMail && !welcomeMail.body.includes('token='));
     const verifyUrl: string | null = verificationMail?.body.match(/https?:\/\/[^\s]+verify-email\?token=[^\s\\]+/)?.[0] ?? null;
     if (verifyUrl) {
       const token = new URL(verifyUrl).searchParams.get('token')!;
@@ -328,6 +330,8 @@ async function main() {
     check('compliance approves KYC', approve.status === 200, approve.body);
     const after = await client.get('/api/kyc');
     check('client sees approved status', after.body.kyc.status === 'APPROVED');
+    const identityMail = await prisma.emailOutbox.findMany({ where: { to: clientEmail, template: { in: ['identity_submitted', 'identity_approved'] } } });
+    check('identity event emails queued after actual changes', new Set(identityMail.map(m => m.template)).size === 2);
   });
 
   await section('12. Withdrawal reservation, finance rejection and refund', async () => {
@@ -361,6 +365,8 @@ async function main() {
     const final = await client.get('/api/accounts');
     const liveFinal = final.body.accounts.find((a: any) => a.id === liveAccountId);
     check('completed withdrawal settled out of balance', liveFinal.available < 451 && Math.abs(liveFinal.locked) < 0.01, liveFinal);
+    const withdrawalMail = await prisma.emailOutbox.findMany({ where: { to: clientEmail, template: { in: ['withdrawal_requested', 'withdrawal_rejected', 'withdrawal_completed'] } } });
+    check('withdrawal event emails match recorded status transitions', new Set(withdrawalMail.map(m => m.template)).size === 3);
   });
 
   await section('13. Referral qualification and commission accrual', async () => {
@@ -497,6 +503,8 @@ async function main() {
     check('two-factor enabled with valid code', enabled.status === 200, enabled.body);
     const disable = await client.post('/api/auth/2fa/disable', { password: 'Vanta!Test2027', code: totp(secret) });
     check('two-factor disable requires password + code', disable.status === 200, disable.body);
+    const securityMail = await prisma.emailOutbox.findMany({ where: { to: clientEmail, template: { in: ['password_changed', 'two_factor_enabled', 'two_factor_disabled'] } } });
+    check('security event emails queued on successful changes', new Set(securityMail.map(m => m.template)).size === 3);
   });
 
   await section('18. Session revocation and profile management', async () => {

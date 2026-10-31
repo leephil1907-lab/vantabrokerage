@@ -3,7 +3,7 @@ import { randomBytes } from 'crypto';
 import { prisma } from '@/lib/db';
 import { clientIp, fail, json, parseBody, rateLimit } from '@/lib/http';
 import { hashToken } from '@/lib/auth';
-import { queueEmail } from '@/lib/email';
+import { sendEventEmail } from '@/lib/email';
 import { resetRequestSchema } from '@/lib/validation';
 
 export async function POST(req: NextRequest) {
@@ -16,8 +16,8 @@ export async function POST(req: NextRequest) {
     if (!user) return json({ ok: true });
     const token = randomBytes(32).toString('base64url');
     await prisma.emailToken.create({ data: { userId: user.id, type: 'RESET_PASSWORD', tokenHash: hashToken(token), expiresAt: new Date(Date.now() + 3600_000) } });
-    const link = `${process.env.APP_URL ?? 'http://localhost:3000'}/reset-password?token=${token}`;
-    await queueEmail({ to: email, subject: 'Reset your PRIMEVEST password', body: `Reset your password:\n${link}\n\nThis link expires in one hour.`, template: 'reset_password' });
+    // Never expose delivery or provider failures in this response (account enumeration).
+    await sendEventEmail(email, 'reset_password', { token }).catch(() => undefined);
     return json({ ok: true });
   } catch (err) {
     return fail(err);

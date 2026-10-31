@@ -8,6 +8,10 @@ See **[the protected Vercel review runbook](docs/VERCEL-REVIEW-DEPLOYMENT.md)** 
 
 This repository is **not ready for public real-money trading or deposits**. Live execution and customer deposit requests are disabled, and there is no internal matching engine or connected custody/payment system. Some legacy pages and APIs still provide simulated functionality. See [deployment readiness](docs/DEPLOYMENT-READINESS.md) and [market data notes](docs/CRYPTO-MARKET-DATA.md).
 
+## Transactional email
+
+See [branded email setup and preview](docs/TRANSACTIONAL-EMAIL.md). Delivery requires an independently configured email provider and verified sender.
+
 ## Local development
 
 Use an isolated PostgreSQL database and configure `.env` from `.env.example`. The development seed contains bootstrap staff accounts and simulated configuration; do not run it on a hosted environment or a database containing real data. The test scripts create and modify data and must only run against a disposable database and server.
