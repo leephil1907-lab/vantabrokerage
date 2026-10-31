@@ -29,7 +29,7 @@ export async function ensureAccounts(userId: string) {
         userId,
         type: 'PAPER',
         currency: 'USD',
-        isDefault: false,
+        isDefault: true,
         leverage: 100,
         wallet: { create: { currency: 'USD', available: money(STARTING_PAPER_BALANCE), locked: '0' } },
       },
@@ -37,6 +37,8 @@ export async function ensureAccounts(userId: string) {
     });
     existing.push(paper);
   }
+  await prisma.account.updateMany({ where: { userId, type: 'LIVE' }, data: { isDefault: false } });
+  await prisma.account.updateMany({ where: { userId, type: 'PAPER' }, data: { isDefault: true } });
   await prisma.account.updateMany({ where: { userId, type: 'LIVE' }, data: { isDefault: false } });
   await prisma.account.updateMany({ where: { userId, type: 'PAPER' }, data: { isDefault: true } });
   return existing;
