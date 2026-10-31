@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { randomBytes } from 'crypto';
 import { prisma } from '@/lib/db';
-import { clientIp, fail, json, rateLimit } from '@/lib/http';
+import { fail, json, rateLimit } from '@/lib/http';
 import { hashToken, requireUser } from '@/lib/auth';
 import { emailConfigured, queueTemplateEmail } from '@/lib/email';
 
