@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { listEmailTemplates, renderEmailTemplate, EmailTemplateKey } from '@/lib/email-templates';
+import { listEmailTemplates, renderEmailTemplate } from '@/lib/email-templates';
+import type { EmailTemplateKey } from '@/lib/email-templates';
 
 const templates = listEmailTemplates();
 
