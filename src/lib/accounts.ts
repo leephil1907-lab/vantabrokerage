@@ -7,7 +7,6 @@ export const STARTING_PAPER_BALANCE = Number(process.env.PAPER_STARTING_BALANCE 
 
 export async function ensureAccounts(userId: string) {
   const existing = await prisma.account.findMany({ where: { userId }, include: { wallet: true } });
-  if (existing.length >= 2) return existing;
   const haveLive = existing.some((a) => a.type === 'LIVE');
   const havePaper = existing.some((a) => a.type === 'PAPER');
   if (!haveLive) {
@@ -16,7 +15,7 @@ export async function ensureAccounts(userId: string) {
         userId,
         type: 'LIVE',
         currency: 'USD',
-        isDefault: true,
+        isDefault: false,
         leverage: 100,
         wallet: { create: { currency: 'USD', available: '0', locked: '0' } },
       },
@@ -38,12 +37,14 @@ export async function ensureAccounts(userId: string) {
     });
     existing.push(paper);
   }
+  await prisma.account.updateMany({ where: { userId, type: 'LIVE' }, data: { isDefault: false } });
+  await prisma.account.updateMany({ where: { userId, type: 'PAPER' }, data: { isDefault: true } });
   return existing;
 }
 
 export async function getAccountForUser(userId: string, accountId?: string) {
   await ensureAccounts(userId);
-  const where = accountId ? { id: accountId, userId } : { userId, isDefault: true };
+  const where = accountId ? { id: accountId, userId } : { userId, type: 'PAPER' as const };
   const account = await prisma.account.findFirst({ where, include: { wallet: { include: { holdings: true } } } });
   if (!account) {
     const fallback = await prisma.account.findFirst({ where: { userId }, include: { wallet: { include: { holdings: true } } }, orderBy: { type: 'asc' } });
