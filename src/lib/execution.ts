@@ -460,7 +460,7 @@ export async function matchRestingOrders(symbol?: string) {
         }
 
         await tx.execution.create({
-          data: { orderId: order.id, qty: String(d(order.qty)), price: String(fillPrice), fee: money(fee), venue: 'vanta-internal', quoteTs: new Date(quote.fetchedAt) },
+          data: { orderId: order.id, qty: String(d(order.qty)), price: String(fillPrice), fee: money(fee), venue: 'paper-simulation', quoteTs: new Date(quote.fetchedAt) },
         });
         await tx.order.update({
           where: { id: order.id },
