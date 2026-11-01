@@ -14,7 +14,8 @@
     "dev:once": "next dev -p 3000 -H 0.0.0.0",
     "vercel-build": "node scripts/check-vercel-env.mjs && prisma generate && next build",
     "db:seed-review": "tsx prisma/seed.ts --review-markets-only",
-    "test:auth": "tsx scripts/test-auth-experience.ts"
+    "test:auth": "tsx scripts/test-auth-experience.ts",
+    "test:paper": "tsx scripts/test-paper-trading.ts"
   },
   "keywords": [],
   "author": "",
