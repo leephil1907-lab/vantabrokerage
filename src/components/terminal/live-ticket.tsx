@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { apiFetch } from '@/components/ui';
-import { fmtMoney, fmtPrice, priceDp } from '@/lib/format';
+import { fmtMoney } from '@/lib/format';
 
 /** Order entry for the explicitly virtual PAPER account. LIVE accounts remain disabled. */
 export function LiveTicket({ symbol, accountId, accountType, available, onSubmitted }: {
