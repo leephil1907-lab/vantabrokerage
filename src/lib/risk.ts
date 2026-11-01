@@ -59,7 +59,7 @@ export async function revaluePositions(accountId?: string): Promise<PositionValu
         marginRatio: round(marginRatio, 6),
       };
       out.push(valuation);
-      await prisma.position.update({ where: { id: pos.id }, data: { markPrice: String(valuation.markPrice), unrealizedPnl: money(valuation.unrealizedPnl) } });
+      await prisma.position.updateMany({ where: { id: pos.id, status: 'OPEN', qty: pos.qty }, data: { markPrice: String(valuation.markPrice), unrealizedPnl: money(valuation.unrealizedPnl) } });
       if (marginRatio < WARNING_THRESHOLD && marginRatio >= LIQUIDATION_THRESHOLD) {
         const recent = await prisma.marginRecord.findFirst({ where: { positionId: pos.id, createdAt: { gte: new Date(Date.now() - 15 * 60_000) } } });
         if (!recent) {
@@ -88,7 +88,10 @@ export async function runLiquidationEngine() {
     if (!pos || pos.status !== 'OPEN') continue;
     const loss = Math.max(0, -v.unrealizedPnl);
     const recoverable = Math.min(loss, d(pos.initialMargin));
-    await prisma.$transaction(async (tx) => {
+    const liquidated = await prisma.$transaction(async (tx) => {
+      // Claim the still-open quantity before releasing margin or posting the liquidation debit.
+      const claim = await tx.position.updateMany({ where: { id: pos.id, status: 'OPEN', qty: pos.qty }, data: { status: 'CLOSED', closedAt: new Date() } });
+      if (claim.count !== 1) return false;
       const wallet = await getOrCreateWallet(tx, pos.accountId, pos.account.currency);
       await unlockFunds(tx, wallet.id, d(pos.initialMargin));
       const remainingLoss = round(Math.min(recoverable, d(pos.initialMargin)), 10);
@@ -125,8 +128,9 @@ export async function runLiquidationEngine() {
       await tx.notification.create({
         data: { userId: pos.account.userId, type: 'TRADE', title: 'Position liquidated', body: `${pos.symbol} ${pos.side} was liquidated at ${v.markPrice}. Margin ratio fell below the maintenance requirement.` },
       });
+      return true;
     });
-    events.push({ positionId: pos.id, symbol: pos.symbol, loss: recoverable });
+    if (liquidated) events.push({ positionId: pos.id, symbol: pos.symbol, loss: recoverable });
   }
   return events;
 }
