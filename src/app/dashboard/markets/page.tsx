@@ -6,6 +6,7 @@ import { Badge, Tabs, EmptyState } from '@/components/ui';
 import { AssetMark } from '@/components/asset-mark';
 import { CryptoDiscovery } from '@/components/crypto-discovery';
 import { PriceAlerts } from '@/components/markets/price-alerts';
+import { NewsFeed } from '@/components/markets/news-feed';
 import { useMarkets } from '@/lib/use-markets';
 import { fmtPct, fmtPrice, fmtQty, priceDp, relTime } from '@/lib/format';
 
@@ -100,6 +101,7 @@ export default function MarketsPage() {
         )}
       </div>
       <div className="pt-5"><PriceAlerts symbols={markets.map((m) => m.symbol)} /></div>
+      <div className="grid gap-5 pt-5 xl:grid-cols-2"><NewsFeed title="Market headlines" /><NewsFeed title="Crypto wire" category="crypto" /></div>
       <div className="pt-5"><CryptoDiscovery compactLayout /></div>
     </div>
   );

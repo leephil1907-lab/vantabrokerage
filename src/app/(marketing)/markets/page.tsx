@@ -4,6 +4,7 @@ import { AssetMark } from '@/components/asset-mark';
 import { LiveMarketTable } from '@/components/live-market-table';
 import { CryptoDiscovery } from '@/components/crypto-discovery';
 import { MarketMovers } from '@/components/markets/market-movers';
+import { NewsFeed } from '@/components/markets/news-feed';
 import { CTASection } from '@/components/marketing-ui';
 import { HeroScene } from '@/components/three/hero-scene';
 
@@ -39,6 +40,7 @@ export default function MarketsPage() {
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{DESKS.map((desk, i) => <Reveal key={desk.title} delay={i * 0.045}><Link href={desk.href} className="group flex h-full flex-col rounded-2xl border border-white/[0.07] bg-ink-850/70 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-lime/25 hover:bg-ink-800/80"><div className="flex items-center justify-between"><AssetMark symbol={desk.symbol} size={32}/><span className="chip">{desk.tag}</span></div><h3 className="mt-5 text-[15px] font-semibold text-white">{desk.title}</h3><p className="mt-2 flex-1 text-[12.5px] leading-6 text-muted">{desk.body}</p><span className="mt-5 text-[12px] font-medium text-lime">Explore <span aria-hidden>↗</span></span></Link></Reveal>)}</div>
       </section>
       <section className="shell pt-14 sm:pt-16"><MarketMovers /></section>
+      <section className="shell pt-8"><div className="grid gap-4 xl:grid-cols-3"><div className="xl:col-span-2"><NewsFeed title="Market headlines" /></div><div className="panel flex flex-col justify-center gap-3 p-5"><div><h3 className="text-[15px] font-semibold text-white">Want the whole universe?</h3><p className="mt-1 text-[12px] leading-relaxed text-muted">The global screener scans thousands of listed instruments by momentum, activity and technical rating.</p></div><Link href="/markets/screener" className="btn-primary px-4 py-2.5 text-[12px]">Open the screener ↗</Link></div></div></section>
       <CryptoDiscovery />
       <section className="border-y border-white/[0.07] bg-ink-900/30">
         <div className="shell py-16">
