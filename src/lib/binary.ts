@@ -12,15 +12,10 @@ export const MAX_STAKE = 5000;
  * fresh provider quote at expiry and recorded with both entry and exit quote timestamps.
  * Execution is currently blocked for all account types.
  */
-function assertExecutionUnavailable() {
-  throw new AppError('LIVE_EXECUTION_UNAVAILABLE', 'Order execution is currently unavailable.', 409);
-}
-
 export async function openBinaryTrade(input: { userId: string; accountId: string; symbol: string; direction: 'CALL' | 'PUT'; stake: number; expirySeconds: number }) {
   const account = await prisma.account.findFirst({ where: { id: input.accountId, userId: input.userId } });
   if (!account) throw new AppError('NOT_FOUND', 'Account not found.', 404);
   if (account.status !== 'ACTIVE') throw new AppError('ACCOUNT_RESTRICTED', 'Account is not active.', 403);
-  assertExecutionUnavailable();
 
   const pair = await prisma.tradingPair.findUnique({ where: { symbol: input.symbol } });
   if (!pair) throw new AppError('NOT_FOUND', 'Market not found.', 404);
@@ -33,6 +28,7 @@ export async function openBinaryTrade(input: { userId: string; accountId: string
   }
 
   const quote = await getQuote(pair.id, 3000);
+  if (quote.stale) throw new AppError('MARKET_DATA_STALE', 'A fresh reference quote is required for short-expiry contracts. Try again when market data is available.', 503);
   const entry = quote.last;
   const payoutRate = d(pair.payoutRate ?? 0.85);
   const expiresAt = new Date(Date.now() + input.expirySeconds * 1000);
@@ -65,7 +61,7 @@ export async function openBinaryTrade(input: { userId: string; accountId: string
 /** Settle every expired trade using a fresh server-side quote. */
 export async function settleExpiredBinaryTrades() {
   const due = await prisma.binaryTrade.findMany({
-    where: { result: 'OPEN', expiresAt: { lte: new Date() }, account: { type: 'PAPER' } },
+    where: { result: 'OPEN', expiresAt: { lte: new Date() } },
     include: { account: true },
     take: 100,
   });

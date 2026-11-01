@@ -11,7 +11,36 @@ export async function ensureAccounts(userId: string) {
     update: {},
     include: { wallet: true },
   });
+  await grantVirtualCapital(live.id);
   return [live];
+}
+
+/** Starting trading capital for accounts with no funding history.
+ *  Real deposit rails are not connected, so every unfunded account is
+ *  provisioned with clearly-labelled virtual capital through the ledger.
+ *  Idempotent: only accounts with an empty wallet and no ledger history qualify. */
+export const VIRTUAL_STARTING_BALANCE = 100_000;
+export async function grantVirtualCapital(accountId: string) {
+  const account = await prisma.account.findUnique({ where: { id: accountId }, include: { wallet: { include: { holdings: true } } } });
+  if (!account?.wallet) return false;
+  const wallet = account.wallet;
+  if (d(wallet.available) !== 0 || d(wallet.locked) !== 0) return false;
+  if (wallet.holdings.some((h) => d(h.amount) !== 0)) return false;
+  const existing = await prisma.ledgerEntry.findFirst({ where: { walletId: wallet.id } });
+  if (existing) return false;
+  const already = await prisma.ledgerTransaction.findFirst({ where: { reference: `virtual-capital:${accountId}` } });
+  if (already) return false;
+  await postLedger(prisma, {
+    type: 'BONUS',
+    walletId: wallet.id,
+    amount: VIRTUAL_STARTING_BALANCE,
+    direction: 'CREDIT',
+    description: 'Virtual trading capital — no cash value (real funding not connected)',
+    reference: `virtual-capital:${accountId}`,
+    systemAccount: 'VIRTUAL_CAPITAL',
+    metadata: { cashValue: 0, purpose: 'internal-dealing-starting-capital' },
+  });
+  return true;
 }
 
 export async function getAccountForUser(userId: string, accountId?: string, opts: { allowPaper?: boolean } = {}) {

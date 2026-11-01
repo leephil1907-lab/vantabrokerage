@@ -7,6 +7,7 @@ import { listMarkets } from '@/lib/markets';
 import { d } from '@/lib/ledger';
 
 export const dynamic = 'force-dynamic';
+const round2 = (v: number) => Math.round(v * 100) / 100;
 
 export async function GET(req: NextRequest) {
   try {
@@ -30,6 +31,30 @@ export async function GET(req: NextRequest) {
     const symbols = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'XAUUSD', 'BTC/USDT', 'ETH/USDT', 'SOL/USDT', ...(watch.map((w) => w.symbol))];
     const markets = await listMarkets({ symbols: [...new Set(symbols)] });
 
+    // Daily balance history from the double-entry ledger (cumulative wallet movements).
+    const curveEntries = await prisma.ledgerEntry.findMany({ where: { wallet: { accountId: account.id } }, orderBy: { createdAt: 'asc' }, take: 5000 });
+    let bal = 0;
+    const byDay = new Map<string, number>();
+    for (const e of curveEntries) {
+      bal += e.direction === 'CREDIT' ? d(e.amount) : -d(e.amount);
+      byDay.set(e.createdAt.toISOString().slice(0, 10), bal);
+    }
+    const equityCurve = [...byDay.entries()].map(([day, balance]) => ({ day, balance }));
+
+    // Allocation: cash, funds committed to orders, and holdings valued at reference marks.
+    const wallet = account.wallet;
+    const holdings = (wallet?.holdings ?? []).filter((h) => d(h.amount) > 0);
+    const holdSymbols = holdings.map((h) => `${h.asset}/USDT`);
+    const holdMarks = holdSymbols.length ? await listMarkets({ symbols: holdSymbols }) : [];
+    const allocation = [
+      { label: 'Cash', value: round2(equity.available) },
+      { label: 'In orders', value: round2(equity.locked) },
+      ...holdings.map((h) => {
+        const mark = holdMarks.find((m) => m.symbol === `${h.asset}/USDT`)?.last ?? 0;
+        return { label: h.asset, value: round2(d(h.amount) * mark) };
+      }),
+    ].filter((a) => a.value > 0.005);
+
     return json({
       profile: { firstName: dbUser?.profile?.firstName ?? null, lastName: dbUser?.profile?.lastName ?? null, email: dbUser?.email, kycStatus: dbUser?.kyc?.status ?? 'NOT_SUBMITTED', emailVerified: !!dbUser?.emailVerifiedAt },
       accounts: await Promise.all(accounts.map(async (a) => ({ id: a.id, type: a.type, available: d(a.wallet?.available as never), locked: d(a.wallet?.locked as never), isDefault: a.isDefault, equity: await accountEquity(a.id) }))),
@@ -46,7 +71,9 @@ export async function GET(req: NextRequest) {
       })),
       markets: markets.slice(0, 14),
       unreadNotifications: notifCount,
-      executionMode: account.type === 'PAPER' ? 'paper' : 'unavailable',
+      executionMode: account.type === 'PAPER' ? 'paper' : 'internal',
+      equityCurve,
+      allocation,
     }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (err) {
     return fail(err);

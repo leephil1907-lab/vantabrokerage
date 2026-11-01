@@ -270,4 +270,17 @@ html[data-theme='light'] :is(.panel,.shadow-panel) { box-shadow:0 12px 30px -18p
 .sessions-note { display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:15px; color:rgb(var(--muted-rgb)); font-size:10px; line-height:1.6; }
 .is-compact .sessions-head h2 {font-size:17px}.is-compact .sessions-grid {margin-top:12px}.is-compact .session-card {padding:11px}.is-compact .session-time {font-size:17px;margin-top:10px}
 .reference-chooser {padding:12px}.reference-chooser-title {font-size:11px;font-weight:600;color:rgb(var(--theme-white))}.reference-chooser-copy {font-size:10.5px;line-height:1.6;color:rgb(var(--muted-rgb));margin:6px 0 12px}.reference-chooser button {display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px;border-radius:8px;color:rgb(var(--theme-white));font-size:11.5px;text-align:left}.reference-chooser button:hover,.reference-chooser button[aria-pressed=true] {background:rgb(var(--theme-white)/.06)}.reference-chooser button span {color:rgb(var(--muted-rgb));font-size:9px}
+
+.sessions-status-strip { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.sessions-status-chip { display:inline-flex; align-items:center; gap:7px; padding:6px 11px; border-radius:999px; border:1px solid rgb(var(--theme-white)/.1); background:rgb(var(--theme-white)/.03); color:rgb(var(--theme-white)); font-size:11px; font-weight:600; letter-spacing:.02em; }
+.sessions-status-chip i { width:7px; height:7px; border-radius:999px; background:currentColor; opacity:.9; }
+.sessions-status-chip small { font-weight:500; color:rgb(var(--muted-rgb)); }
+.sessions-status-chip.is-open { color:#2dcf95; border-color:rgb(45 207 149/.35); background:rgb(45 207 149/.08); }
+.sessions-status-chip.is-open i { animation:pulse-dot 2s ease-in-out infinite; }
+.sessions-status-chip.is-closed { color:#ffb020; border-color:rgb(255 176 32/.3); background:rgb(255 176 32/.07); }
+.sessions-status-chip.is-neutral { color:rgb(var(--muted-rgb)); }
+@keyframes pulse-dot { 0%,100% { box-shadow:0 0 0 0 rgb(45 207 149/.5);} 50% { box-shadow:0 0 0 5px rgb(45 207 149/0);} }
+.session-card.is-crypto { border-color:rgb(45 207 149/.3); background:rgb(45 207 149/.06); }
+@media(min-width:900px) { .sessions-grid { grid-template-columns:repeat(5,minmax(0,1fr)); } }
+
 @media(max-width:750px) { .market-sessions {padding:18px}.sessions-grid {grid-template-columns:repeat(2,minmax(0,1fr))}.session-card {padding:11px}.session-time {font-size:18px}.session-card-top {align-items:start;flex-direction:column}.session-card-top span {text-align:left} }

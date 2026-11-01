@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { apiFetch } from '@/components/ui';
 import { fmtMoney } from '@/lib/format';
 
-/** Order entry for the explicitly virtual PAPER account. LIVE accounts remain disabled. */
+/** Order entry ticket. Internal dealing: orders on any account type fill at the
+ *  current reference quote; PAPER accounts are explicitly labelled demo. */
 export function LiveTicket({ symbol, accountId, accountType, available, onSubmitted }: {
   symbol: string;
   accountId: string;
@@ -51,7 +52,7 @@ export function LiveTicket({ symbol, accountId, accountType, available, onSubmit
     <div className="rounded-xl border border-white/[.07] bg-black/20 p-3 text-[11px] leading-relaxed text-muted"><div className="flex justify-between"><span>Available demo balance</span><strong className="value-mono text-white">{fmtMoney(available)}</strong></div><p className="mt-2">Demo orders use simulated execution against external reference prices. They do not access an exchange, create real liquidity or use cash funds.</p></div>
     {error && <p role="alert" className="rounded-lg border border-danger/20 bg-danger/10 p-2.5 text-[11px] text-danger">{error}</p>}
     {message && <p role="status" className="rounded-lg border border-lime/20 bg-lime/[.06] p-2.5 text-[11px] text-lime">{message}</p>}
-    <button type="button" onClick={submit} disabled={accountType !== 'PAPER' || submitting || !quantity} className="w-full rounded-xl bg-lime py-3 text-xs font-semibold text-ink-950 transition hover:brightness-105 disabled:cursor-not-allowed disabled:bg-white/[.08] disabled:text-white/35">{submitting ? 'Submitting…' : accountType === 'PAPER' ? `Place demo ${side.toLowerCase()} order` : 'Live trading unavailable'}</button>
-    {accountType === 'LIVE' && <p className="text-center text-[10px] leading-relaxed text-muted">Live execution is not enabled. Switch to a practice account to test the trading workflow.</p>}
+    <button type="button" onClick={submit} disabled={submitting || !quantity} className="w-full rounded-xl bg-lime py-3 text-xs font-semibold text-ink-950 transition hover:brightness-105 disabled:cursor-not-allowed disabled:bg-white/[.08] disabled:text-white/35">{submitting ? 'Submitting…' : accountType === 'PAPER' ? `Place demo ${side.toLowerCase()} order` : `Place ${side.toLowerCase()} order`}</button>
+    {accountType === 'LIVE' && <p className="text-center text-[10px] leading-relaxed text-muted">Internal dealing: orders fill at the current reference bid/ask. External venue routing is not connected.</p>}
   </div>;
 }

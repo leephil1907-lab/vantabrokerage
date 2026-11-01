@@ -6,6 +6,7 @@ import { prisma } from '../lib/db';
 import { listMarkets } from '../lib/markets';
 import { matchRestingOrders } from '../lib/execution';
 import { revaluePositions, runLiquidationEngine, runProtectiveExitEngine } from '../lib/risk';
+import { settleExpiredBinaryTrades } from '../lib/binary';
 
 const state = { quoteTick: 0 };
 
@@ -29,6 +30,7 @@ async function tick() {
   state.quoteTick++;
   if (state.quoteTick % 3 === 0) await record('markets.refresh', async () => { const r = await listMarkets({ refresh: true }); return { pairs: r.length }; });
   await record('paper.orders.match', async () => ({ filled: await matchRestingOrders() }));
+  await record('binary.settle', async () => ({ settled: (await settleExpiredBinaryTrades()).length }));
   if (state.quoteTick % 2 === 0) {
     await record('paper.positions.revalue', async () => ({ positions: (await revaluePositions()).length }));
     await record('paper.positions.protective-exits', async () => ({ closed: (await runProtectiveExitEngine()).length }));

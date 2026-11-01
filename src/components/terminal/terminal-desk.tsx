@@ -51,7 +51,7 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
   const cfg = CFG[kind];
   const { markets, loading: marketsLoading, error: marketsError } = useMarkets();
   const tradable = useMemo(() => markets.filter((m) => cfg.categories.includes(m.category)), [markets, cfg.categories]);
-  const { accounts, accountId, select, active, reloadAccounts, createPaperAccount, loading: accountsLoading } = useAccount({ accountType: mode === 'live' ? 'LIVE' : mode === 'demo' ? 'PAPER' : undefined });
+  const { accounts, accountId, select, active, liveEnabled, reloadAccounts, createPaperAccount, loading: accountsLoading } = useAccount({ accountType: mode === 'live' ? 'LIVE' : mode === 'demo' ? 'PAPER' : undefined });
   const { push } = useToast();
 
   const search = useSearchParams();
@@ -299,12 +299,12 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-[.22em] text-lime">Trading / {mode === 'live' ? 'Live Trading' : mode === 'demo' ? 'Demo Trading' : 'Markets'}</p>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-[26px] font-semibold tracking-tight text-white">{mode === 'live' ? 'Live ' + cfg.title : mode === 'demo' ? 'Demo ' + cfg.title : cfg.title}</h1>
-            <Badge tone={active?.type === 'PAPER' ? 'lime' : 'amber'}>{active?.type === 'PAPER' ? 'Demo Trading' : 'Live trading unavailable'}</Badge>
+            <Badge tone={active?.type === 'PAPER' ? 'lime' : 'amber'}>{active?.type === 'PAPER' ? 'Demo Trading' : 'Live · internal dealing'}</Badge>
           </div>
           <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted">{cfg.sub}</p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
-          {mode === 'all' && <AccountSwitcher accounts={accounts} accountId={accountId} onSelect={select} active={active} liveEnabled={false} />}
+          {mode === 'all' && <AccountSwitcher accounts={accounts} accountId={accountId} onSelect={select} active={active} liveEnabled={liveEnabled} />}
           {mode !== 'live' && !accounts.some((a) => a.type === 'PAPER') && <button type="button" onClick={() => void startDemo()} className="btn-primary px-3 py-2 text-[12px]">Open Demo Account</button>}
           {kind === 'all' && <Link href="/dashboard/short-expiry" className="btn-ghost px-3 py-2 text-[12px]">Short-expiry</Link>}
           <Link href="/dashboard/deposits" className="btn-ghost px-3 py-2 text-[12px]">Funding</Link>

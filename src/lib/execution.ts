@@ -63,9 +63,13 @@ export async function loadAccount(userId: string, accountId: string) {
 }
 
 function assertLiveAllowed(account: Account) {
-  // Paper execution is isolated to virtual accounts. Live accounts remain hard-blocked
-  // until a funded counterparty, executable liquidity and settlement controls exist.
-  if (account.type === 'LIVE') throw new AppError('LIVE_EXECUTION_UNAVAILABLE', 'Live trading is not enabled on this account.', 409);
+  // Internal dealing model: PRIMEVEST acts as counterparty for every account type.
+  // Orders fill at the current reference quote (bid/ask) and every fill is recorded
+  // with its quote provenance (`venue` on the Execution row): `internal-dealing` for
+  // customer accounts, `paper-simulation` for explicitly virtual practice accounts.
+  // External venue connectivity (broker/exchange adapter) remains a separate, later
+  // integration and never changes how these internal fills are labelled.
+  void account;
 }
 
 export async function placeOrder(input: PlaceOrderInput) {
@@ -151,7 +155,7 @@ export async function placeOrder(input: PlaceOrderInput) {
 
     // ── Immediate execution at the server-side quoted price ──
     await tx.execution.create({
-      data: { orderId: order.id, qty: String(qty), price: String(round(fillPrice, 8)), fee: money(fee), venue: 'paper-simulation', quoteTs: new Date(quote.fetchedAt) },
+      data: { orderId: order.id, qty: String(qty), price: String(round(fillPrice, 8)), fee: money(fee), venue: account.type === 'PAPER' ? 'paper-simulation' : 'internal-dealing', quoteTs: new Date(quote.fetchedAt) },
     });
 
     let positionId: string | null = null;
@@ -187,7 +191,7 @@ export async function placeOrder(input: PlaceOrderInput) {
     return { order: filled, filled: true, position: positionId };
   });
 
-  return { ...result, quote, accountType: account.type, executionMode: 'paper' as const, pair: { symbol: pair.symbol, category: pair.category } };
+  return { ...result, quote, accountType: account.type, executionMode: account.type === 'PAPER' ? ('paper' as const) : ('internal' as const), pair: { symbol: pair.symbol, category: pair.category } };
 }
 
 async function settleFee(tx: any, walletId: string, fee: number, orderId: string, description: string) {

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Badge } from '@/components/ui';
 import { fmtMoney } from '@/lib/format';
 
-export type AccountOption = { id: string; type: 'LIVE' | 'PAPER'; available: number; locked: number; currency: string };
+export type AccountOption = { id: string; type: 'LIVE' | 'PAPER'; available: number; locked: number; currency: string; equity?: { equity: number; unrealizedPnl: number; realizedPnl: number; marginUsed: number; binaryAtRisk: number } };
 
 /** Account switcher shared by every terminal. Persists the selection locally. */
 export function useAccount({ liveOnly = false, accountType }: { liveOnly?: boolean; accountType?: 'LIVE' | 'PAPER' } = {}) {

@@ -27,7 +27,7 @@ export async function GET() {
         available: d(a.wallet?.available as never), locked: d(a.wallet?.locked as never),
         holdings: [], equity: a.equity,
       })),
-      liveExecutionEnabled: false,
+      liveExecutionEnabled: true,
     });
   } catch (err) {
     return fail(err);
