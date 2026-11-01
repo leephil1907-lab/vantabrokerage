@@ -36,7 +36,17 @@ const PRIMARY: { label: string; href?: string; items?: Item[] }[] = [
   ] },
 ];
 
-export function SiteNav({ authenticated }: { authenticated: boolean }) {
+export function SiteNav({ authenticated: initialAuthenticated }: { authenticated: boolean }) {
+  // The marketing shell is server-rendered; revalidate the session on the
+  // client so a signed-in visitor never sees Sign in / Open account.
+  const [authenticated, setAuthenticated] = useState(initialAuthenticated);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/auth/me', { cache: 'no-store' })
+      .then((r) => { if (!cancelled) setAuthenticated(r.ok); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string | null>(null);

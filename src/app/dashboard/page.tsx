@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Spotlight } from '@/components/motion/primitives';
 import { useMemo, useState } from 'react';
 import { usePolling, Badge, EmptyState, Skeleton, apiFetch, useToast } from '@/components/ui';
+import { AssetMark } from '@/components/asset-mark';
 import { fmtMoney, fmtPct, fmtPrice, fmtSigned, fmtQty, priceDp, relTime, friendlyLedgerDescription } from '@/lib/format';
 import { useAccount } from '@/components/terminal/account-bar';
 
@@ -174,6 +175,7 @@ export default function DashboardOverview() {
           <div className="ticker-track flex min-w-max gap-2 px-1">
             {[...data.markets, ...data.markets].map((m, i) => (
               <span key={`${m.symbol}-${i}`} aria-hidden={i >= data.markets.length} className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5 text-[11px]">
+                <AssetMark symbol={m.symbol} size={16} />
                 <strong className="font-semibold text-white">{m.symbol}</strong>
                 <span className="font-mono text-muted">{m.last != null ? fmtPrice(m.last, priceDp(m.symbol)) : '—'}</span>
                 <span className={`font-mono ${((m.change24h ?? 0) >= 0) ? 'text-emerald' : 'text-danger'}`}>{fmtPct(m.change24h)}</span>
@@ -261,7 +263,7 @@ export default function DashboardOverview() {
         {/* Right column */}
         <div className="space-y-4">
           {/* Wallet card */}
-          <section className="theme-island-dark relative overflow-hidden rounded-2xl border border-lime/25 bg-gradient-to-br from-[#1d1710] via-[#171208] to-[#100c06] p-5 shadow-panel">
+          <section className="theme-island-dark relative overflow-hidden rounded-2xl border border-lime/25 bg-gradient-to-br from-[#151a20] via-[#10141a] to-[#0b0e12] p-5 shadow-panel">
             <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-lime/15 blur-3xl" />
             <div className="relative">
               <div className="flex items-center justify-between">

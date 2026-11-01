@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
 import { PrimevestGlyph } from '@/components/brand';
 
 /**
@@ -58,6 +58,24 @@ export function ChatWidget() {
   useEffect(() => {
     try { setToken(localStorage.getItem(TOKEN_KEY)); } catch { /* private mode */ }
   }, []);
+
+  // The launcher is draggable so it never has to sit on top of content.
+  const lx = useMotionValue(0);
+  const ly = useMotionValue(0);
+  const [dragBox, setDragBox] = useState({ left: -260, right: 260, top: -380, bottom: 380 });
+  useEffect(() => {
+    const size = 64;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+    setDragBox({ left: -(vw - size - 16), right: vw - size - 16, top: -(vh - 210), bottom: vh - 210 });
+    try {
+      const saved = JSON.parse(localStorage.getItem('primevest.chat.pos') ?? 'null') as { x: number; y: number } | null;
+      if (saved) {
+        lx.set(clamp(saved.x, -(vw - size - 16), vw - size - 16));
+        ly.set(clamp(saved.y, -(vh - 210), vh - 210));
+      }
+    } catch { /* first visit */ }
+  }, [lx, ly]);
 
   // Other components (e.g. the 404 scene) can request the panel open.
   useEffect(() => {
@@ -119,7 +137,14 @@ export function ChatWidget() {
       <motion.button
         type="button"
         aria-label="Open PRIMEVEST Customer Support chat"
-        onClick={() => setOpen((v) => !v)}
+        title="Tap to chat · drag to move"
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        dragConstraints={dragBox}
+        style={{ x: lx, y: ly }}
+        onDragEnd={() => { try { localStorage.setItem('primevest.chat.pos', JSON.stringify({ x: lx.get(), y: ly.get() })); } catch { /* private mode */ } }}
+        onTap={() => setOpen((v) => !v)}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.96 }}
         className="fixed bottom-[calc(70px+env(safe-area-inset-bottom))] right-3 z-[90] flex h-12 w-12 items-center justify-center rounded-full md:bottom-5 md:right-5 md:h-14 md:w-14 md:bottom-5 md:right-5 bg-gradient-to-br from-gold to-gold-600 text-ink-950 shadow-[0_10px_36px_-10px_rgba(223,192,136,0.65)]"
@@ -141,7 +166,7 @@ export function ChatWidget() {
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             role="dialog"
             aria-label="PRIMEVEST Customer Support"
-            className="fixed bottom-[calc(126px+env(safe-area-inset-bottom))] right-3 z-[90] flex h-[min(520px,calc(100dvh-216px))] md:bottom-24 md:right-5 md:h-[min(560px,calc(100dvh-120px))] w-[min(380px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl border border-white/10 bg-ink-900/97 shadow-2xl backdrop-blur-xl sm:right-5"
+            className="fixed bottom-[calc(126px+env(safe-area-inset-bottom))] right-3 z-[90] flex h-[min(520px,calc(100dvh-216px))] md:bottom-24 md:right-5 md:h-[min(560px,calc(100dvh-120px))] w-[min(380px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl border border-white/15 bg-ink-900 shadow-2xl sm:right-5"
           >
             <div className="relative flex items-center gap-3 border-b border-white/[0.08] px-4 py-3">
               <span aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />

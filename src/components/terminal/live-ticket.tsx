@@ -53,7 +53,15 @@ export function LiveTicket({ symbol, accountId, accountType, available, onSubmit
     <div className="rounded-xl border border-white/[.07] bg-black/20 p-3 text-[11px] leading-relaxed text-muted"><div className="flex justify-between"><span>Available demo balance</span><strong className="value-mono text-white">{fmtMoney(available)}</strong></div><p className="mt-2">Demo trading uses virtual funds.</p></div>
     {error && <p role="alert" className="rounded-lg border border-danger/20 bg-danger/10 p-2.5 text-[11px] text-danger">{error}</p>}
     {message && <p role="status" className="rounded-lg border border-lime/20 bg-lime/[.06] p-2.5 text-[11px] text-lime">{message}</p>}
-    <button type="button" onClick={submit} disabled={submitting || !quantity} className="w-full rounded-xl bg-lime py-3 text-xs font-semibold text-ink-950 transition hover:brightness-105 disabled:cursor-not-allowed disabled:bg-white/[.08] disabled:text-white/35">{submitting ? 'Submitting…' : accountType === 'PAPER' ? `Place demo ${side.toLowerCase()} order` : `Place ${side.toLowerCase()} order`}</button>
+    {accountType === 'LIVE' && available <= 0 ? (
+      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-center">
+        <p className="text-[11.5px] font-semibold text-white">Fund your live account to start trading</p>
+        <p className="mt-1 text-[10.5px] leading-relaxed text-muted">Live trading activates once a deposit is credited and your account is verified.</p>
+        <a href="/dashboard/deposits" className="btn-primary mt-2.5 inline-flex px-4 py-2 text-[11px]">Go to funding</a>
+      </div>
+    ) : (
+      <button type="button" onClick={submit} disabled={submitting || !quantity} className="w-full rounded-xl bg-lime py-3 text-xs font-semibold text-ink-950 transition hover:brightness-105 disabled:cursor-not-allowed disabled:bg-white/[.08] disabled:text-white/35">{submitting ? 'Submitting…' : accountType === 'PAPER' ? `Place demo ${side.toLowerCase()} order` : `Place ${side.toLowerCase()} order`}</button>
+    )}
     {accountType === 'LIVE' && <p className="text-center text-[10px] leading-relaxed text-muted">Internal dealing: orders fill at the current reference bid/ask. External venue routing is not connected.</p>}
   </div>;
 }

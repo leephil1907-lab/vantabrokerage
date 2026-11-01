@@ -97,7 +97,7 @@ export function Select({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.99 }}
             transition={{ duration: 0.14 }}
-            className="absolute z-40 mt-1.5 max-h-64 w-full overflow-y-auto rounded-xl border border-white/10 bg-ink-900/98 p-1 shadow-panel backdrop-blur-xl"
+            className="absolute z-40 mt-1.5 max-h-64 w-full overflow-y-auto rounded-xl border border-white/15 bg-ink-850 p-1 shadow-panel"
           >
             {options.map((o, i) => (
               <li key={o.value} data-idx={i} role="option" aria-selected={o.value === value}>

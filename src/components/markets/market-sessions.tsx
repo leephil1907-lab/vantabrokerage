@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { FX_SESSIONS, sessionAt, marketStatus } from '@/lib/market-sessions';
 import { countdown } from '@/lib/format';
+import { CurrencyFlag, CryptoMark } from '@/components/asset-mark';
 
 export function MarketSessions({ compact = false }: { compact?: boolean }) {
   const [now, setNow] = useState<Date | null>(null);
@@ -26,8 +27,8 @@ export function MarketSessions({ compact = false }: { compact?: boolean }) {
       </div>
     )}
     <div className="sessions-grid">
-      <div className="session-card is-crypto"><div className="session-card-top"><strong>Crypto</strong><span className="session-active">Open · 24/7</span></div><p className="session-time">{now ? new Intl.DateTimeFormat('en-GB', {timeZone:'UTC',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(now) : '—:—'} <small>UTC</small></p><p className="session-window">Continuous · venues may pause for maintenance</p></div>
-      {FX_SESSIONS.map(session => { const current = now ? sessionAt(session, now) : null; return <div className="session-card" key={session.name}><div className="session-card-top"><strong>{session.name}</strong><span className={current?.active ? 'session-active' : 'session-outside'}>{current ? current.active ? 'In window' : 'Outside window' : 'Loading'}</span></div><p className="session-time">{current?.time ?? '—:—'} <small>{current?.day ?? ''} local</small></p><p className="session-window">{String(session.start).padStart(2,'0')}:00–{String(session.end).padStart(2,'0')}:00 · Mon–Fri</p></div>; })}
+      <div className="session-card is-crypto"><div className="session-card-top"><span className="session-mark"><CryptoMark asset="BTC" size={18} /></span><strong>Crypto</strong><span className="session-active">Open · 24/7</span></div><p className="session-time">{now ? new Intl.DateTimeFormat('en-GB', {timeZone:'UTC',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(now) : '—:—'} <small>UTC</small></p><p className="session-window">Continuous · venues may pause for maintenance</p></div>
+      {FX_SESSIONS.map(session => { const current = now ? sessionAt(session, now) : null; const flag = ({ Sydney: 'AU', Tokyo: 'JP', London: 'GB', 'New York': 'US' } as Record<string, string>)[session.name] ?? 'US'; return <div className="session-card" key={session.name}><div className="session-card-top"><span className="session-mark"><CurrencyFlag code={flag} size={18} /></span><strong>{session.name}</strong><span className={current?.active ? 'session-active' : 'session-outside'}>{current ? current.active ? 'In window' : 'Outside window' : 'Loading'}</span></div><p className="session-time">{current?.time ?? '—:—'} <small>{current?.day ?? ''} local</small></p><p className="session-window">{String(session.start).padStart(2,'0')}:00–{String(session.end).padStart(2,'0')}:00 · Mon–Fri</p></div>; })}
     </div>
     <div className="sessions-guides"><p><strong>Crypto</strong> Generally around the clock; venues may pause.</p><p><strong>Equity reference</strong> NYSE 09:30–16:00 New York · LSE 08:00–16:30 London. CFD and index hours can differ.</p><p><strong>Commodities & futures</strong> Hours and breaks vary by contract and venue.</p></div>
     <div className="sessions-note"><span>Sessions are shown in your local time.</span></div>

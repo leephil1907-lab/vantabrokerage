@@ -98,7 +98,7 @@ export function CommandPalette({ open, onClose, isStaff }: { open: boolean; onCl
             exit={{ opacity: 0, y: -8, scale: 0.99 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-ink-900/95 shadow-panel"
+            className="w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-ink-900 shadow-panel"
             role="dialog"
             aria-modal="true"
             aria-label="Command palette"
