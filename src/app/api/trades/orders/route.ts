@@ -31,7 +31,8 @@ export async function POST(req: NextRequest) {
       order: serializeOrder(result.order),
       filled: result.filled,
       quote: result.quote,
-      executionMode: 'unavailable',
+      accountType: result.accountType,
+      executionMode: result.executionMode,
     }, { status: 201 });
   } catch (err) {
     return fail(err);
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await requireUser();
     const url = new URL(req.url);
-    const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined);
+    const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined, { allowPaper: true });
     const status = url.searchParams.get('status');
     const orders = await prisma.order.findMany({
       where: { accountId: account.id, ...(status === 'open' ? { status: 'OPEN' } : status === 'history' ? { status: { not: 'OPEN' } } : {}) },
