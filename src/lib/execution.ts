@@ -84,7 +84,7 @@ export async function placeOrder(input: PlaceOrderInput) {
   const leverage = Math.max(1, Math.min(Number(input.leverage ?? 1), pair.maxLeverage, account.leverage));
   const derivative = isDerivative(pair);
   const quote = await getQuote(pair.id, 3000);
-  if (quote.stale || Date.now() - new Date(quote.fetchedAt).getTime() > 15_000) throw new AppError('MARKET_DATA_STALE', 'A fresh reference quote is required for practice execution. Try again when market data is available.', 503);
+  if (quote.stale || Date.now() - new Date(quote.fetchedAt).getTime() > 15_000) throw new AppError('MARKET_DATA_STALE', 'A fresh market price is required to place this order. Please try again in a moment.', 503);
   const isMarket = input.type === 'MARKET';
 
 

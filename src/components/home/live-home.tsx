@@ -64,7 +64,7 @@ function HeroTerminal({ markets, feed }: { markets: M[]; feed: ReturnType<typeof
           </span>
           <span className="ml-1 text-[10.5px] uppercase tracking-[0.16em] text-muted">PRIMEVEST terminal</span>
         </div>
-        <FeedStatus state={!market?.last || !market.source ? 'offline' : market.stale ? 'delayed' : 'live'} label={!market?.last || !market.source ? 'Feed unavailable' : market.stale ? 'Delayed reference' : 'Reference price'} />
+        <FeedStatus state={!market?.last || !market.source ? 'offline' : market.stale ? 'delayed' : 'live'} label={!market?.last || !market.source ? 'Feed unavailable' : market.stale ? 'Delayed' : 'Live price'} />
       </div>
 
       {/* symbol tabs */}
@@ -200,25 +200,25 @@ function SparkArea({ symbol, up, tick, referenceId }: { symbol: string; up: bool
 /* ── Data sections ────────────────────────────────────────────────────────── */
 
 const INSTRUMENTS = [
-  { title: 'Forex', href: '/trading/forex', symbol: 'EUR/USD', copy: 'Follow major currency pairs and explore indicative reference prices.', tag: 'Currencies' },
+  { title: 'Forex', href: '/trading/forex', symbol: 'EUR/USD', copy: 'Follow major currency pairs and live market prices.', tag: 'Currencies' },
   { title: 'Indices & commodities', href: '/trading/cfd', symbol: 'NAS100', copy: 'Explore information on indices and commodity-linked markets.', tag: 'Global markets' },
-  { title: 'Crypto', href: '/trading/crypto', symbol: 'BTC/USDT', copy: 'Discover digital assets and follow reference prices.', tag: 'Digital assets' },
+  { title: 'Crypto', href: '/trading/crypto', symbol: 'BTC/USDT', copy: 'Discover digital assets and follow live prices.', tag: 'Digital assets' },
   { title: 'Futures', href: '/trading/futures', symbol: 'ETH/USDT', copy: 'Learn about futures and market risk.', tag: 'Market education' },
 ];
 
 const STEPS = [
   { n: '01', title: 'Create your account', body: 'Register with your email address and set up your profile.', href: '/register', cta: 'Register' },
   { n: '02', title: 'Explore your dashboard', body: 'Review your account information and security settings.', href: '/accounts', cta: 'Your account' },
-  { n: '03', title: 'Follow the markets', body: 'Explore currencies and digital assets with provider-sourced reference prices.', href: '/markets', cta: 'Browse markets' },
+  { n: '03', title: 'Follow the markets', body: 'Explore currencies and digital assets with live provider prices.', href: '/markets', cta: 'Browse markets' },
 ];
 
 const ADVANTAGES = [
   { title: 'Market overview', body: 'Explore a range of market information in one workspace.', icon: 'server' },
   { title: 'Account dashboard', body: 'Review your profile and account activity in one place.', icon: 'ledger' },
   { title: 'Security settings', body: 'Manage your credentials and review account sessions.', icon: 'shield' },
-  { title: 'Market discovery', body: 'Follow currency pairs and digital asset reference prices.', icon: 'split' },
+  { title: 'Market discovery', body: 'Follow currency pairs and digital asset prices.', icon: 'split' },
   { title: 'Account support', body: 'Open a support request from your dashboard.', icon: 'audit' },
-  { title: 'Provider-sourced data', body: 'Market prices are supplied by third parties and may be delayed or unavailable.', icon: 'feed' },
+  { title: 'Provider-sourced data', body: 'Market prices are supplied by leading third-party data providers.', icon: 'feed' },
 ];
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -232,7 +232,7 @@ const ICONS: Record<string, React.ReactNode> = {
 
 const FAQS = [
   ['What can I explore on PRIMEVEST?', 'Explore market information, manage your profile and access your account dashboard.'],
-  ['Where do the prices come from?', 'Prices come from third-party market data providers. Reference prices may be delayed or unavailable and are not executable quotes.'],
+  ['Where do the prices come from?', 'Prices come from third-party market data providers and refresh continuously while markets are open.'],
   ['How can I protect my account?', 'Use a strong password and review the security settings and active sessions in your dashboard.'],
   ['Where can I find support?', 'Sign in and open a support request from your dashboard.'],
 ];
@@ -260,7 +260,7 @@ export function LiveHome({ markets, authenticated = false }: { markets: M[]; aut
             <p className="eyebrow">Market overview</p>
             <h2 className="display mt-2 text-[26px] sm:text-[30px]"><MaskLine>The markets at a glance</MaskLine></h2>
             <p className="mt-2.5 max-w-xl text-[13.5px] leading-relaxed text-muted">
-              Follow indicative forex, commodity and digital-asset quotes. Provider and freshness details remain visible alongside each market.
+              Follow forex, commodity and digital-asset quotes, with provider and freshness details alongside each market.
             </p>
           </div>
           <Link href="/markets" className="group inline-flex items-center gap-1.5 text-[13px] font-medium text-lime">
@@ -270,7 +270,7 @@ export function LiveHome({ markets, authenticated = false }: { markets: M[]; aut
         </Reveal>
 
         {!majors.length && cryptoFeed.data?.assets.some((a) => a.priceUsd != null && a.priceUsd > 0) ? <Reveal delay={0.05} className="mt-6 overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-850/60">
-          <p className="border-b border-white/[0.07] px-4 py-3 text-[11px] text-muted">Crypto USD reference prices from CoinGecko · not bid/ask or executable quotes{cryptoFeed.delayed ? ' · delayed' : ''}</p>
+          <p className="border-b border-white/[0.07] px-4 py-3 text-[11px] text-muted">Crypto USD prices from CoinGecko{cryptoFeed.delayed ? ' · delayed' : ''}</p>
           <table className="w-full"><thead className="bg-white/[0.02]"><tr><th className="th">Asset</th><th className="th text-right">USD price</th><th className="th text-right">24h</th></tr></thead><tbody>{cryptoFeed.data.assets.filter((a) => a.priceUsd != null && a.priceUsd > 0).slice(0, 8).map((asset) => <tr key={asset.id} className="table-row"><td className="td"><span className="flex items-center gap-2"><AssetMark symbol={`${asset.symbol}/USD`} size={22} /><span><span className="block font-medium text-white">{asset.name}</span><span className="block text-[10px] uppercase text-muted">{asset.symbol}/USD{(!asset.updatedAt || (cryptoFeed.clock > 0 && cryptoFeed.clock - Date.parse(asset.updatedAt) > 300_000)) ? ' · delayed' : ''}</span></span></span></td><td className="td whitespace-nowrap text-right value-mono">{formatUsd(asset.priceUsd)}</td><td className={`td whitespace-nowrap text-right value-mono ${asset.change24h == null ? 'text-muted' : asset.change24h >= 0 ? 'text-emerald' : 'text-danger'}`}>{fmtPct(asset.change24h)}</td></tr>)}</tbody></table>
         </Reveal> : <Reveal delay={0.05} className="mt-6 overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-850/60">
           {majors.length === 0 ? <div className="px-5 py-8 text-center text-[12px] text-muted">No market quotes are available right now.</div> : <div className="overflow-x-auto">

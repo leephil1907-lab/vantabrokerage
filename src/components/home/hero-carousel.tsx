@@ -7,7 +7,7 @@ import { HeroScene } from '@/components/three/hero-scene';
 import { Magnetic } from '@/components/motion/primitives';
 
 const SLIDES = [
-  { image: '/images/hero-dealing.jpg', kicker: 'The dealing desk', title: 'Precision, in every fill.', text: 'Orders execute against live reference quotes with full ledger provenance — markets, sessions and risk in one considered workspace.' },
+  { image: '/images/hero-dealing.jpg', kicker: 'The dealing desk', title: 'Precision, in every fill.', text: 'Orders execute against live market quotes with full ledger provenance — markets, sessions and risk in one considered workspace.' },
   { image: '/images/hero-markets.webp', kicker: 'A clearer view of markets', title: 'Perspective for every move.', text: 'Follow global markets, explore crypto and find the detail that matters — all in one considered workspace.' },
   { image: '/images/hero-perspective.webp', kicker: 'Global markets, in focus', title: 'A wider world. One view.', text: 'From currencies to digital assets, discover the markets shaping the world around you.' },
   { image: '/images/hero-workspace.webp', kicker: 'Built around your journey', title: 'Clarity in every detail.', text: 'Explore powerful charts, market information and an account experience designed to keep you focused.' },

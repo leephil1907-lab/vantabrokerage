@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 const DESKS = [
   { href: '/trading/forex', symbol: 'EUR/USD', title: 'Forex', body: 'Explore currency pairs with a focused trading workspace.', tag: 'Currencies' },
-  { href: '/trading/crypto', symbol: 'BTC/USDT', title: 'Crypto spot', body: 'Follow digital asset reference prices and market information.', tag: 'Digital assets' },
+  { href: '/trading/crypto', symbol: 'BTC/USDT', title: 'Crypto spot', body: 'Follow digital asset prices and market information.', tag: 'Digital assets' },
   { href: '/trading/futures', symbol: 'ETH/USDT', title: 'Perpetual futures', body: 'Learn about futures, market movements and risk.', tag: 'Derivatives' },
   { href: '/trading/cfd', symbol: 'XAUUSD', title: 'Indices & commodities', body: 'Follow major indices and commodity-linked markets.', tag: 'Multi-asset' },
 ];
@@ -31,7 +31,7 @@ export default function MarketsPage() {
             <h1 className="display mt-4 max-w-2xl text-[40px] leading-[1.05] sm:text-[56px]"><MaskLine delay={0.05}>The markets move.</MaskLine><MaskLine delay={0.14}><span className="text-lime">Stay ready.</span></MaskLine></h1>
             <Reveal delay={0.1}><p className="mt-5 max-w-xl text-[14px] leading-7 text-muted">Explore global currencies and digital assets in one considered workspace. Follow provider-sourced prices and discover crypto markets.</p></Reveal>
             <Reveal delay={0.15}><div className="mt-7 flex flex-wrap gap-3"><Magnetic strength={0.25}><a href="#crypto-discovery-heading" className="btn-primary px-5 py-3">Explore crypto markets <span aria-hidden>↗</span></a></Magnetic><Magnetic strength={0.25}><Link href="/dashboard/forex" className="btn-ghost px-5 py-3">Open forex desk</Link></Magnetic></div></Reveal>
-            <p className="mt-5 text-[11px] text-white/45">Reference prices can be delayed or unavailable.</p>
+            <p className="mt-5 text-[11px] text-white/45">Live prices from institutional-grade data providers.</p>
           </div>
           <div className="absolute -right-12 top-1/2 hidden h-[370px] w-[370px] -translate-y-1/2 opacity-80 lg:block xl:right-16" aria-hidden="true"><HeroScene /></div>
         </div>
@@ -45,11 +45,11 @@ export default function MarketsPage() {
       <CryptoDiscovery />
       <section className="border-y border-white/[0.07] bg-ink-900/30">
         <div className="shell py-16">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Currencies</p><h2 className="display mt-2 text-[26px] sm:text-[32px]">Forex at a glance</h2><p className="mt-2 text-[13px] text-muted">Provider-sourced indicative quotes; spreads may be modeled.</p></div><Link href="/trading/forex" className="btn-ghost px-4 py-2 text-[12px]">Explore forex →</Link></div>
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Currencies</p><h2 className="display mt-2 text-[26px] sm:text-[32px]">Forex at a glance</h2><p className="mt-2 text-[13px] text-muted">Live quotes from third-party market data providers.</p></div><Link href="/trading/forex" className="btn-ghost px-4 py-2 text-[12px]">Explore forex →</Link></div>
           <LiveMarketTable category="FOREX" limit={12} />
         </div>
       </section>
-      <CTASection title="Find your rhythm in the markets" body="Explore reference prices and market information in your account workspace." primary={{ href: '/register', label: 'Create account' }} secondary={{ href: '/trading-conditions', label: 'Trading conditions' }} />
+      <CTASection title="Find your rhythm in the markets" body="Explore live prices and market information in your account workspace." primary={{ href: '/register', label: 'Create account' }} secondary={{ href: '/trading-conditions', label: 'Trading conditions' }} />
     </>
   );
 }

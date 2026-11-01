@@ -35,12 +35,12 @@ const FAQ: { keys: string[]; answer: string }[] = [
   {
     keys: ['demo', 'paper', 'practice', 'virtual'],
     answer:
-      'Every new account includes a demo (paper) trading account with virtual capital clearly labelled as having no cash value. Switch between demo and live accounts from the account switcher at the top of the trading terminal.',
+      'Every new account includes a demo trading account with virtual capital. Switch between demo and live accounts from the account switcher at the top of the trading terminal.',
   },
   {
     keys: ['screener', 'scan', 'screen', 'gainers', 'stock list'],
     answer:
-      'The Global Screener (Markets → Global screener) scans thousands of listed stocks, crypto pairs, currencies and CFDs for gainers, losers, volume and technical ratings. It is reference research data, not executable PRIMEVEST quotes.',
+      'The Global Screener (Markets → Global screener) scans thousands of listed stocks, crypto pairs, currencies and CFDs for gainers, losers, volume and technical ratings. It is research data powered by the TradingView public scanner.',
   },
   {
     keys: ['news', 'headline'],

@@ -49,7 +49,7 @@ export function MarketMovers() {
   return (
     <section className="panel p-4 sm:p-5" aria-labelledby="movers-title">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <div><h2 id="movers-title" className="text-[15px] font-semibold text-white">Market discovery</h2><p className="text-[11px] text-muted">Top movers and an auto-generated brief from live reference data</p></div>
+        <div><h2 id="movers-title" className="text-[15px] font-semibold text-white">Market discovery</h2><p className="text-[11px] text-muted">Top movers and an auto-generated brief from live market data</p></div>
         <span className="text-[10px] uppercase tracking-[.16em] text-muted">refreshed every minute</span>
       </div>
       {brief.length > 0 && (

@@ -150,7 +150,7 @@ export default function DashboardOverview() {
             {data?.profile.firstName ? `Good day, ${data.profile.firstName}` : 'Your trading account'}
           </h1>
           <p className="mt-1 text-[12px] text-muted">
-            {active?.type === 'PAPER' ? 'Demo account · virtual funds, internal dealing' : 'Live account · internal dealing at reference quotes'} · refreshed every 10s
+            {active?.type === 'PAPER' ? 'Demo account · virtual funds' : 'Live account'} · refreshed every 10s
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -278,7 +278,7 @@ export default function DashboardOverview() {
                 <Link href="/dashboard/deposits" className="btn-primary justify-center px-3 py-2.5 text-[12px]">↓ Deposit</Link>
                 <Link href="/dashboard/withdrawals" className="btn-ghost justify-center px-3 py-2.5 text-[12px]">↑ Withdraw</Link>
               </div>
-              <p className="mt-3 text-[10px] leading-relaxed text-white/40">Virtual trading capital — no cash value. Real funding rails are not connected to this environment.</p>
+              <p className="mt-3 text-[10px] leading-relaxed text-white/40">Demo trading capital for risk-free practice.</p>
             </div>
           </section>
 

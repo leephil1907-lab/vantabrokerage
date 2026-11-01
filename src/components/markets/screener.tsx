@@ -65,7 +65,7 @@ export function Screener() {
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 sm:px-5">
         <div>
           <h2 id="screener-title" className="text-[15px] font-semibold text-white">Global market screener</h2>
-          <p className="text-[11px] text-muted">Scans TradingView&apos;s public scanner — reference data, not PRIMEVEST quotes</p>
+          <p className="text-[11px] text-muted">Powered by TradingView&apos;s public scanner</p>
         </div>
         <span className="text-[10px] uppercase tracking-[.16em] text-muted">{data ? `${data.total.toLocaleString()} matches` : '…'}</span>
       </div>

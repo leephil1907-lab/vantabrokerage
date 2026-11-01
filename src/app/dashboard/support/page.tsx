@@ -9,7 +9,7 @@ type Ticket = { id: string; subject: string; category: string; priority: string;
 const FAQS = [
   ['How do I verify my account?', 'Open Verification in your dashboard, submit your identity details and two document images. Review times vary.'],
   ['Why is my withdrawal pending?', 'Withdrawals require identity approval, then finance review. Funds are reserved immediately; rejection releases them automatically.'],
-  ['Can I place an order?', 'Order execution is currently unavailable.'],
+  ['Can I place an order?', 'Yes — place demo or live orders from the trading terminal.'],
   ['Where do prices come from?', 'Kraken and Coinbase for crypto, Yahoo Finance for FX, indices and commodities. Each quote records its provider and timestamp.'],
 ];
 

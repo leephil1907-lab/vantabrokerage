@@ -15,7 +15,7 @@ const PRIMARY: { label: string; href?: string; items?: Item[] }[] = [
     { href: '/dashboard/trade', label: 'Trading workspace', desc: 'Forex, crypto and global markets together' },
     { href: '/trading/forex', label: 'Forex & CFDs', desc: 'Explore currency and global markets' },
     { href: '/trading/short-expiry', label: 'Short-Expiry', desc: 'Learn about short-expiry products' },
-    { href: '/trading/crypto', label: 'Crypto Spot', desc: 'Crypto reference prices and market information' },
+    { href: '/trading/crypto', label: 'Crypto Spot', desc: 'Live crypto prices and market information' },
     { href: '/trading/futures', label: 'Perpetual Futures', desc: 'Explore the futures workspace' },
   ] },
   { label: 'Markets', items: [

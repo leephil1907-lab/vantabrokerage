@@ -51,7 +51,7 @@ export function SiteFooter() {
           {COLUMNS.map(c => <div key={c.title}><p className="label">{c.title}</p><ul className="mt-4 space-y-3">{c.links.map(([href,label]) => <li key={href}><Link href={href} className="footer-link">{label}<span aria-hidden="true">↗</span></Link></li>)}</ul></div>)}
         </div>
         <div className="footer-risk"><p>Risk warning</p><span>Trading foreign exchange, CFDs, short-expiry products and crypto derivatives involves substantial risk of loss and is not suitable for every investor. Leverage can amplify both gains and losses. Past performance is not indicative of future results. Only trade with capital you can afford to lose.</span></div>
-        <div className="footer-bottom"><p>© {new Date().getFullYear()} PRIMEVEST. All rights reserved.</p><p>Market data is for reference. Trading and deposits are currently unavailable.</p></div>
+        <div className="footer-bottom"><p>© {new Date().getFullYear()} PRIMEVEST. All rights reserved.</p><p>Market data is provided by leading third-party providers.</p></div>
         <FooterWordmark />
       </div>
     </footer>

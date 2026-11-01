@@ -18,8 +18,7 @@ export default function ScreenerPage() {
       <h1 className="display mt-2 text-[30px] sm:text-[38px]"><MaskLine>Global market screener</MaskLine></h1>
       <p className="mt-3 max-w-2xl text-[13.5px] leading-relaxed text-muted">
         Scan thousands of listed stocks, crypto pairs, currencies and CFDs by momentum, activity, size and
-        technical rating. Results come from TradingView&apos;s public scanner as reference data — they are
-        not PRIMEVEST executable quotes, and availability depends on the upstream provider.
+        technical rating — powered by TradingView&apos;s public scanner.
       </p>
       <div className="mt-5 flex flex-wrap gap-3 pb-10 sm:pb-14">
         <Magnetic strength={0.22}><Link href="/markets" className="btn-ghost px-4 py-2.5 text-[12px]">← All markets</Link></Magnetic>

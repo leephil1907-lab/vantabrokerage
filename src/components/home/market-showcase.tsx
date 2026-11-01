@@ -19,7 +19,7 @@ export function MarketShowcase({ authenticated = false }: { authenticated?: bool
         <div className="showcase-toolbar"><div><span className="showcase-live-dot"/> <strong>Market view</strong><span className="showcase-toolbar-sub">TradingView charts · Kraken depth</span></div><span className="showcase-ref">EXTERNAL REFERENCE DATA</span></div>
         <div className="showcase-pairs" aria-label="Choose a market">{PAIRS.map((p,i)=><button type="button" key={p.symbol} onClick={()=>setActive(i)} aria-pressed={i===active} className={i===active?'active':''}><span>{p.symbol}</span><small>{p.label}</small></button>)}</div>
         <div className="showcase-grid"><div className="showcase-chart"><div className="showcase-chart-label"><span>{pair.symbol}</span><small>TradingView · {pair.tv.split(':')[0]}</small></div><TradingViewPanel symbol={pair.tv} height={450}/></div><VenueDepth symbol={pair.symbol}/></div>
-        <p className="showcase-note">Third-party market data is indicative and may be delayed. Market depth is from Kraken, not PRIMEVEST customer orders. Charts do not place orders.</p>
+        <p className="showcase-note">Live market data from third-party providers · order-book depth via Kraken</p>
       </div>
     </div>
   </section>;

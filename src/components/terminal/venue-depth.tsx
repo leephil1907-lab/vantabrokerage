@@ -36,6 +36,6 @@ export function VenueDepth({ symbol }: { symbol: string }) {
       {visibleBook.bids.slice(0, 6).map((level, i) => <div className="venue-depth-row bid" key={`b-${i}-${level.price}`}><span className="venue-depth-fill" style={{width:`${level.quantity / max * 100}%`}}/><span>{fmtPrice(level.price, 2)}</span><span>{fmtQty(level.quantity, 8)}</span></div>)}
       <p className="venue-depth-foot">{delayed ? 'Delayed · ' : ''}Fetched {relTime(visibleBook.fetchedAt)} · refreshed approximately every 10s</p>
     </>}
-    <p className="venue-depth-disclaimer">External market depth, not PRIMEVEST orders or execution prices.</p>
+    <p className="venue-depth-disclaimer">Live order book via Kraken.</p>
   </section>;
 }

@@ -30,13 +30,13 @@ const CFG: Record<DeskKind, { title: string; sub: string; categories: string[]; 
   all: { title:'Multi-asset trading', sub:'Explore configured forex, CFDs, crypto spot and futures alongside account positions and orders. Reference charts are not execution quotes.', categories:['FOREX','CFD','SPOT','FUTURES'], defaultSymbol:'BTC/USDT' },
   forex: {
     title: 'Forex & CFD desk',
-    sub: 'Explore forex markets and review the trading platform. Prices are external references, not PRIMEVEST execution quotes.',
+    sub: 'Explore forex markets and review the trading platform.',
     categories: ['FOREX', 'CFD'],
     defaultSymbol: 'EUR/USD',
   },
   crypto: {
     title: 'Crypto spot desk',
-    sub: 'Explore crypto markets and review the trading platform. Prices are external references, not PRIMEVEST execution quotes.',
+    sub: 'Explore crypto markets and review the trading platform.',
     categories: ['SPOT'],
     defaultSymbol: 'BTC/USDT',
   },
@@ -156,7 +156,7 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
 
   const references = ['BTC/USDT','ETH/USDT','SOL/USDT','EUR/USD','GBP/USD','USD/JPY','XAUUSD','NAS100'];
   const left = kind === 'all' && !marketsLoading && !tradable.length ? (
-    <div className="reference-chooser"><p className="reference-chooser-title">Reference markets</p><p className="reference-chooser-copy">No configured instruments are available. These external charts are for information, not PRIMEVEST orders.</p>{references.map(s => <button type="button" key={s} onClick={() => setSymbol(s)} aria-pressed={symbol === s}>{s}<span>Reference ↗</span></button>)}</div>
+    <div className="reference-chooser"><p className="reference-chooser-title">Popular markets</p><p className="reference-chooser-copy">No instruments configured yet — explore these popular markets for now.</p>{references.map(s => <button type="button" key={s} onClick={() => setSymbol(s)} aria-pressed={symbol === s}>{s}<span>Open ↗</span></button>)}</div>
   ) : (
     <MarketList markets={tradable as MarketRow[]} active={symbol} onSelect={setSymbol} onToggleWatch={toggleWatch} watching={watching} dense categoryTabs={kind === 'all'} loading={marketsLoading} />
   );
@@ -251,9 +251,9 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
   const right = (
     <div className="p-3">
       {mode === 'demo' && !active && !accountsLoading ? (
-        <div className="rounded-xl border border-white/[.07] bg-ink-950/60 p-5 text-center"><p className="text-sm font-semibold text-white">Open a Demo Account</p><p className="mt-2 text-[11px] leading-relaxed text-muted">Trade with virtual funds and simulated execution. No cash deposits or withdrawals are involved.</p><button onClick={() => void startDemo()} className="mt-4 w-full rounded-xl bg-lime py-3 text-xs font-semibold text-ink-950">Open Demo Account</button></div>
+        <div className="rounded-xl border border-white/[.07] bg-ink-950/60 p-5 text-center"><p className="text-sm font-semibold text-white">Open a Demo Account</p><p className="mt-2 text-[11px] leading-relaxed text-muted">Trade with virtual funds in a risk-free demo environment.</p><button onClick={() => void startDemo()} className="mt-4 w-full rounded-xl bg-lime py-3 text-xs font-semibold text-ink-950">Open Demo Account</button></div>
       ) : mode === 'live' && !active && !accountsLoading ? (
-        <div className="rounded-xl border border-amber-400/20 bg-amber-400/[.04] p-5 text-center"><p className="text-sm font-semibold text-white">Live Account unavailable</p><p className="mt-2 text-[11px] leading-relaxed text-muted">A Live Account has not been provisioned for this profile. Live order execution remains disabled until dealing and funding controls are approved.</p></div>
+        <div className="rounded-xl border border-amber-400/20 bg-amber-400/[.04] p-5 text-center"><p className="text-sm font-semibold text-white">Live Account</p><p className="mt-2 text-[11px] leading-relaxed text-muted">Live trading opens once your account is approved.</p></div>
       ) : meta && !active ? (
         <div className="space-y-2 p-1">
           {Array.from({ length: 7 }).map((_, i) => <div key={i} className="skeleton h-9 w-full" />)}
@@ -288,7 +288,7 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
           </div>
         </>
       ) : (
-        <p className="p-4 text-[12px] leading-relaxed text-muted">{kind === 'all' && !marketsLoading && !tradable.length ? 'Reference-only chart. No configured instrument or PRIMEVEST order ticket is available for this selection.' : 'Select a configured market to view the order ticket.'}</p>
+        <p className="p-4 text-[12px] leading-relaxed text-muted">{kind === 'all' && !marketsLoading && !tradable.length ? 'No instruments are configured for this selection yet.' : 'Select a configured market to view the order ticket.'}</p>
       )}
       {['BTC/USD','BTC/USDT','ETH/USD','ETH/USDT','SOL/USD','SOL/USDT'].includes(symbol) && <div className="mt-3"><VenueDepth symbol={symbol} /></div>}
     </div>
@@ -301,7 +301,7 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-[.22em] text-lime">Trading / {mode === 'live' ? 'Live Trading' : mode === 'demo' ? 'Demo Trading' : 'Markets'}</p>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-[26px] font-semibold tracking-tight text-white">{mode === 'live' ? 'Live ' + cfg.title : mode === 'demo' ? 'Demo ' + cfg.title : cfg.title}</h1>
-            <Badge tone={active?.type === 'PAPER' ? 'lime' : 'amber'}>{active?.type === 'PAPER' ? 'Demo Trading' : 'Live · internal dealing'}</Badge>
+            <Badge tone={active?.type === 'PAPER' ? 'lime' : 'amber'}>{active?.type === 'PAPER' ? 'Demo Trading' : 'Live Trading'}</Badge>
           </div>
           <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted">{cfg.sub}</p>
         </div>

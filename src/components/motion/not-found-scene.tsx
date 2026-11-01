@@ -136,9 +136,6 @@ export function NotFoundScene() {
               <span className="chip"><span className="h-1.5 w-1.5 rounded-full bg-danger" /> halted</span>
             </div>
             <CrashedChart />
-            <p className="mt-4 text-[10.5px] leading-relaxed text-muted">
-              Indicative illustration. Not a PRIMEVEST quote, chart or investment advice.
-            </p>
           </div>
           <div className="pointer-events-none absolute -bottom-6 -right-4 hidden select-none font-display text-[120px] font-semibold leading-none text-gold/[0.07] sm:block" aria-hidden>404</div>
         </div>
