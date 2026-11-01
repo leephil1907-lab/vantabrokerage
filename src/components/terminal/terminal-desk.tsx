@@ -47,11 +47,11 @@ const CFG: Record<DeskKind, { title: string; sub: string; categories: string[]; 
   },
 };
 
-export function TerminalDesk({ kind }: { kind: DeskKind }) {
+export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'all' | 'live' | 'demo' }) {
   const cfg = CFG[kind];
   const { markets, loading: marketsLoading, error: marketsError } = useMarkets();
   const tradable = useMemo(() => markets.filter((m) => cfg.categories.includes(m.category)), [markets, cfg.categories]);
-  const { accounts, accountId, select, active, reloadAccounts, createPaperAccount } = useAccount();
+  const { accounts, accountId, select, active, reloadAccounts, createPaperAccount, loading: accountsLoading } = useAccount({ accountType: mode === 'live' ? 'LIVE' : mode === 'demo' ? 'PAPER' : undefined });
   const { push } = useToast();
 
   const search = useSearchParams();
@@ -143,12 +143,12 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
     } catch (e) { push({ tone: 'error', title: 'Cancel failed', body: (e as Error).message }); }
   };
 
-  const startPractice = async () => {
+  const startDemo = async () => {
     try {
       await createPaperAccount();
-      push({ tone: 'success', title: 'Practice account ready', body: 'Your virtual balance is available. No cash funds are involved.' });
+      push({ tone: 'success', title: 'Demo Account ready', body: 'Your virtual Demo balance is available. No cash funds are involved.' });
       await load();
-    } catch (e) { push({ tone: 'error', title: 'Could not open practice account', body: (e as Error).message }); }
+    } catch (e) { push({ tone: 'error', title: 'Could not open Demo Account', body: (e as Error).message }); }
   };
 
   const deskPositions = kind === 'all' ? positions : positions.filter((p) => cfg.categories.includes(markets.find((m) => m.symbol === p.symbol)?.category ?? '') || positions.length <= 8);
@@ -249,7 +249,11 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
 
   const right = (
     <div className="p-3">
-      {meta && !active ? (
+      {mode === 'demo' && !active && !accountsLoading ? (
+        <div className="rounded-xl border border-white/[.07] bg-ink-950/60 p-5 text-center"><p className="text-sm font-semibold text-white">Open a Demo Account</p><p className="mt-2 text-[11px] leading-relaxed text-muted">Trade with virtual funds and simulated execution. No cash deposits or withdrawals are involved.</p><button onClick={() => void startDemo()} className="mt-4 w-full rounded-xl bg-lime py-3 text-xs font-semibold text-ink-950">Open Demo Account</button></div>
+      ) : mode === 'live' && !active && !accountsLoading ? (
+        <div className="rounded-xl border border-amber-400/20 bg-amber-400/[.04] p-5 text-center"><p className="text-sm font-semibold text-white">Live Account unavailable</p><p className="mt-2 text-[11px] leading-relaxed text-muted">A Live Account has not been provisioned for this profile. Live order execution remains disabled until dealing and funding controls are approved.</p></div>
+      ) : meta && !active ? (
         <div className="space-y-2 p-1">
           {Array.from({ length: 7 }).map((_, i) => <div key={i} className="skeleton h-9 w-full" />)}
           <p className="pt-1 text-center text-[10.5px] text-muted">Loading account…</p>
@@ -292,16 +296,16 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
     <div className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[.22em] text-lime">Trading / Workspace</p>
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[.22em] text-lime">Trading / {mode === 'live' ? 'Live Trading' : mode === 'demo' ? 'Demo Trading' : 'Markets'}</p>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-[26px] font-semibold tracking-tight text-white">{cfg.title}</h1>
-            <Badge tone={active?.type === 'PAPER' ? 'lime' : 'amber'}>{active?.type === 'PAPER' ? 'Practice session' : 'Live trading unavailable'}</Badge>
+            <h1 className="text-[26px] font-semibold tracking-tight text-white">{mode === 'live' ? 'Live ' + cfg.title : mode === 'demo' ? 'Demo ' + cfg.title : cfg.title}</h1>
+            <Badge tone={active?.type === 'PAPER' ? 'lime' : 'amber'}>{active?.type === 'PAPER' ? 'Demo Trading' : 'Live trading unavailable'}</Badge>
           </div>
           <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted">{cfg.sub}</p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <AccountSwitcher accounts={accounts} accountId={accountId} onSelect={select} active={active} liveEnabled={false} />
-          {!accounts.some((a) => a.type === 'PAPER') && <button type="button" onClick={startPractice} className="btn-primary px-3 py-2 text-[12px]">Start practice account</button>}
+          {mode === 'all' && <AccountSwitcher accounts={accounts} accountId={accountId} onSelect={select} active={active} liveEnabled={false} />}
+          {mode !== 'live' && !accounts.some((a) => a.type === 'PAPER') && <button type="button" onClick={() => void startDemo()} className="btn-primary px-3 py-2 text-[12px]">Open Demo Account</button>}
           {kind === 'all' && <Link href="/dashboard/short-expiry" className="btn-ghost px-3 py-2 text-[12px]">Short-expiry</Link>}
           <Link href="/dashboard/deposits" className="btn-ghost px-3 py-2 text-[12px]">Funding</Link>
           <Link href="/dashboard/positions" className="btn-ghost hidden px-3 py-2 text-[12px] sm:inline-flex">All positions</Link>
