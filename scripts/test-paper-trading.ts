@@ -112,12 +112,20 @@ async function main() {
     accountId: paperId, symbol: pair.symbol, side: 'BUY', type: 'LIMIT', qty: 100, price: 0.5, leverage: 10,
   });
   assert.equal(waiting.status, 201);
-  const cancelled = await request(`/api/trades/orders/${waiting.body.order.id}`, 'DELETE');
-  assert.equal(cancelled.status, 200);
-  assert.equal(cancelled.body.order.status, 'CANCELLED');
+  const cancelAttempts = await Promise.all([
+    request(`/api/trades/orders/${waiting.body.order.id}`, 'DELETE'),
+    request(`/api/trades/orders/${waiting.body.order.id}`, 'DELETE'),
+  ]);
+  assert.equal(cancelAttempts.filter(r => r.status === 200).length, 1, 'only one concurrent cancel can release reserved funds');
+  assert.equal(cancelAttempts.filter(r => r.status === 409).length, 1);
 
-  const closed = await request(`/api/trades/positions/${positionId}`, 'DELETE');
-  assert.equal(closed.status, 200, JSON.stringify(closed.body));
+  const closeAttempts = await Promise.all([
+    request(`/api/trades/positions/${positionId}`, 'DELETE'),
+    request(`/api/trades/positions/${positionId}`, 'DELETE'),
+  ]);
+  assert.equal(closeAttempts.filter(r => r.status === 200).length, 1, 'only one concurrent close can settle the position');
+  assert.equal(closeAttempts.filter(r => r.status === 409).length, 1);
+  const closed = closeAttempts.find(r => r.status === 200)!;
   assert.equal(closed.body.fullyClosed, true);
   const finalPositions = await request(`/api/trades/positions?accountId=${paperId}`);
   assert.equal(finalPositions.body.positions.length, 0);
