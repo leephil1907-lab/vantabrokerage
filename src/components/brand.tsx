@@ -16,9 +16,9 @@ export function PrimevestGlyph({ size = 32, glow = false }: { size?: number; glo
 
 export function Logo({ size = 32, withWordmark = true, href = '/' }: { size?: number; withWordmark?: boolean; href?: string | null }) {
   const mark = (
-    <span className="inline-flex items-center gap-2.5">
+    <span className="inline-flex items-center gap-0.5" role="img" aria-label="PRIMEVEST">
       <PrimevestGlyph size={size} />
-      {withWordmark && <span className="text-[15px] font-semibold tracking-[0.055em] text-white">PRIMEVEST</span>}
+      {withWordmark && <span aria-hidden="true" className="text-[15px] font-semibold tracking-[0.055em] text-white">RIMEVEST</span>}
     </span>
   );
   if (!href) return mark;

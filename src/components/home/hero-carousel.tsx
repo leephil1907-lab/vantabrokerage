@@ -43,6 +43,6 @@ export function HeroCarousel({ children }: { children: ReactNode }) {
       </div>
       <div className="story-preview">{children}</div>
     </div>
-    <div className="story-brand-stamp" aria-label="PRIMEVEST"><PrimevestGlyph size={23}/><span>PRIMEVEST</span></div>
+    <div className="story-brand-stamp" role="img" aria-label="PRIMEVEST"><PrimevestGlyph size={23}/><span aria-hidden="true">RIMEVEST</span></div>
   </section>;
 }
