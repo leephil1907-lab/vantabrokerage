@@ -7,7 +7,7 @@ import { fmtMoney } from '@/lib/format';
 export type AccountOption = { id: string; type: 'LIVE' | 'PAPER'; available: number; locked: number; currency: string };
 
 /** Account switcher shared by every terminal. Persists the selection locally. */
-export function useAccount({ liveOnly = false }: { liveOnly?: boolean } = {}) {
+export function useAccount({ liveOnly = false, accountType }: { liveOnly?: boolean; accountType?: 'LIVE' | 'PAPER' } = {}) {
   const [accounts, setAccounts] = useState<AccountOption[]>([]);
   const [accountId, setAccountId] = useState<string>('');
   const [liveEnabled, setLiveEnabled] = useState(false);
@@ -19,7 +19,7 @@ export function useAccount({ liveOnly = false }: { liveOnly?: boolean } = {}) {
       .then((r) => r.json())
       .then((b) => {
         if (cancelled || !b.accounts) return;
-        const visibleAccounts = liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : b.accounts;
+        const visibleAccounts = accountType ? b.accounts.filter((a: AccountOption) => a.type === accountType) : liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : b.accounts;
         setAccounts(visibleAccounts);
         setLiveEnabled(!!b.liveExecutionEnabled);
         const stored = typeof window !== 'undefined' ? window.localStorage.getItem('vanta.accountId') : null;
@@ -29,21 +29,21 @@ export function useAccount({ liveOnly = false }: { liveOnly?: boolean } = {}) {
       })
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, [liveOnly]);
+  }, [liveOnly, accountType]);
 
   const reloadAccounts = useCallback(async () => {
     try {
       const r = await fetch('/api/accounts', { cache: 'no-store' });
       const b = await r.json();
-      if (b.accounts) setAccounts(liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : b.accounts);
+      if (b.accounts) setAccounts(accountType ? b.accounts.filter((a: AccountOption) => a.type === accountType) : liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : b.accounts);
       setLiveEnabled(!!b.liveExecutionEnabled);
     } catch { /* retain last known account selection */ }
-  }, [liveOnly]);
+  }, [liveOnly, accountType]);
 
   const createPaperAccount = useCallback(async () => {
     const r = await fetch('/api/accounts', { method: 'POST' });
     const b = await r.json();
-    if (!r.ok) throw new Error(b?.error?.message ?? 'Could not open practice account');
+    if (!r.ok) throw new Error(b?.error?.message ?? 'Could not open Demo Account');
     await reloadAccounts();
     const id = b.account.id as string;
     setAccountId(id);
