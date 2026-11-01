@@ -43,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${plexMono.variable}`}>
       <body className="min-h-screen antialiased">
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('primevest.theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}}catch(e){}})();` }} />
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-lime focus:px-4 focus:py-2 focus:text-ink-950">Skip to content</a>
         <RouteProgress />
         {children}

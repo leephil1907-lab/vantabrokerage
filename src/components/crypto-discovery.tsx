@@ -9,7 +9,7 @@ import { fmtPct, relTime } from '@/lib/format';
 type Sort = 'rank' | 'gainers' | 'losers';
 const PAGE_SIZE = 25;
 
-function price(value: number | null) {
+export function formatUsd(value: number | null) {
   if (value === null) return '—';
   if (value >= 1) return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   // Significant digits keep very small token prices from rounding to a false zero.
@@ -105,7 +105,7 @@ export function CryptoDiscovery({ compactLayout = false }: { compactLayout?: boo
                 return <motion.tr key={asset.id} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25, delay: Math.min(i * 0.012, 0.18) }} className="table-row">
                   <td className="td hidden text-muted sm:table-cell">{asset.rank ?? '—'}</td>
                   <td className="td"><div className="flex min-w-0 items-center gap-3"><CoinIcon asset={asset}/><div className="min-w-0"><span className="block max-w-[125px] truncate font-semibold text-white sm:max-w-[220px]">{asset.name}</span><span className="text-[10px] uppercase tracking-wider text-muted">{asset.symbol}{rowStale && <span className="ml-2 text-siren">Delayed</span>}</span></div></div></td>
-                  <td className="td whitespace-nowrap text-right value-mono font-medium">{price(asset.priceUsd)}</td>
+                  <td className="td whitespace-nowrap text-right value-mono font-medium">{formatUsd(asset.priceUsd)}</td>
                   <td className={`td whitespace-nowrap text-right value-mono ${asset.change24h === null ? 'text-muted' : asset.change24h >= 0 ? 'text-emerald' : 'text-danger'}`}>{fmtPct(asset.change24h)}</td>
                   <td className="td hidden whitespace-nowrap text-right value-mono text-muted md:table-cell">{compact(asset.marketCap)}</td>
                   <td className="td hidden whitespace-nowrap text-right value-mono text-muted lg:table-cell">{compact(asset.volume24h)}</td>
@@ -121,8 +121,8 @@ export function CryptoDiscovery({ compactLayout = false }: { compactLayout?: boo
   );
 }
 
-/** Compact home preview of the same read-only CoinGecko directory. */
-export function CryptoPreview() {
+/** Shared read-only feed for the homepage. Prices are USD references, not order quotes. */
+export function useCryptoPreview() {
   const [data, setData] = useState<CryptoDiscoveryResponse | null>(null);
   const [failed, setFailed] = useState(false);
   const [clock, setClock] = useState(0);
@@ -133,15 +133,19 @@ export function CryptoPreview() {
         const res = await fetch('/api/markets/crypto-discovery', { cache: 'no-store', signal: controller.signal });
         if (!res.ok) throw new Error('unavailable');
         setData(await res.json()); setFailed(false); setClock(Date.now());
-      } catch (e) { if (!(e instanceof Error && e.name === 'AbortError')) setFailed(true); }
+      } catch (e) { if (!(e instanceof Error && e.name === 'AbortError')) { setFailed(true); setClock(Date.now()); } }
     };
     void load();
     const timer = window.setInterval(() => { setClock(Date.now()); if (!document.hidden) void load(); }, 60_000);
     return () => { controller.abort(); clearInterval(timer); };
   }, []);
-  const delayed = failed || data?.stale || (!!data && clock - Date.parse(data.fetchedAt) > 120_000);
+  const delayed = failed || !!data?.stale || (!!data && clock - Date.parse(data.fetchedAt) > 120_000);
+  return { data, failed, clock, delayed };
+}
+
+export function CryptoPreview({ data, failed, clock, delayed }: ReturnType<typeof useCryptoPreview>) {
   return <section className="shell py-14 sm:py-16">
     <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Digital assets</p><h2 className="display mt-2 text-[26px] sm:text-[30px]">Crypto, in focus</h2><p className="mt-2 text-[13px] text-muted">USD reference prices and asset icons powered by CoinGecko.</p></div><Link href="/markets#crypto-discovery-heading" className="text-[13px] font-medium text-lime hover:underline">Explore all assets →</Link></div>
-    {data ? <><div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{data.assets.slice(0, 4).map((asset) => <div key={asset.id} className="rounded-2xl border border-white/[0.07] bg-ink-850/70 p-4 transition-colors duration-300 hover:border-lime/20"><div className="flex items-center gap-2.5"><CoinIcon asset={asset}/><div className="min-w-0"><p className="truncate text-[13px] font-semibold text-white">{asset.name}</p><p className="text-[10px] uppercase tracking-wider text-muted">{asset.symbol}</p></div></div><p className="value-mono mt-4 text-[17px] font-semibold text-white">{price(asset.priceUsd)}</p><p className={`value-mono mt-1 text-[11px] ${asset.change24h === null ? 'text-muted' : asset.change24h >= 0 ? 'text-emerald' : 'text-danger'}`}>{fmtPct(asset.change24h)} <span className="font-sans text-muted"> / 24h</span></p>{(!asset.updatedAt || (clock > 0 && clock - Date.parse(asset.updatedAt) > 300_000)) && <p className="mt-1 text-[10px] text-siren">Price delayed</p>}</div>)}</div><p className="mt-3 text-[10.5px] text-muted">{delayed ? 'Delayed · ' : ''}CoinGecko reference data · fetched {relTime(data.fetchedAt)} · not all assets are available to trade.</p></> : <p className="rounded-xl border border-white/10 p-4 text-[12px] text-muted">{failed ? 'Crypto data is temporarily unavailable.' : 'Loading crypto market data…'}</p>}
+    {data ? <><div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{data.assets.slice(0, 4).map((asset) => <div key={asset.id} className="rounded-2xl border border-white/[0.07] bg-ink-850/70 p-4 transition-colors duration-300 hover:border-lime/20"><div className="flex items-center gap-2.5"><CoinIcon asset={asset}/><div className="min-w-0"><p className="truncate text-[13px] font-semibold text-white">{asset.name}</p><p className="text-[10px] uppercase tracking-wider text-muted">{asset.symbol}</p></div></div><p className="value-mono mt-4 text-[17px] font-semibold text-white">{formatUsd(asset.priceUsd)}</p><p className={`value-mono mt-1 text-[11px] ${asset.change24h === null ? 'text-muted' : asset.change24h >= 0 ? 'text-emerald' : 'text-danger'}`}>{fmtPct(asset.change24h)} <span className="font-sans text-muted"> / 24h</span></p>{(!asset.updatedAt || (clock > 0 && clock - Date.parse(asset.updatedAt) > 300_000)) && <p className="mt-1 text-[10px] text-siren">Price delayed</p>}</div>)}</div><p className="mt-3 text-[10.5px] text-muted">{delayed ? 'Delayed · ' : ''}CoinGecko reference data · fetched {relTime(data.fetchedAt)} · not all assets are available to trade.</p></> : <p className="rounded-xl border border-white/10 p-4 text-[12px] text-muted">{failed ? 'Crypto data is temporarily unavailable.' : 'Loading crypto market data…'}</p>}
   </section>;
 }

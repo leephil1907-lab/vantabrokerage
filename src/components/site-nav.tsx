@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Logo } from './brand';
+import { ThemeToggle } from './theme-toggle';
 import { MotionIndicator, Pop } from './motion/primitives';
 
 type Item = { href: string; label: string; desc?: string };
@@ -62,21 +63,6 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
         scrolled ? 'border-b border-white/[0.07] bg-ink-950/80 backdrop-blur-xl' : 'border-b border-transparent bg-transparent'
       }`}
     >
-      {/* Promo rail — mirrors the reference site's top utility strip. */}
-      <div className="hidden border-b border-white/[0.05] bg-ink-900/60 lg:block">
-        <div className="shell flex h-9 items-center justify-between text-[11.5px] text-muted">
-          <div className="flex items-center gap-5">
-            <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald" />Provider-sourced market data</span>
-            <span className="hidden xl:inline">Server-side execution · Double-entry ledger</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/help" className="transition-colors hover:text-white">Support</Link>
-            <Link href="/deposits-withdrawals" className="transition-colors hover:text-white">Payments</Link>
-            <span className="text-white/50">Explore global markets</span>
-          </div>
-        </div>
-      </div>
-
       <div className="shell flex h-[64px] items-center justify-between gap-6">
         <Logo />
 
@@ -132,6 +118,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
           {authenticated ? (
             <Link href="/dashboard" className="btn-primary px-4 py-2 text-[13px]">Go to terminal</Link>
           ) : (
@@ -142,6 +129,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
           )}
         </div>
 
+        <div className="flex items-center gap-2 lg:hidden"><span className="md:hidden"><ThemeToggle /></span>
         <button
           className="rounded-lg border border-white/10 p-2 lg:hidden"
           onClick={() => setOpen((v) => !v)}
@@ -151,7 +139,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
           <motion.span animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.2 }} className="block">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d={open ? 'M4 4l8 8M12 4l-8 8' : 'M2 5h12M2 11h12'} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
           </motion.span>
-        </button>
+        </button></div>
       </div>
 
       {/* Mobile sheet */}

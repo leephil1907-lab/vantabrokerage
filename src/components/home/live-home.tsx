@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AssetMark } from '@/components/asset-mark';
-import { AnimatedNumber, EASE, Reveal, Stagger, StaggerItem, Counter } from '@/components/motion/primitives';
+import { AnimatedNumber, EASE, Reveal, Stagger, StaggerItem } from '@/components/motion/primitives';
 import { HeroScene } from '@/components/three/hero-scene';
-import { CryptoPreview } from '@/components/crypto-discovery';
+import { CryptoPreview, useCryptoPreview, formatUsd } from '@/components/crypto-discovery';
 import { FeedStatus } from '@/components/motion/skeletons';
-import { fmtPct, fmtPrice, priceDp } from '@/lib/format';
+import { fmtPct, fmtPrice, priceDp, relTime } from '@/lib/format';
 import { useMarkets } from '@/lib/use-markets';
 
 type M = {
@@ -27,24 +27,24 @@ type M = {
 
 /* ── Hero terminal preview: real quotes, animated chrome ─────────────────── */
 const TABS = [
-  { id: 'EUR/USD', label: 'EUR/USD', kind: 'Forex' },
-  { id: 'BTC/USDT', label: 'BTC/USDT', kind: 'Crypto' },
-  { id: 'XAUUSD', label: 'XAU/USD', kind: 'Metal' },
-  { id: 'NAS100', label: 'NAS100', kind: 'Index' },
+  { id: 'BTC/USDT', label: 'Bitcoin', kind: 'Crypto', coinId: 'bitcoin' },
+  { id: 'ETH/USDT', label: 'Ethereum', kind: 'Crypto', coinId: 'ethereum' },
+  { id: 'SOL/USDT', label: 'Solana', kind: 'Crypto', coinId: 'solana' },
+  { id: 'EUR/USD', label: 'EUR/USD', kind: 'Forex', coinId: null },
+  { id: 'XAUUSD', label: 'Gold', kind: 'Metal', coinId: null },
 ];
 
-function HeroTerminal({ markets }: { markets: M[] }) {
+function HeroTerminal({ markets, feed }: { markets: M[]; feed: ReturnType<typeof useCryptoPreview> }) {
   const [tab, setTab] = useState(0);
   const [tick, setTick] = useState(0);
   const current = TABS[tab];
-  const market = markets.find((m) => m.symbol === current.id);
-
-  useEffect(() => {
-    const id = setInterval(() => setTab((t) => (t + 1) % TABS.length), 6500);
-    return () => clearInterval(id);
-  }, []);
+  const configured = markets.find((m) => m.symbol === current.id);
+  const asset = current.coinId ? feed.data?.assets.find((a) => a.id === current.coinId) : null;
+  const useReference = !configured?.last && asset?.priceUsd != null && asset.priceUsd > 0;
+  const referenceDelayed = feed.delayed || !asset?.updatedAt || (feed.clock > 0 && feed.clock - Date.parse(asset.updatedAt) > 300_000);
+  const market: M | undefined = useReference && asset ? { symbol: `${asset.symbol}/USD`, last: asset.priceUsd, change24h: asset.change24h, source: 'CoinGecko', stale: referenceDelayed, category: 'REFERENCE', pricePrecision: 2 } : configured;
+  const displayLabel = useReference && asset ? `${asset.symbol}/USD` : current.id;
   useEffect(() => setTick((t) => t + 1), [market?.last]);
-
   const dp = market?.pricePrecision ?? priceDp(current.id);
   const up = (market?.change24h ?? 0) >= 0;
   const spread = market?.bid != null && market?.ask != null ? Math.abs(market.ask - market.bid) : null;
@@ -65,12 +65,12 @@ function HeroTerminal({ markets }: { markets: M[] }) {
       </div>
 
       {/* symbol tabs */}
-      <div className="flex items-center gap-1 border-b border-white/[0.06] px-3 py-2">
+      <div className="flex items-center gap-1 overflow-x-auto border-b border-white/[0.06] px-3 py-2">
         {TABS.map((t, i) => (
           <button
             key={t.id}
             onClick={() => setTab(i)}
-            className={`relative rounded-lg px-2.5 py-1.5 text-[11.5px] font-medium transition-colors ${i === tab ? 'text-white' : 'text-muted hover:text-white'}`}
+            className={`relative shrink-0 rounded-lg px-2.5 py-1.5 text-[11.5px] font-medium transition-colors ${i === tab ? 'text-white' : 'text-muted hover:text-white'}`}
           >
             {i === tab && (
               <motion.span layoutId="hero-tab" className="absolute inset-0 rounded-lg border border-white/10 bg-white/[0.07]" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />
@@ -94,23 +94,28 @@ function HeroTerminal({ markets }: { markets: M[] }) {
             <div className="flex items-center gap-2.5">
               <AssetMark symbol={current.id} size={34} />
               <div>
-                <p className="text-[14px] font-semibold leading-none text-white">{current.label}</p>
-                <p className="mt-1 text-[10.5px] leading-none text-muted">{current.kind} · Market overview</p>
+                <p className="text-[14px] font-semibold leading-none text-white">{displayLabel}</p>
+                <p className="mt-1 text-[10.5px] leading-none text-muted">{useReference ? 'CoinGecko · USD reference' : `${current.kind} · Market overview`}</p>
               </div>
             </div>
             <div className="text-right">
               <AnimatedNumber value={market?.last ?? null} decimals={dp} className={`text-[21px] font-semibold leading-none ${up ? 'text-white' : 'text-white'}`} />
-              <p className={`mt-1 text-[11px] font-medium ${up ? 'text-emerald' : 'text-danger'}`}>{market ? fmtPct(market.change24h) : '·'}</p>
+              <p className={`mt-1 text-[11px] font-medium ${market?.change24h == null ? 'text-muted' : up ? 'text-emerald' : 'text-danger'}`}>{market ? fmtPct(market.change24h) : '·'}</p>
             </div>
           </div>
 
           <div className="mt-3 grid grid-cols-4 gap-2 rounded-xl border border-white/[0.06] bg-ink-950/40 p-2">
-            {[
+            {(useReference && asset ? [
+              ['24h change', fmtPct(asset.change24h)],
+              ['Market cap', asset.marketCap != null ? '$' + Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 }).format(asset.marketCap) : '—'],
+              ['24h volume', asset.volume24h != null ? '$' + Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 }).format(asset.volume24h) : '—'],
+              ['Source', 'CoinGecko'],
+            ] : [
               ['Bid', market?.bid != null ? fmtPrice(market.bid, dp) : '—'],
               ['Ask', market?.ask != null ? fmtPrice(market.ask, dp) : '—'],
               ['Spread', spread != null ? fmtPrice(spread, dp) : '—'],
               ['24h High', market?.high24h != null ? fmtPrice(market.high24h, dp) : '—'],
-            ].map(([label, value]) => (
+            ]).map(([label, value]) => (
               <div key={label}>
                 <p className="text-[9.5px] uppercase tracking-[0.12em] text-muted">{label}</p>
                 <p className="value-mono mt-0.5 text-[11.5px] text-white">{value}</p>
@@ -119,19 +124,13 @@ function HeroTerminal({ markets }: { markets: M[] }) {
           </div>
 
           <div className="mt-3 h-[132px]">
-            {market?.last ? <SparkArea symbol={current.id} up={up} tick={tick} /> : <div className="flex h-full items-center justify-center rounded-xl border border-white/[0.06] bg-black/20 text-[11px] text-muted">Chart unavailable for this market</div>}
+            {market?.last ? <SparkArea symbol={current.id} up={up} tick={tick} referenceId={useReference ? current.coinId ?? undefined : undefined} /> : <div className="flex h-full items-center justify-center rounded-xl border border-white/[0.06] bg-black/20 px-4 text-center text-[11px] text-muted">Chart unavailable for this market</div>}
           </div>
 
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-xl border border-emerald/25 bg-emerald/[0.07] px-3 py-2 text-center">
-              <p className="text-[10px] uppercase tracking-[0.14em] text-emerald/80">Buy / Long</p>
-              <p className="value-mono mt-0.5 text-[13px] font-semibold text-emerald">{market?.ask != null ? fmtPrice(market.ask, dp) : '—'}</p>
-            </div>
-            <div className="rounded-xl border border-danger/25 bg-danger/[0.07] px-3 py-2 text-center">
-              <p className="text-[10px] uppercase tracking-[0.14em] text-danger/80">Sell / Short</p>
-              <p className="value-mono mt-0.5 text-[13px] font-semibold text-danger">{market?.bid != null ? fmtPrice(market.bid, dp) : '—'}</p>
-            </div>
-          </div>
+          {useReference && asset ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/[0.07] bg-ink-950/40 px-3 py-2.5 text-[10.5px] text-muted"><span>CoinGecko reference · {asset.updatedAt ? `updated ${relTime(asset.updatedAt)}` : 'update time unavailable'}</span><Link href="/markets#crypto-discovery-heading" className="font-medium text-lime">View assets →</Link></div> : <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="rounded-xl border border-emerald/25 bg-emerald/[0.07] px-3 py-2 text-center"><p className="text-[10px] uppercase tracking-[0.14em] text-emerald/80">Bid reference</p><p className="value-mono mt-0.5 text-[13px] font-semibold text-emerald">{market?.bid != null ? fmtPrice(market.bid, dp) : '—'}</p></div>
+            <div className="rounded-xl border border-danger/25 bg-danger/[0.07] px-3 py-2 text-center"><p className="text-[10px] uppercase tracking-[0.14em] text-danger/80">Ask reference</p><p className="value-mono mt-0.5 text-[13px] font-semibold text-danger">{market?.ask != null ? fmtPrice(market.ask, dp) : '—'}</p></div>
+          </div>}
         </motion.div>
       </AnimatePresence>
     </div>
@@ -139,19 +138,22 @@ function HeroTerminal({ markets }: { markets: M[] }) {
 }
 
 /** Area sparkline drawn from real candle closes (fetched, never synthesised). */
-function SparkArea({ symbol, up, tick }: { symbol: string; up: boolean; tick: number }) {
+function SparkArea({ symbol, up, tick, referenceId }: { symbol: string; up: boolean; tick: number; referenceId?: string }) {
   const [points, setPoints] = useState<number[]>([]);
   const [unavailable, setUnavailable] = useState(false);
+  const [chartDelayed, setChartDelayed] = useState(false);
   useEffect(() => {
     let cancelled = false;
     setPoints([]);
     setUnavailable(false);
-    fetch(`/api/markets/${encodeURIComponent(symbol)}/candles?interval=5m&limit=48`)
+    setChartDelayed(false);
+    const endpoint = referenceId ? `/api/markets/crypto-reference-chart?asset=${encodeURIComponent(referenceId)}` : `/api/markets/${encodeURIComponent(symbol)}/candles?interval=5m&limit=48`;
+    fetch(endpoint)
       .then((r) => r.json())
-      .then((d) => { if (cancelled) return; if (d?.candles?.length) setPoints(d.candles.map((c: { close: number }) => c.close)); else setUnavailable(true); })
+      .then((d) => { if (cancelled) return; const values = referenceId ? d?.prices?.map((p: { price: number }) => p.price) : d?.candles?.map((c: { close: number }) => c.close); if (values?.length >= 2) { setPoints(values); setChartDelayed(!!d.stale); } else setUnavailable(true); })
       .catch(() => { if (!cancelled) setUnavailable(true); });
     return () => { cancelled = true; };
-  }, [symbol]);
+  }, [symbol, referenceId]);
 
   if (unavailable) return <div className="flex h-full items-center justify-center text-[11px] text-muted">Chart data unavailable</div>;
   if (points.length < 2) return <div className="skeleton-shimmer h-full w-full" />;
@@ -160,11 +162,11 @@ function SparkArea({ symbol, up, tick }: { symbol: string; up: boolean; tick: nu
   const max = Math.max(...points);
   const range = max - min || 1;
   const path = points.map((v, i) => `${i === 0 ? 'M' : 'L'}${((i / (points.length - 1)) * 300).toFixed(2)},${(80 - ((v - min) / range) * 70).toFixed(2)}`).join(' ');
-  const stroke = up ? '#2ee6a8' : '#ff5b6e';
+  const stroke = up ? 'var(--chart-up)' : 'var(--chart-down)';
   const gid = `hero-area-${up ? 'u' : 'd'}`;
 
   return (
-    <svg viewBox="0 0 300 84" preserveAspectRatio="none" className="h-full w-full" aria-hidden>
+    <div className="relative h-full"><svg viewBox="0 0 300 84" preserveAspectRatio="none" className="h-full w-full" aria-hidden>
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={stroke} stopOpacity="0.28" />
@@ -188,7 +190,7 @@ function SparkArea({ symbol, up, tick }: { symbol: string; up: boolean; tick: nu
         transition={{ duration: 0.7, ease: EASE }}
         vectorEffect="non-scaling-stroke"
       />
-    </svg>
+    </svg>{referenceId && <span className="absolute bottom-0 left-0 rounded bg-ink-950/70 px-2 py-1 text-[9px] text-muted">24h USD reference · CoinGecko{chartDelayed ? ' · delayed' : ''}</span>}</div>
   );
 }
 
@@ -234,8 +236,9 @@ const FAQS = [
 
 export function LiveHome({ markets }: { markets: M[] }) {
   const { markets: liveMarkets } = useMarkets();
+  const cryptoFeed = useCryptoPreview();
   const table = (liveMarkets.length ? liveMarkets : markets) as M[];
-  const majors = table.filter((m) => ['EUR/USD', 'GBP/USD', 'USD/JPY', 'XAUUSD', 'BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'NAS100'].includes(m.symbol));
+  const majors = table.filter((m) => m.last != null && m.last > 0 && !!m.source && ['EUR/USD', 'GBP/USD', 'USD/JPY', 'XAUUSD', 'BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'NAS100'].includes(m.symbol));
   const crypto = table.filter((m) => m.category === 'SPOT').slice(0, 4);
   const [faq, setFaq] = useState<number | null>(0);
 
@@ -305,15 +308,8 @@ export function LiveHome({ markets }: { markets: M[] }) {
               transition={{ duration: 0.6, delay: 0.28 }}
               className="mt-9 grid max-w-lg grid-cols-2 gap-4 border-t border-white/[0.07] pt-5"
             >
-              {[
-                { v: table.length, suffix: '', label: 'Configured instruments' },
-                { v: 5, suffix: '', label: 'Terminals' },
-              ].map((s) => (
-                <div key={s.label}>
-                  <dt className="text-[22px] font-semibold text-white"><Counter value={s.v} suffix={s.suffix} /></dt>
-                  <dd className="mt-1 text-[10.5px] uppercase tracking-[0.13em] text-muted">{s.label}</dd>
-                </div>
-              ))}
+              <div><dt className="text-[15px] font-semibold text-white">Global markets</dt><dd className="mt-1 text-[10.5px] uppercase tracking-[0.13em] text-muted">Forex & digital assets</dd></div>
+              <div><dt className="text-[15px] font-semibold text-white">One workspace</dt><dd className="mt-1 text-[10.5px] uppercase tracking-[0.13em] text-muted">Market information</dd></div>
             </motion.dl>
           </div>
 
@@ -330,7 +326,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
               transition={{ duration: 0.8, ease: EASE, delay: 0.15 }}
               className="relative"
             >
-              <HeroTerminal markets={table} />
+              <HeroTerminal markets={table} feed={cryptoFeed} />
             </motion.div>
           </div>
         </div>
@@ -339,6 +335,11 @@ export function LiveHome({ markets }: { markets: M[] }) {
       {/* ── LIVE MARKET STRIP ────────────────────────────────────────────── */}
       <section className="relative border-y border-white/[0.06] bg-ink-900/40">
         <div className="shell grid grid-cols-2 divide-x divide-white/[0.05] sm:grid-cols-4">
+          {!majors.length && cryptoFeed.data?.assets.filter((asset) => asset.priceUsd != null && asset.priceUsd > 0).slice(0, 4).map((asset) => <Reveal key={asset.id} className="px-3 py-4" y={10}>
+            <div className="flex items-center gap-2"><AssetMark symbol={`${asset.symbol}/USD`} size={20} /><p className="text-[12px] font-medium text-white">{asset.symbol}/USD</p><span className="ml-auto text-[10px] text-muted">CoinGecko</span></div>
+            <div className="mt-2 flex items-baseline justify-between gap-2"><span className="value-mono text-[15px] font-semibold text-white">{formatUsd(asset.priceUsd)}</span><span className={`value-mono text-[11px] ${asset.change24h == null ? 'text-muted' : asset.change24h >= 0 ? 'text-emerald' : 'text-danger'}`}>{fmtPct(asset.change24h)}</span></div>
+            <p className="mt-1.5 text-[10px] text-muted">{cryptoFeed.delayed || !asset.updatedAt || (cryptoFeed.clock > 0 && cryptoFeed.clock - Date.parse(asset.updatedAt) > 300_000) ? 'Delayed USD reference' : 'USD reference'}</p>
+          </Reveal>)}
           {majors.slice(0, 4).map((m) => {
             const up = (m.change24h ?? 0) >= 0;
             return (
@@ -359,7 +360,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
         </div>
       </section>
 
-      <CryptoPreview />
+      <CryptoPreview {...cryptoFeed} />
 
       {/* ── MARKET OVERVIEW ──────────────────────────────────────────────── */}
       <section className="shell py-16 sm:py-20">
@@ -377,8 +378,11 @@ export function LiveHome({ markets }: { markets: M[] }) {
           </Link>
         </Reveal>
 
-        <Reveal delay={0.05} className="mt-6 overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-850/60">
-          <div className="overflow-x-auto">
+        {!majors.length && cryptoFeed.data?.assets.some((a) => a.priceUsd != null && a.priceUsd > 0) ? <Reveal delay={0.05} className="mt-6 overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-850/60">
+          <p className="border-b border-white/[0.07] px-4 py-3 text-[11px] text-muted">Crypto USD reference prices from CoinGecko · not bid/ask or executable quotes{cryptoFeed.delayed ? ' · delayed' : ''}</p>
+          <table className="w-full"><thead className="bg-white/[0.02]"><tr><th className="th">Asset</th><th className="th text-right">USD price</th><th className="th text-right">24h</th></tr></thead><tbody>{cryptoFeed.data.assets.filter((a) => a.priceUsd != null && a.priceUsd > 0).slice(0, 8).map((asset) => <tr key={asset.id} className="table-row"><td className="td"><span className="flex items-center gap-2"><AssetMark symbol={`${asset.symbol}/USD`} size={22} /><span><span className="block font-medium text-white">{asset.name}</span><span className="block text-[10px] uppercase text-muted">{asset.symbol}/USD{(!asset.updatedAt || (cryptoFeed.clock > 0 && cryptoFeed.clock - Date.parse(asset.updatedAt) > 300_000)) ? ' · delayed' : ''}</span></span></span></td><td className="td whitespace-nowrap text-right value-mono">{formatUsd(asset.priceUsd)}</td><td className={`td whitespace-nowrap text-right value-mono ${asset.change24h == null ? 'text-muted' : asset.change24h >= 0 ? 'text-emerald' : 'text-danger'}`}>{fmtPct(asset.change24h)}</td></tr>)}</tbody></table>
+        </Reveal> : <Reveal delay={0.05} className="mt-6 overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-850/60">
+          {majors.length === 0 ? <div className="px-5 py-8 text-center text-[12px] text-muted">No market quotes are available right now.</div> : <div className="overflow-x-auto">
             <table className="w-full min-w-[640px]">
               <thead className="bg-white/[0.02]">
                 <tr>
@@ -391,7 +395,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
                 </tr>
               </thead>
               <tbody>
-                {!majors.length && <tr><td colSpan={6} className="px-5 py-8 text-center text-[12px] text-muted">No market quotes are available right now.</td></tr>}
+
                 {majors.map((m, i) => {
                   const up = (m.change24h ?? 0) >= 0;
                   const dp = priceDp(m.symbol);
@@ -425,8 +429,8 @@ export function LiveHome({ markets }: { markets: M[] }) {
                 })}
               </tbody>
             </table>
-          </div>
-        </Reveal>
+          </div>}
+        </Reveal>}
       </section>
 
       {/* ── INSTRUMENTS ──────────────────────────────────────────────────── */}
@@ -467,7 +471,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
           <p className="eyebrow justify-center">Getting started</p>
           <h2 className="display mt-2 text-[26px] sm:text-[32px]">Three steps to get started</h2>
           <p className="mx-auto mt-2.5 max-w-lg text-[13.5px] leading-relaxed text-muted">
-            No sales call, no minimum deposit to test. Open an account and the platform provisions everything you need.
+            Create an account and explore your market workspace in a few simple steps.
           </p>
         </Reveal>
         <div className="relative mt-10">

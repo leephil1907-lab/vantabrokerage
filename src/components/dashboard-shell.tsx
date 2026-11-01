@@ -1,5 +1,7 @@
 'use client';
 
+import { ThemeToggle } from '@/components/theme-toggle';
+
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -243,6 +245,7 @@ export function DashboardShell({
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <button
               onClick={() => setPalette(true)}
               className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.02] px-2.5 py-1.5 text-[11.5px] text-muted transition-colors hover:border-white/20 hover:text-white md:flex"

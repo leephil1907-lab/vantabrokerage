@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Logo } from './brand';
+import { ThemeToggle } from './theme-toggle';
 
 const NAV = [
   { href: '/admin', label: 'Overview' },
@@ -38,6 +39,7 @@ export function AdminShell({ children, role, email }: { children: React.ReactNod
             <span className="rounded-md border border-lime/25 bg-lime/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-lime">admin console</span>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link href="/dashboard" className="btn-ghost px-3 py-1.5 text-[11.5px]">Client dashboard</Link>
             <span className="hidden text-[11px] text-muted sm:block">{email} · {role}</span>
             <button onClick={signOut} className="rounded-lg border border-white/10 px-3 py-1.5 text-[11.5px] text-muted hover:border-danger/40 hover:text-danger">Sign out</button>

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Logo } from '@/components/brand';
 import { ToastProvider } from '@/components/ui';
 import { PageTransition } from '@/components/motion/page-transition';
+import { ThemeToggle } from '@/components/theme-toggle';
 import './auth.css';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -10,7 +11,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="auth-layout">
         <header className="auth-header">
           <Logo size={34} />
-          <Link href="/" className="auth-back"><span aria-hidden="true">←</span> Back to website</Link>
+          <div className="flex items-center gap-4"><ThemeToggle /><Link href="/" className="auth-back"><span aria-hidden="true">←</span> Back to website</Link></div>
         </header>
         <div className="auth-grid">
           <aside className="auth-story" aria-label="About PRIMEVEST">

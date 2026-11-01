@@ -7,7 +7,12 @@ export const dynamic = 'force-dynamic';
 export default async function HomePage() {
   // Cached quotes only: the hero must paint instantly, and the client poll
   // refreshes the tape every 15s (stale rows are labelled).
-  const markets = await listMarketsFast({});
+  const markets = await listMarketsFast({}).catch(() => {
+    // The public homepage and its separate crypto references should still render
+    // if the configured market catalogue is temporarily unreachable.
+    console.error('[home] Market catalogue unavailable.');
+    return [];
+  });
   const serialised = markets.map((m) => ({
     symbol: m.symbol,
     last: m.last,

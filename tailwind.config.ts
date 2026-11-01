@@ -5,12 +5,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: { 950: '#08090b', 900: '#0b0d10', 850: '#0e1114', 800: '#12161a', 750: '#161b20', 700: '#1b2128', 600: '#242c34' },
+        ink: { 950: 'rgb(var(--ink-950) / <alpha-value>)', 900: 'rgb(var(--ink-900) / <alpha-value>)', 850: 'rgb(var(--ink-850) / <alpha-value>)', 800: 'rgb(var(--ink-800) / <alpha-value>)', 750: 'rgb(var(--ink-750) / <alpha-value>)', 700: 'rgb(var(--ink-700) / <alpha-value>)', 600: 'rgb(var(--ink-600) / <alpha-value>)' },
+        white: 'rgb(var(--theme-white) / <alpha-value>)',
+        black: 'rgb(var(--theme-black) / <alpha-value>)',
         lime: { DEFAULT: '#c8f751', 400: '#d6ff6b', 500: '#b6ea3a', 600: '#9bd024' },
         emerald: { DEFAULT: '#2ee6a8', 500: '#2ee6a8' },
         danger: '#ff5b6e',
         siren: '#ffb020',
-        muted: '#8a97a6',
+        muted: 'rgb(var(--muted-rgb) / <alpha-value>)',
         sky: { DEFAULT: '#60a5fa', 400: '#60a5fa', 300: '#93c5fd' },
       },
       transitionTimingFunction: {

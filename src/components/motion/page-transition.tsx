@@ -13,15 +13,14 @@ import { EASE } from './primitives';
 export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const reduce = useReducedMotion();
-  if (reduce) return <>{children}</>;
   return (
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={pathname}
-        initial={{ opacity: 0, y: 14, filter: 'blur(3px)' }}
+        initial={reduce ? false : { opacity: 0, y: 14, filter: 'blur(3px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        exit={{ opacity: 0, y: -5, filter: 'blur(2px)' }}
-        transition={{ duration: 0.3, ease: EASE }}
+        exit={reduce ? undefined : { opacity: 0, y: -5, filter: 'blur(2px)' }}
+        transition={{ duration: reduce ? 0 : 0.3, ease: EASE }}
       >
         {children}
       </motion.div>
@@ -32,12 +31,10 @@ export function PageTransition({ children }: { children: ReactNode }) {
 /** Thin lime bar under the header that animates on each route change. */
 export function RouteProgress() {
   const pathname = usePathname();
-  const reduce = useReducedMotion();
   const [key, setKey] = useState(0);
   useEffect(() => setKey((k) => k + 1), [pathname]);
-  if (reduce) return null;
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-0 z-[100] h-[2px]">
+    <div className="route-progress pointer-events-none fixed inset-x-0 top-0 z-[100] h-[2px]">
       <motion.div
         key={key}
         className="h-full bg-gradient-to-r from-lime via-emerald to-lime"

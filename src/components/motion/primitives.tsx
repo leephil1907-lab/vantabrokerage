@@ -122,7 +122,7 @@ export function AnimatedNumber({ value, className = '', decimals = 2, flash = tr
   return (
     <motion.span
       className={`value-mono tabular ${className}`}
-      animate={reduce || !flash ? undefined : dir === 'up' ? { color: ['#2ee6a8', '#ffffff'], y: [-1.2, 0] } : dir === 'down' ? { color: ['#ff5b6e', '#ffffff'], y: [1.2, 0] } : {}}
+      animate={reduce || !flash ? undefined : dir === 'up' ? { y: [-1.2, 0] } : dir === 'down' ? { y: [1.2, 0] } : {}}
       transition={{ duration: 0.55, ease: SOFT }}
     >
       {value.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
