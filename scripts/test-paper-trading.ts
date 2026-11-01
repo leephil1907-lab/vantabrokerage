@@ -72,7 +72,7 @@ async function main() {
   assert.equal(limit.body.filled, false);
   assert.equal(limit.body.order.status, 'OPEN');
   const matched = await matchRestingOrders(pair.symbol);
-  assert.ok(matched >= 1, 'worker matcher fills triggered practice limit orders');
+  assert.ok(matched.filled >= 1, 'worker matcher fills triggered practice limit orders');
   const filledLimit = await prisma.order.findUniqueOrThrow({ where: { id: limit.body.order.id } });
   assert.equal(filledLimit.status, 'FILLED');
 
