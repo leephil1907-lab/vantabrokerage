@@ -1,4 +1,5 @@
 import { listMarketsFast } from '@/lib/markets';
+import { getSessionUser } from '@/lib/auth';
 import { TickerTape } from '@/components/market-visual';
 import { LiveHome } from '@/components/home/live-home';
 
@@ -13,6 +14,7 @@ export default async function HomePage() {
     console.error('[home] Market catalogue unavailable.');
     return [];
   });
+  const user = await getSessionUser().catch(() => null);
   const serialised = markets.map((m) => ({
     symbol: m.symbol,
     last: m.last,
@@ -29,7 +31,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <LiveHome markets={serialised} />
+      <LiveHome markets={serialised} authenticated={!!user} />
       <TickerTape markets={serialised.filter((m) => m.category !== 'BINARY')} />
     </>
   );

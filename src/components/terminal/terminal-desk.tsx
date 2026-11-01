@@ -10,6 +10,7 @@ import { TerminalWorkspace } from '@/components/terminal/workspace';
 import { ProChart } from '@/components/charts/pro-chart';
 import { TradingViewPanel } from '@/components/terminal/tradingview-panel';
 import { VenueDepth } from '@/components/terminal/venue-depth';
+import { MarketSessions } from '@/components/markets/market-sessions';
 import { SessionStats } from '@/components/charts/analysis';
 import { Tabs, Badge, apiFetch, useToast, EmptyState } from '@/components/ui';
 import { AssetMark } from '@/components/asset-mark';
@@ -22,9 +23,10 @@ type Order = { id: string; symbol: string; side: string; type: string; status: s
 type Execution = { id: string; symbol: string; side: string; qty: number; price: number; fee: number; venue: string; createdAt: string };
 type Quote = { last: number; bid: number; ask: number; change24h?: number; high24h?: number | null; low24h?: number | null; volume24h?: number | null; source: string; fetchedAt?: string; stale?: boolean };
 
-export type DeskKind = 'forex' | 'crypto' | 'futures';
+export type DeskKind = 'all' | 'forex' | 'crypto' | 'futures';
 
 const CFG: Record<DeskKind, { title: string; sub: string; categories: string[]; defaultSymbol: string }> = {
+  all: { title:'Multi-asset trading', sub:'Explore configured forex, CFDs, crypto spot and futures alongside account positions and orders. Reference charts are not execution quotes.', categories:['FOREX','CFD','SPOT','FUTURES'], defaultSymbol:'BTC/USDT' },
   forex: {
     title: 'Forex & CFD desk',
     sub: 'Explore forex markets and review the trading workspace. Prices are external references, not PRIMEVEST execution quotes.',
@@ -47,7 +49,7 @@ const CFG: Record<DeskKind, { title: string; sub: string; categories: string[]; 
 
 export function TerminalDesk({ kind }: { kind: DeskKind }) {
   const cfg = CFG[kind];
-  const { markets, error: marketsError } = useMarkets();
+  const { markets, loading: marketsLoading, error: marketsError } = useMarkets();
   const tradable = useMemo(() => markets.filter((m) => cfg.categories.includes(m.category)), [markets, cfg.categories]);
   const { accountId, active, reloadAccounts } = useAccount({ liveOnly: true });
   const { push } = useToast();
@@ -63,10 +65,17 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
   const [chartType, setChartType] = useState<'tradingview' | 'reference'>('tradingview');
   const [tab, setTab] = useState<'positions' | 'orders' | 'history'>('positions');
   const [watching, setWatching] = useState<string[]>([]);
+  const [accountDataError, setAccountDataError] = useState(false);
 
   const meta = tradable.find((m) => m.symbol === symbol) ?? markets.find((m) => m.symbol === symbol);
   const dp = meta?.pricePrecision ?? priceDp(symbol);
-  const tvSymbols: Record<string, string> = { 'BTC/USDT': 'KRAKEN:BTCUSDT', 'ETH/USDT': 'KRAKEN:ETHUSDT', 'SOL/USDT': 'KRAKEN:SOLUSDT', 'BTC/USD': 'KRAKEN:BTCUSD', 'ETH/USD': 'KRAKEN:ETHUSD', 'SOL/USD': 'KRAKEN:SOLUSD', 'EUR/USD': 'FX:EURUSD', 'GBP/USD': 'FX:GBPUSD', 'USD/JPY': 'FX:USDJPY', 'BTC/USDT-PERP': 'BINANCE:BTCUSDT.P' };
+  const tvSymbols: Record<string, string> = {
+    'BTC/USDT':'KRAKEN:BTCUSDT', 'ETH/USDT':'KRAKEN:ETHUSDT', 'SOL/USDT':'KRAKEN:SOLUSDT', 'XRP/USDT':'KRAKEN:XRPUSDT', 'LTC/USDT':'KRAKEN:LTCUSDT', 'DOGE/USDT':'KRAKEN:DOGEUSDT', 'ADA/USDT':'KRAKEN:ADAUSDT', 'BNB/USDT':'KRAKEN:BNBUSDT', 'USDC/USDT':'KRAKEN:USDCUSDT',
+    'BTC/USD':'KRAKEN:BTCUSD', 'ETH/USD':'KRAKEN:ETHUSD', 'SOL/USD':'KRAKEN:SOLUSD',
+    'EUR/USD':'FX:EURUSD', 'GBP/USD':'FX:GBPUSD', 'USD/JPY':'FX:USDJPY', 'USD/CHF':'FX:USDCHF', 'AUD/USD':'FX:AUDUSD', 'USD/CAD':'FX:USDCAD', 'NZD/USD':'FX:NZDUSD',
+    XAUUSD:'OANDA:XAUUSD', XAGUSD:'OANDA:XAGUSD', NAS100:'TVC:NDX', SPX500:'TVC:SPX', US30:'DJ:DJI', GER40:'TVC:DEU40', UK100:'TVC:UKX', WTIUSD:'TVC:USOIL', NATGAS:'TVC:NATURALGAS',
+    'BTC/USDT-PERP':'BINANCE:BTCUSDT.P', 'ETH/USDT-PERP':'BINANCE:ETHUSDT.P', 'SOL/USDT-PERP':'BINANCE:SOLUSDT.P', 'XRP/USDT-PERP':'BINANCE:XRPUSDT.P', 'LTC/USDT-PERP':'BINANCE:LTCUSDT.P', 'DOGE/USDT-PERP':'BINANCE:DOGEUSDT.P', 'ADA/USDT-PERP':'BINANCE:ADAUSDT.P',
+  };
   const tvSymbol = tvSymbols[symbol];
 
   // Deep links (`?symbol=`) from the command palette and market tables.
@@ -77,7 +86,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
 
   useEffect(() => {
     if (!tradable.length) return;
-    if (!tradable.some((m) => m.symbol === symbol)) setSymbol(cfg.defaultSymbol);
+    if (!tradable.some((m) => m.symbol === symbol)) setSymbol(tradable.find(m => m.symbol === cfg.defaultSymbol)?.symbol ?? tradable[0].symbol);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tradable.length]);
 
@@ -96,7 +105,8 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
         apiFetch<{ executions: Execution[] }>(`/api/trades/history?accountId=${accountId}`),
       ]);
       if (seq !== requestSeq.current) return;
-      if (q.status === 'fulfilled') setQuote(q.value);
+      if (q.status === 'fulfilled') setQuote(q.value); else setQuote(null);
+      setAccountDataError(p.status === 'rejected' || o.status === 'rejected' || h.status === 'rejected');
       if (p.status === 'fulfilled') setPositions(p.value.positions);
       if (o.status === 'fulfilled') setOrders(o.value.orders);
       if (h.status === 'fulfilled') setExecutions(h.value.executions ?? []);
@@ -133,26 +143,23 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
     } catch (e) { push({ tone: 'error', title: 'Cancel failed', body: (e as Error).message }); }
   };
 
-  const deskPositions = positions.filter((p) => cfg.categories.includes(markets.find((m) => m.symbol === p.symbol)?.category ?? '') || positions.length <= 8);
+  const deskPositions = kind === 'all' ? positions : positions.filter((p) => cfg.categories.includes(markets.find((m) => m.symbol === p.symbol)?.category ?? '') || positions.length <= 8);
 
-  const left = (
-    <MarketList
-      markets={tradable as MarketRow[]}
-      active={symbol}
-      onSelect={setSymbol}
-      onToggleWatch={toggleWatch}
-      watching={watching}
-      dense
-    />
+  const references = ['BTC/USDT','ETH/USDT','SOL/USDT','EUR/USD','GBP/USD','USD/JPY','XAUUSD','NAS100'];
+  const left = kind === 'all' && !marketsLoading && !tradable.length ? (
+    <div className="reference-chooser"><p className="reference-chooser-title">Reference markets</p><p className="reference-chooser-copy">No configured instruments are available. These external charts are for information, not PRIMEVEST orders.</p>{references.map(s => <button type="button" key={s} onClick={() => setSymbol(s)} aria-pressed={symbol === s}>{s}<span>Reference ↗</span></button>)}</div>
+  ) : (
+    <MarketList markets={tradable as MarketRow[]} active={symbol} onSelect={setSymbol} onToggleWatch={toggleWatch} watching={watching} dense categoryTabs={kind === 'all'} loading={marketsLoading} />
   );
 
   const center = (
     <div className="flex h-full min-h-0 flex-col">
       <div className="min-h-0 flex-1">
-      <div className="chart-source-controls"><button type="button" aria-pressed={chartType === 'tradingview'} onClick={() => setChartType('tradingview')}>TradingView</button><button type="button" aria-pressed={chartType === 'reference'} onClick={() => setChartType('reference')}>Reference chart</button><span>Charts are informational · not execution prices</span></div>
+      <div className="chart-source-controls"><button type="button" aria-pressed={chartType === 'tradingview'} onClick={() => setChartType('tradingview')}>TradingView</button><button type="button" aria-pressed={chartType === 'reference'} onClick={() => setChartType('reference')}>Reference chart</button><span>Charts are external references · not execution prices</span></div>
       {chartType === 'tradingview' && tvSymbol ? <TradingViewPanel symbol={tvSymbol} height={kind === 'futures' ? 430 : 400} /> : chartType === 'tradingview' ? <div className="tv-unavailable">TradingView is not mapped for this market. Choose the reference chart to view available data.</div> : <ProChart symbol={symbol} height={kind === 'futures' ? 430 : 400} />}
       </div>
       <div className="shrink-0 border-t border-white/[0.06]">
+        {accountDataError && <p role="status" className="border-b border-amber-400/20 px-3 py-2 text-[10px] text-amber-300">Some account records could not be refreshed. Previously loaded records may be out of date.</p>}
         <Tabs
           tabs={[
             { id: 'positions' as const, label: 'Positions', count: deskPositions.length },
@@ -267,7 +274,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
           </div>
         </>
       ) : (
-        <p className="p-4 text-[12px] text-muted">Select a market to trade.</p>
+        <p className="p-4 text-[12px] leading-relaxed text-muted">{kind === 'all' && !marketsLoading && !tradable.length ? 'Reference-only chart. No configured instrument or PRIMEVEST order ticket is available for this selection.' : 'Select a configured market to view the order ticket.'}</p>
       )}
       {['BTC/USD','BTC/USDT','ETH/USD','ETH/USDT','SOL/USD','SOL/USDT'].includes(symbol) && <div className="mt-3"><VenueDepth symbol={symbol} /></div>}
     </div>
@@ -285,6 +292,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
           <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted">{cfg.sub}</p>
         </div>
         <div className="flex items-center gap-2">
+          {kind === 'all' && <Link href="/dashboard/short-expiry" className="btn-ghost px-3 py-2 text-[12px]">Short-expiry</Link>}
           <Link href="/dashboard/deposits" className="btn-ghost px-3 py-2 text-[12px]">Funding</Link>
           <Link href="/dashboard/positions" className="btn-ghost hidden px-3 py-2 text-[12px] sm:inline-flex">All positions</Link>
         </div>
@@ -296,6 +304,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
         </div>
       )}
 
+      {kind === 'all' && <MarketSessions compact />}
       <TerminalWorkspace storageKey={`desk:${kind}`} left={left} center={center} right={right} height={760} />
     </div>
   );

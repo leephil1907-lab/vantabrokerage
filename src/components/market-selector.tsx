@@ -34,6 +34,8 @@ export function MarketList({
   showCategory = true,
   dense = false,
   filter,
+  categoryTabs = false,
+  loading = true,
 }: {
   markets: MarketRow[];
   active: string;
@@ -43,16 +45,20 @@ export function MarketList({
   showCategory?: boolean;
   dense?: boolean;
   filter?: (m: MarketRow) => boolean;
+  categoryTabs?: boolean;
+  loading?: boolean;
 }) {
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<'all' | 'watch'>('all');
+  const [category, setCategory] = useState('ALL');
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
     return markets
       .filter((m) => (filter ? filter(m) : true))
+      .filter((m) => category === 'ALL' || m.category === category)
       .filter((m) => (tab === 'watch' ? watching.includes(m.symbol) : true))
       .filter((m) => !q || m.symbol.toLowerCase().includes(q) || m.displayName.toLowerCase().includes(q));
-  }, [markets, query, tab, watching, filter]);
+  }, [markets, query, tab, watching, filter, category]);
 
   return (
     <div className="flex h-full flex-col">
@@ -69,6 +75,7 @@ export function MarketList({
             className="field-sm pl-8"
           />
         </div>
+        {categoryTabs && <div className="mt-2 flex gap-1 overflow-x-auto" aria-label="Filter by asset category">{[{id:'ALL',label:'All'},{id:'FOREX',label:'FX'},{id:'CFD',label:'CFDs'},{id:'SPOT',label:'Spot'},{id:'FUTURES',label:'Futures'}].map(c => <button key={c.id} type="button" aria-pressed={category === c.id} onClick={() => setCategory(c.id)} className={`shrink-0 rounded-md px-2 py-1 text-[10px] ${category === c.id ? 'bg-white/10 text-white' : 'text-muted hover:text-white'}`}>{c.label}</button>)}</div>}
         {onToggleWatch && (
           <div className="mt-2 flex gap-1">
             {(['all', 'watch'] as const).map((t) => (
@@ -85,13 +92,13 @@ export function MarketList({
       </div>
       <div className="flex-1 overflow-y-auto scroll-thin">
         {list.length === 0 && (
-          markets.length === 0 ? (
+          markets.length === 0 && loading ? (
             <div className="space-y-1.5 p-2">
               {Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton-shimmer h-9 w-full" />)}
               <p className="pt-1 text-center text-[10.5px] text-muted">Loading instruments…</p>
             </div>
           ) : (
-            <p className="px-3 py-6 text-center text-[11px] text-muted">No markets match your search.</p>
+            <p className="px-3 py-6 text-center text-[11px] text-muted">{markets.length ? 'No markets match your search.' : 'No configured instruments are available.'}</p>
           )
         )}
         {list.map((m) => {
@@ -100,33 +107,32 @@ export function MarketList({
           return (
             <div
               key={m.symbol}
-              className={`group flex cursor-pointer items-center justify-between gap-2 border-b border-white/[0.04] px-2.5 transition-colors ${dense ? 'py-1.5' : 'py-2'} ${isActive ? 'bg-lime/[0.07]' : 'hover:bg-white/[0.03]'}`}
-              onClick={() => onSelect(m.symbol)}
+              className={`group flex items-center gap-2 border-b border-white/[0.04] px-2.5 transition-colors ${dense ? 'py-1.5' : 'py-2'} ${isActive ? 'bg-lime/[0.07]' : 'hover:bg-white/[0.03]'}`}
             >
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
+              <button type="button" onClick={() => onSelect(m.symbol)} aria-pressed={isActive} aria-label={`Select ${m.symbol}`} className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left">
+              <span className="min-w-0">
+                <span className="flex items-center gap-1.5">
                   <span className={`truncate text-[12px] font-medium ${isActive ? 'text-lime' : 'text-white'}`}>{m.symbol}</span>
                   {m.stale && <span className="rounded bg-siren/15 px-1 text-[8.5px] font-semibold text-siren">STALE</span>}
-                </div>
+                </span>
                 {showCategory && <span className="text-[9.5px] uppercase tracking-wide text-muted">{m.category}</span>}
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="text-right">
-                  <p className="value-mono text-[11.5px] font-medium text-white">{fmtPrice(m.last, priceDp(m.symbol))}</p>
-                  <p className={`value-mono text-[10px] ${up ? 'text-emerald' : 'text-danger'}`}>{fmtPct(m.change24h)}</p>
-                </div>
+              </span>
+              <span className="text-right">
+                <span className="block value-mono text-[11.5px] font-medium text-white">{fmtPrice(m.last, priceDp(m.symbol))}</span>
+                <span className={`block value-mono text-[10px] ${up ? 'text-emerald' : 'text-danger'}`}>{fmtPct(m.change24h)}</span>
+              </span>
+              </button>
                 {onToggleWatch && (
                   <button
                     onClick={(e) => { e.stopPropagation(); onToggleWatch(m.symbol); }}
                     className={`shrink-0 rounded p-0.5 transition ${watching.includes(m.symbol) ? 'text-lime' : 'text-white/15 hover:text-white/50'}`}
-                    aria-label="Toggle watchlist"
+                    aria-label={`${watching.includes(m.symbol) ? 'Remove' : 'Add'} ${m.symbol} ${watching.includes(m.symbol) ? 'from' : 'to'} watchlist`}
                   >
                     <svg width="12" height="12" viewBox="0 0 12 12" fill={watching.includes(m.symbol) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.2">
                       <path d="M6 1.2 7.5 4.3l3.4.5-2.45 2.4.57 3.4L6 8.9l-3.02 1.7.57-3.4L1.1 4.8l3.4-.5z" />
                     </svg>
                   </button>
                 )}
-              </div>
             </div>
           );
         })}

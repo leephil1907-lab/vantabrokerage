@@ -7,6 +7,7 @@ const COLUMNS = [
     links: [
       ['/markets', 'All markets'],
       ['/#live-charts', 'Live charts'],
+      ['/#market-sessions', 'Market sessions'],
       ['/trading/forex', 'Forex trading'],
       ['/trading/cfd', 'CFD trading'],
       ['/trading/crypto', 'Crypto spot'],

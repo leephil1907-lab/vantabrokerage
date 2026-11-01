@@ -7,6 +7,7 @@ import { AssetMark } from '@/components/asset-mark';
 import { AnimatedNumber, EASE, Reveal, Stagger, StaggerItem } from '@/components/motion/primitives';
 import { HeroCarousel } from '@/components/home/hero-carousel';
 import { MarketShowcase } from '@/components/home/market-showcase';
+import { MarketSessions } from '@/components/markets/market-sessions';
 import { CryptoPreview, useCryptoPreview, formatUsd } from '@/components/crypto-discovery';
 import { FeedStatus } from '@/components/motion/skeletons';
 import { fmtPct, fmtPrice, priceDp, relTime } from '@/lib/format';
@@ -235,7 +236,7 @@ const FAQS = [
   ['Where can I find support?', 'Sign in and open a support request from your dashboard.'],
 ];
 
-export function LiveHome({ markets }: { markets: M[] }) {
+export function LiveHome({ markets, authenticated = false }: { markets: M[]; authenticated?: boolean }) {
   const { markets: liveMarkets } = useMarkets();
   const cryptoFeed = useCryptoPreview();
   const table = (liveMarkets.length ? liveMarkets : markets) as M[];
@@ -246,7 +247,8 @@ export function LiveHome({ markets }: { markets: M[] }) {
   return (
     <>
       <HeroCarousel><HeroTerminal markets={table} feed={cryptoFeed} /></HeroCarousel>
-      <MarketShowcase />
+      <MarketShowcase authenticated={authenticated} />
+      <div className="shell pb-8"><MarketSessions /></div>
       <CryptoPreview {...cryptoFeed} />
 
       {/* ── MARKET OVERVIEW ──────────────────────────────────────────────── */}

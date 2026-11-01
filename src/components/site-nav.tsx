@@ -12,6 +12,7 @@ type Item = { href: string; label: string; desc?: string };
 
 const PRIMARY: { label: string; href?: string; items?: Item[] }[] = [
   { label: 'Trading', items: [
+    { href: '/dashboard/trade', label: 'Trading workspace', desc: 'Forex, crypto and global markets together' },
     { href: '/trading/forex', label: 'Forex & CFDs', desc: 'Explore currency and global markets' },
     { href: '/trading/short-expiry', label: 'Short-Expiry', desc: 'Learn about short-expiry products' },
     { href: '/trading/crypto', label: 'Crypto Spot', desc: 'Crypto reference prices and market information' },
@@ -20,6 +21,7 @@ const PRIMARY: { label: string; href?: string; items?: Item[] }[] = [
   { label: 'Markets', items: [
     { href: '/markets', label: 'Market overview', desc: 'Explore forex, crypto and more' },
     { href: '/#live-charts', label: 'Live charts', desc: 'Interactive charts and external market depth' },
+    { href: '/#market-sessions', label: 'Market sessions', desc: 'Follow the major forex trading windows' },
   ] },
   { label: 'Accounts', items: [
     { href: '/accounts', label: 'Account types', desc: 'Account information and settings' },
@@ -102,7 +104,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
                         {item.items.map((sub) => (
                           <Link
                             key={sub.href}
-                            href={sub.href}
+                            href={sub.href === '/dashboard/trade' && !authenticated ? '/login?next=%2Fdashboard%2Ftrade' : sub.href}
                             onClick={() => setActive(null)}
                             className={`nav-dropdown-link group block rounded-xl px-3 py-2.5 transition-colors ${pathname === sub.href ? 'bg-white/[0.06]' : 'hover:bg-white/[0.05]'}`}
                           >
@@ -162,7 +164,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
                 <p className="label mb-1.5">{item.label}</p>
                 <div className="grid grid-cols-2 gap-1">
                   {(item.items ?? [{ href: item.href!, label: item.label }]).map((sub) => (
-                    <Link key={sub.href} href={sub.href} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-[13px] text-white/80 hover:bg-white/5 hover:text-white">{sub.label}</Link>
+                    <Link key={sub.href} href={sub.href === '/dashboard/trade' && !authenticated ? '/login?next=%2Fdashboard%2Ftrade' : sub.href} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-[13px] text-white/80 hover:bg-white/5 hover:text-white">{sub.label}</Link>
                   ))}
                 </div>
               </div>

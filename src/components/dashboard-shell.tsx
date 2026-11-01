@@ -17,6 +17,7 @@ const NAV: { group: string; items: { href: string; label: string; icon: string; 
     group: 'Trade',
     items: [
       { href: '/dashboard', label: 'Overview', icon: 'grid' },
+      { href: '/dashboard/trade', label: 'All-asset workspace', icon: 'chart' },
       { href: '/dashboard/forex', label: 'Forex & CFDs', icon: 'chart' },
       { href: '/dashboard/short-expiry', label: 'Short-Expiry', icon: 'clock' },
       { href: '/dashboard/crypto', label: 'Crypto Spot', icon: 'coins' },
@@ -99,7 +100,7 @@ function Icon({ name, className = 'h-4 w-4' }: { name: string; className?: strin
 
 const MOBILE_TABS = [
   { href: '/dashboard', label: 'Home', icon: 'grid' },
-  { href: '/dashboard/forex', label: 'Trade', icon: 'chart' },
+  { href: '/dashboard/trade', label: 'Trade', icon: 'chart' },
   { href: '/dashboard/markets', label: 'Markets', icon: 'globe' },
   { href: '/dashboard/wallet', label: 'Wallet', icon: 'wallet' },
 ];
@@ -262,7 +263,7 @@ export function DashboardShell({
               {unread > 0 && <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold text-white">{unread}</span>}
             </Link>
             <Link href="/dashboard/wallet" className="btn-ghost px-3 py-1.5 text-[12px]">Wallet</Link>
-            <Link href="/dashboard/forex" className="btn-primary px-3.5 py-1.5 text-[12px]">Trade</Link>
+            <Link href="/dashboard/trade" className="btn-primary px-3.5 py-1.5 text-[12px]">Trade</Link>
           </div>
         </header>
         <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 px-4 pb-[76px] pt-5 lg:px-6 lg:pb-6 lg:pt-6">

@@ -9,6 +9,7 @@ type Entry = { label: string; href: string; group: string; hint?: string };
 
 const PAGES: Entry[] = [
   { label: 'Overview', href: '/dashboard', group: 'Navigate' },
+  { label: 'Multi-asset trading workspace', href: '/dashboard/trade', group: 'Navigate' },
   { label: 'Forex & CFDs terminal', href: '/dashboard/forex', group: 'Navigate' },
   { label: 'Short-expiry terminal', href: '/dashboard/short-expiry', group: 'Navigate' },
   { label: 'Crypto spot terminal', href: '/dashboard/crypto', group: 'Navigate' },

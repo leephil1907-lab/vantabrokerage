@@ -52,7 +52,7 @@ export default function DashboardOverview() {
         <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-32 h-80 w-80 rounded-full bg-lime/[.09] blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-6">
           <div><p className="text-[10px] font-semibold uppercase tracking-[.22em] text-lime">Your workspace / Overview</p><h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Welcome back{data?.profile.firstName ? `, ${data.profile.firstName}` : ''}<span className="text-lime">.</span></h1><p className="mt-3 max-w-xl text-sm leading-relaxed text-white/50">Your markets, activity and account in one place.</p>
-            <div className="mt-6 flex flex-wrap gap-2"><Link href="/dashboard/crypto" className="btn-primary px-4 py-2.5 text-xs">Explore trading <span aria-hidden="true">↗</span></Link><Link href="/dashboard/deposits" className="btn-ghost px-4 py-2.5 text-xs">View funding</Link></div></div>
+            <div className="mt-6 flex flex-wrap gap-2"><Link href="/dashboard/trade" className="btn-primary px-4 py-2.5 text-xs">Explore trading <span aria-hidden="true">↗</span></Link><Link href="/dashboard/deposits" className="btn-ghost px-4 py-2.5 text-xs">View funding</Link></div></div>
           <div className="min-w-[210px] rounded-xl border border-white/[.08] bg-black/20 p-4"><p className="text-[10px] uppercase tracking-[.16em] text-white/45">Market information</p><p className="mt-2 text-sm font-medium text-white">Reference prices</p><p className="mt-1 text-[11px] text-white/45">Subject to data availability</p></div>
         </div>
       </section>
