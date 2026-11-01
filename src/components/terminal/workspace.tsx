@@ -65,7 +65,9 @@ function PanelChrome({
   children: ReactNode;
   actions?: ReactNode;
 }) {
-  const reduce = useReducedMotion();
+  const prefersReduced = useReducedMotion();
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => setReduce(!!prefersReduced), [prefersReduced]);
   return (
     <div className="flex h-full min-h-0 flex-col">
       <motion.div
@@ -140,7 +142,9 @@ export function TerminalWorkspace({
   height?: number;
 }) {
   const { prefs, update, reset, loaded } = usePrefs(storageKey);
-  const reduce = useReducedMotion();
+  const prefersReduced = useReducedMotion();
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => setReduce(!!prefersReduced), [prefersReduced]);
   const [full, setFull] = useState(false);
 
   const leftNode = (

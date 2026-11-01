@@ -8,6 +8,8 @@ import { LiveTicket } from '@/components/terminal/live-ticket';
 import { useAccount } from '@/components/terminal/account-bar';
 import { TerminalWorkspace } from '@/components/terminal/workspace';
 import { ProChart } from '@/components/charts/pro-chart';
+import { TradingViewPanel } from '@/components/terminal/tradingview-panel';
+import { VenueDepth } from '@/components/terminal/venue-depth';
 import { SessionStats } from '@/components/charts/analysis';
 import { Tabs, Badge, apiFetch, useToast, EmptyState } from '@/components/ui';
 import { AssetMark } from '@/components/asset-mark';
@@ -58,11 +60,14 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
   const [positions, setPositions] = useState<Position[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [executions, setExecutions] = useState<Execution[]>([]);
+  const [chartType, setChartType] = useState<'tradingview' | 'reference'>('tradingview');
   const [tab, setTab] = useState<'positions' | 'orders' | 'history'>('positions');
   const [watching, setWatching] = useState<string[]>([]);
 
   const meta = tradable.find((m) => m.symbol === symbol) ?? markets.find((m) => m.symbol === symbol);
   const dp = meta?.pricePrecision ?? priceDp(symbol);
+  const tvSymbols: Record<string, string> = { 'BTC/USDT': 'KRAKEN:BTCUSDT', 'ETH/USDT': 'KRAKEN:ETHUSDT', 'SOL/USDT': 'KRAKEN:SOLUSDT', 'BTC/USD': 'KRAKEN:BTCUSD', 'ETH/USD': 'KRAKEN:ETHUSD', 'SOL/USD': 'KRAKEN:SOLUSD', 'EUR/USD': 'FX:EURUSD', 'GBP/USD': 'FX:GBPUSD', 'USD/JPY': 'FX:USDJPY', 'BTC/USDT-PERP': 'BINANCE:BTCUSDT.P' };
+  const tvSymbol = tvSymbols[symbol];
 
   // Deep links (`?symbol=`) from the command palette and market tables.
   useEffect(() => {
@@ -84,17 +89,17 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
     if (!accountId) return;
     const seq = ++requestSeq.current;
     try {
-      const [q, p, o, h] = await Promise.all([
+      const [q, p, o, h] = await Promise.allSettled([
         apiFetch<Quote>(`/api/markets/${encodeURIComponent(symbol)}/quote`),
         apiFetch<{ positions: Position[] }>(`/api/trades/positions?accountId=${accountId}`),
         apiFetch<{ orders: Order[] }>(`/api/trades/orders?accountId=${accountId}&status=open`),
-        apiFetch<{ executions: Execution[] }>(`/api/trades/history?accountId=${accountId}`).catch(() => ({ executions: [] })),
+        apiFetch<{ executions: Execution[] }>(`/api/trades/history?accountId=${accountId}`),
       ]);
       if (seq !== requestSeq.current) return;
-      setQuote(q);
-      setPositions(p.positions);
-      setOrders(o.orders);
-      setExecutions(h.executions ?? []);
+      if (q.status === 'fulfilled') setQuote(q.value);
+      if (p.status === 'fulfilled') setPositions(p.value.positions);
+      if (o.status === 'fulfilled') setOrders(o.value.orders);
+      if (h.status === 'fulfilled') setExecutions(h.value.executions ?? []);
     } catch { /* feed status is surfaced in the chart footer and toasts */ }
   }, [accountId, symbol]);
 
@@ -144,7 +149,8 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
   const center = (
     <div className="flex h-full min-h-0 flex-col">
       <div className="min-h-0 flex-1">
-      <ProChart symbol={symbol} height={kind === 'futures' ? 430 : 400} />
+      <div className="chart-source-controls"><button type="button" aria-pressed={chartType === 'tradingview'} onClick={() => setChartType('tradingview')}>TradingView</button><button type="button" aria-pressed={chartType === 'reference'} onClick={() => setChartType('reference')}>Reference chart</button><span>Charts are informational · not execution prices</span></div>
+      {chartType === 'tradingview' && tvSymbol ? <TradingViewPanel symbol={tvSymbol} height={kind === 'futures' ? 430 : 400} /> : chartType === 'tradingview' ? <div className="tv-unavailable">TradingView is not mapped for this market. Choose the reference chart to view available data.</div> : <ProChart symbol={symbol} height={kind === 'futures' ? 430 : 400} />}
       </div>
       <div className="shrink-0 border-t border-white/[0.06]">
         <Tabs
@@ -263,6 +269,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
       ) : (
         <p className="p-4 text-[12px] text-muted">Select a market to trade.</p>
       )}
+      {['BTC/USD','BTC/USDT','ETH/USD','ETH/USDT','SOL/USD','SOL/USDT'].includes(symbol) && <div className="mt-3"><VenueDepth symbol={symbol} /></div>}
     </div>
   );
 

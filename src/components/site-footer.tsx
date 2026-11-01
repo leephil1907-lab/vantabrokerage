@@ -6,6 +6,7 @@ const COLUMNS = [
     title: 'Markets',
     links: [
       ['/markets', 'All markets'],
+      ['/#live-charts', 'Live charts'],
       ['/trading/forex', 'Forex trading'],
       ['/trading/cfd', 'CFD trading'],
       ['/trading/crypto', 'Crypto spot'],
@@ -39,49 +40,16 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer className="mt-24 border-t border-white/[0.07] bg-ink-950">
-      <div className="mx-auto max-w-7xl px-5 py-14">
-        <div className="grid gap-10 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
-          <div>
-            <Logo />
-            <p className="mt-4 max-w-xs text-[12.5px] leading-relaxed text-muted">
-              A multi-asset brokerage terminal combining forex, CFDs, short-expiry trading and a full cryptocurrency stack — one wallet, one ledger, an audit-logged back office.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <span className="chip">Double-entry ledger</span>
-              <span className="chip">Server-side execution</span>
-              <span className="chip">Audit logging</span>
-            </div>
-          </div>
-          {COLUMNS.map((c) => (
-            <div key={c.title}>
-              <p className="label">{c.title}</p>
-              <ul className="mt-3 space-y-2">
-                {c.links.map(([href, label]) => (
-                  <li key={href}>
-                    <Link href={href} className="text-[12.5px] text-muted transition-colors hover:text-white">{label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+    <footer className="site-footer">
+      <div className="mx-auto max-w-7xl px-5">
+        <div className="footer-invite"><div><p className="section-kicker"><span/> A MORE CONSIDERED VIEW</p><h2>Make space for<br/><em>what moves you.</em></h2><p>Markets, perspective and your account — together in one place.</p></div><div className="footer-invite-actions"><Link href="/markets" className="btn-primary px-5 py-3 text-[13px]">Explore markets <span aria-hidden="true">↗</span></Link><Link href="/register" className="footer-outline">Create an account <span aria-hidden="true">→</span></Link></div></div>
+        <div className="footer-main grid gap-10 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
+          <div><Logo /><p className="mt-4 max-w-xs text-[13px] leading-relaxed text-muted">A focused workspace for exploring global markets and managing your PRIMEVEST account.</p><p className="footer-brand-note">BUILT FOR PERSPECTIVE <span>✳</span></p></div>
+          {COLUMNS.map(c => <div key={c.title}><p className="label">{c.title}</p><ul className="mt-4 space-y-3">{c.links.map(([href,label]) => <li key={href}><Link href={href} className="footer-link">{label}<span aria-hidden="true">↗</span></Link></li>)}</ul></div>)}
         </div>
-
-        <div className="mt-12 rounded-xl border border-siren/20 bg-siren/[0.06] p-4">
-          <p className="text-[11.5px] font-semibold uppercase tracking-wide text-siren">Risk warning</p>
-          <p className="mt-1.5 text-[11.5px] leading-relaxed text-muted">
-            Trading foreign exchange, CFDs, short-expiry products and crypto derivatives involves substantial risk of loss and is not suitable for every investor.
-            Leverage can amplify both gains and losses. Past performance is not indicative
-            of future results. Only trade with capital you can afford to lose.
-          </p>
-        </div>
-
-        <div className="mt-8 flex flex-col justify-between gap-3 border-t border-white/[0.07] pt-6 text-[11.5px] text-muted sm:flex-row">
-          <p>© {new Date().getFullYear()} PRIMEVEST. All rights reserved.</p>
-          <p className="max-w-2xl leading-relaxed">
-            Market data is for reference. Trading and deposits are currently unavailable.
-          </p>
-        </div>
+        <div className="footer-risk"><p>Risk warning</p><span>Trading foreign exchange, CFDs, short-expiry products and crypto derivatives involves substantial risk of loss and is not suitable for every investor. Leverage can amplify both gains and losses. Past performance is not indicative of future results. Only trade with capital you can afford to lose.</span></div>
+        <div className="footer-bottom"><p>© {new Date().getFullYear()} PRIMEVEST. All rights reserved.</p><p>Market data is for reference. Trading and deposits are currently unavailable.</p></div>
+        <div aria-hidden="true" className="footer-wordmark">PRIMEVEST</div>
       </div>
     </footer>
   );

@@ -12,12 +12,15 @@ type Item = { href: string; label: string; desc?: string };
 
 const PRIMARY: { label: string; href?: string; items?: Item[] }[] = [
   { label: 'Trading', items: [
-    { href: '/trading/forex', label: 'Forex & CFDs', desc: 'Majors plus indices and commodities with server-side margin' },
-    { href: '/trading/short-expiry', label: 'Short-Expiry', desc: 'CALL / PUT contracts from 30 seconds to 1 hour' },
+    { href: '/trading/forex', label: 'Forex & CFDs', desc: 'Explore currency and global markets' },
+    { href: '/trading/short-expiry', label: 'Short-Expiry', desc: 'Learn about short-expiry products' },
     { href: '/trading/crypto', label: 'Crypto Spot', desc: 'Crypto reference prices and market information' },
-    { href: '/trading/futures', label: 'Perpetual Futures', desc: 'Long/short, cross or isolated margin, funding' },
+    { href: '/trading/futures', label: 'Perpetual Futures', desc: 'Explore the futures workspace' },
   ] },
-  { label: 'Markets', href: '/markets' },
+  { label: 'Markets', items: [
+    { href: '/markets', label: 'Market overview', desc: 'Explore forex, crypto and more' },
+    { href: '/#live-charts', label: 'Live charts', desc: 'Interactive charts and external market depth' },
+  ] },
   { label: 'Accounts', items: [
     { href: '/accounts', label: 'Account types', desc: 'Account information and settings' },
     { href: '/trading-conditions', label: 'Trading conditions', desc: 'Spreads, leverage limits, swap and expiry rules' },
@@ -80,6 +83,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
                   <button
                     type="button"
                     aria-expanded={active === item.label}
+                    aria-controls={`nav-${item.label.toLowerCase()}`}
                     onClick={() => setActive((current) => current === item.label ? null : item.label)}
                     className={`relative flex items-center gap-1 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${active === item.label || activeNow ? 'text-white' : 'text-white/85 hover:text-white'}`}
                   >
@@ -94,12 +98,13 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
                 {item.items && (
                   <div className="absolute left-0 top-full pt-2">
                     <Pop open={active === item.label}>
-                      <div className="w-[340px] overflow-hidden rounded-2xl border border-white/10 bg-ink-900/95 p-1.5 shadow-panel backdrop-blur-xl">
+                      <div id={`nav-${item.label.toLowerCase()}`} className="nav-dropdown w-[360px] overflow-hidden rounded-2xl border border-white/10 bg-ink-900/95 p-2 shadow-panel backdrop-blur-xl"><div className="nav-dropdown-heading"><span>EXPLORE {item.label.toUpperCase()}</span><span>PRIMEVEST ↗</span></div>
                         {item.items.map((sub) => (
                           <Link
                             key={sub.href}
                             href={sub.href}
-                            className={`group block rounded-xl px-3 py-2.5 transition-colors ${pathname === sub.href ? 'bg-white/[0.06]' : 'hover:bg-white/[0.05]'}`}
+                            onClick={() => setActive(null)}
+                            className={`nav-dropdown-link group block rounded-xl px-3 py-2.5 transition-colors ${pathname === sub.href ? 'bg-white/[0.06]' : 'hover:bg-white/[0.05]'}`}
                           >
                             <span className="flex items-center justify-between text-[13px] font-medium text-white">
                               {sub.label}
@@ -135,6 +140,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
+          aria-controls="mobile-navigation"
         >
           <motion.span animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.2 }} className="block">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d={open ? 'M4 4l8 8M12 4l-8 8' : 'M2 5h12M2 11h12'} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
@@ -147,7 +153,8 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
         <motion.div
           initial={reduce ? undefined : { height: 0, opacity: 0 }}
           animate={reduce ? undefined : { height: 'auto', opacity: 1 }}
-          className="overflow-hidden border-t border-white/[0.07] bg-ink-950/98 px-5 py-4 lg:hidden"
+          id="mobile-navigation"
+          className="nav-mobile-sheet overflow-y-auto border-t border-white/[0.07] bg-ink-950/98 px-5 py-4 lg:hidden"
         >
           <div className="space-y-4">
             {PRIMARY.map((item) => (
@@ -155,7 +162,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
                 <p className="label mb-1.5">{item.label}</p>
                 <div className="grid grid-cols-2 gap-1">
                   {(item.items ?? [{ href: item.href!, label: item.label }]).map((sub) => (
-                    <Link key={sub.href} href={sub.href} className="rounded-lg px-3 py-2.5 text-[13px] text-white/80 hover:bg-white/5 hover:text-white">{sub.label}</Link>
+                    <Link key={sub.href} href={sub.href} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-[13px] text-white/80 hover:bg-white/5 hover:text-white">{sub.label}</Link>
                   ))}
                 </div>
               </div>

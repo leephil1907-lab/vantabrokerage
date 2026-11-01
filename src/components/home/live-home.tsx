@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AssetMark } from '@/components/asset-mark';
 import { AnimatedNumber, EASE, Reveal, Stagger, StaggerItem } from '@/components/motion/primitives';
-import { HeroScene } from '@/components/three/hero-scene';
+import { HeroCarousel } from '@/components/home/hero-carousel';
+import { MarketShowcase } from '@/components/home/market-showcase';
 import { CryptoPreview, useCryptoPreview, formatUsd } from '@/components/crypto-discovery';
 import { FeedStatus } from '@/components/motion/skeletons';
 import { fmtPct, fmtPrice, priceDp, relTime } from '@/lib/format';
@@ -244,122 +245,8 @@ export function LiveHome({ markets }: { markets: M[] }) {
 
   return (
     <>
-      {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden pb-10 pt-8 sm:pt-12">
-        <div className="pointer-events-none absolute inset-0 grid-lines opacity-70" />
-        <div className="pointer-events-none absolute -left-32 top-10 h-[420px] w-[420px] rounded-full bg-lime/[0.06] blur-[120px]" />
-        <div className="pointer-events-none absolute right-0 top-40 h-[380px] w-[380px] rounded-full bg-emerald/[0.05] blur-[120px]" />
-
-        <div className="shell relative grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14">
-          <div>
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: EASE }}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 backdrop-blur"
-            >
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald opacity-70" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald" />
-              </span>
-              <span className="text-[11px] font-medium text-white/85">
-                Market prices · subject to availability
-              </span>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, ease: EASE, delay: 0.05 }}
-              className="display mt-6 text-[40px] leading-[1.03] sm:text-[54px] lg:text-[58px]"
-            >
-              Explore forex and crypto
-              <br className="hidden sm:block" /> markets{' '}
-              <span className="relative whitespace-nowrap">
-                <span className="bg-gradient-to-r from-lime via-lime-400 to-emerald bg-clip-text text-transparent">in seconds.</span>
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.12 }}
-              className="mt-5 max-w-xl text-[14.5px] leading-relaxed text-muted"
-            >
-              Explore provider-sourced forex and crypto reference prices in a focused market workspace.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.18 }}
-              className="mt-7 flex flex-wrap items-center gap-3"
-            >
-              <Link href="/register" className="btn-primary px-5 py-3 text-[13.5px]">Open a free account</Link>
-              <Link href="/markets" className="btn-ghost px-5 py-3 text-[13.5px]">
-                Explore markets
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3l3.5 3.5L7 10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </Link>
-            </motion.div>
-
-            <motion.dl
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.28 }}
-              className="mt-9 grid max-w-lg grid-cols-2 gap-4 border-t border-white/[0.07] pt-5"
-            >
-              <div><dt className="text-[15px] font-semibold text-white">Global markets</dt><dd className="mt-1 text-[10.5px] uppercase tracking-[0.13em] text-muted">Forex & digital assets</dd></div>
-              <div><dt className="text-[15px] font-semibold text-white">One workspace</dt><dd className="mt-1 text-[10.5px] uppercase tracking-[0.13em] text-muted">Market information</dd></div>
-            </motion.dl>
-          </div>
-
-          <div className="relative">
-            <div className="absolute -inset-8 rounded-[40px] bg-gradient-to-br from-lime/10 via-transparent to-emerald/10 blur-3xl" />
-            <div className="pointer-events-none absolute inset-0 -z-0 hidden lg:block">
-              <div className="absolute -left-16 -top-20 h-[440px] w-[440px]">
-                <HeroScene />
-              </div>
-            </div>
-            <motion.div
-              initial={{ opacity: 0, y: 22, rotateX: 6 }}
-              animate={{ opacity: 1, y: 0, rotateX: 0 }}
-              transition={{ duration: 0.8, ease: EASE, delay: 0.15 }}
-              className="relative"
-            >
-              <HeroTerminal markets={table} feed={cryptoFeed} />
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── LIVE MARKET STRIP ────────────────────────────────────────────── */}
-      <section className="relative border-y border-white/[0.06] bg-ink-900/40">
-        <div className="shell grid grid-cols-2 divide-x divide-white/[0.05] sm:grid-cols-4">
-          {!majors.length && cryptoFeed.data?.assets.filter((asset) => asset.priceUsd != null && asset.priceUsd > 0).slice(0, 4).map((asset) => <Reveal key={asset.id} className="px-3 py-4" y={10}>
-            <div className="flex items-center gap-2"><AssetMark symbol={`${asset.symbol}/USD`} size={20} /><p className="text-[12px] font-medium text-white">{asset.symbol}/USD</p><span className="ml-auto text-[10px] text-muted">CoinGecko</span></div>
-            <div className="mt-2 flex items-baseline justify-between gap-2"><span className="value-mono text-[15px] font-semibold text-white">{formatUsd(asset.priceUsd)}</span><span className={`value-mono text-[11px] ${asset.change24h == null ? 'text-muted' : asset.change24h >= 0 ? 'text-emerald' : 'text-danger'}`}>{fmtPct(asset.change24h)}</span></div>
-            <p className="mt-1.5 text-[10px] text-muted">{cryptoFeed.delayed || !asset.updatedAt || (cryptoFeed.clock > 0 && cryptoFeed.clock - Date.parse(asset.updatedAt) > 300_000) ? 'Delayed USD reference' : 'USD reference'}</p>
-          </Reveal>)}
-          {majors.slice(0, 4).map((m) => {
-            const up = (m.change24h ?? 0) >= 0;
-            return (
-              <Reveal key={m.symbol} className="px-3 py-4" y={10}>
-                <div className="flex items-center gap-2">
-                  <AssetMark symbol={m.symbol} size={20} />
-                  <p className="text-[12px] font-medium text-white">{m.symbol}</p>
-                  <span className="ml-auto text-[10px] text-muted">{m.source ?? '—'}</span>
-                </div>
-                <div className="mt-2 flex items-baseline justify-between gap-2">
-                  <AnimatedNumber value={m.last} decimals={priceDp(m.symbol)} className="text-[15px] font-semibold text-white" />
-                  <span className={`value-mono text-[11px] ${up ? 'text-emerald' : 'text-danger'}`}>{fmtPct(m.change24h)}</span>
-                </div>
-                <p className="mt-1.5 text-[10px] text-muted">{m.stale ? 'Delayed quote' : 'Provider quote'}</p>
-              </Reveal>
-            );
-          })}
-        </div>
-      </section>
-
+      <HeroCarousel><HeroTerminal markets={table} feed={cryptoFeed} /></HeroCarousel>
+      <MarketShowcase />
       <CryptoPreview {...cryptoFeed} />
 
       {/* ── MARKET OVERVIEW ──────────────────────────────────────────────── */}

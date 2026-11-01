@@ -114,6 +114,8 @@ export function DashboardShell({
   const pathname = usePathname();
   const router = useRouter();
   const reduce = useReducedMotion();
+  const [reducedReady, setReducedReady] = useState(false);
+  useEffect(() => setReducedReady(!!reduce), [reduce]);
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
@@ -289,7 +291,7 @@ export function DashboardShell({
       </nav>
 
       <CommandPalette open={palette} onClose={() => setPalette(false)} isStaff={isStaff} />
-      {reduce && <span className="sr-only">Reduced motion enabled.</span>}
+      {reducedReady && <span className="sr-only">Reduced motion enabled.</span>}
     </div>
   );
 }
