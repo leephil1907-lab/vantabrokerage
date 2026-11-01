@@ -17,7 +17,7 @@ const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
 await context.addCookies([{ name: 'vanta_session', value: token, domain: '127.0.0.1', path: '/', httpOnly: true, secure: false, sameSite: 'Lax' }]);
 const page = await context.newPage();
-const errors: string[] = [];
+const errors = [];
 page.on('pageerror', error => errors.push(error.message));
 
 try {
