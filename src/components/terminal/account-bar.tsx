@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Badge } from '@/components/ui';
 import { fmtMoney } from '@/lib/format';
 
@@ -31,15 +31,33 @@ export function useAccount({ liveOnly = false }: { liveOnly?: boolean } = {}) {
     return () => { cancelled = true; };
   }, [liveOnly]);
 
+  const reloadAccounts = useCallback(async () => {
+    try {
+      const r = await fetch('/api/accounts', { cache: 'no-store' });
+      const b = await r.json();
+      if (b.accounts) setAccounts(liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : b.accounts);
+      setLiveEnabled(!!b.liveExecutionEnabled);
+    } catch { /* retain last known account selection */ }
+  }, [liveOnly]);
+
+  const createPaperAccount = useCallback(async () => {
+    const r = await fetch('/api/accounts', { method: 'POST' });
+    const b = await r.json();
+    if (!r.ok) throw new Error(b?.error?.message ?? 'Could not open practice account');
+    await reloadAccounts();
+    const id = b.account.id as string;
+    setAccountId(id);
+    if (typeof window !== 'undefined') window.localStorage.setItem('vanta.accountId', id);
+    return id;
+  }, [reloadAccounts]);
+
   const select = (id: string) => {
     setAccountId(id);
     if (typeof window !== 'undefined') window.localStorage.setItem('vanta.accountId', id);
   };
 
   const active = accounts.find((a) => a.id === accountId) ?? null;
-  return { accounts, accountId, select, active, liveEnabled, loading, reloadAccounts: () => {
-    fetch('/api/accounts', { cache: 'no-store' }).then((r) => r.json()).then((b) => b.accounts && setAccounts(liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : b.accounts)).catch(() => undefined);
-  } };
+  return { accounts, accountId, select, active, liveEnabled, loading, reloadAccounts, createPaperAccount };
 }
 
 export function AccountSwitcher({
