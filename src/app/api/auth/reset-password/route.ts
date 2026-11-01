@@ -16,11 +16,12 @@ export async function POST(req: NextRequest) {
       throw new AppError('INVALID_TOKEN', 'This reset link is invalid or has expired.', 400);
     }
     const passwordHash = await bcrypt.hash(body.password, 12);
-    await prisma.$transaction([
-      prisma.emailToken.update({ where: { id: record.id }, data: { usedAt: new Date() } }),
-      prisma.user.update({ where: { id: record.userId }, data: { passwordHash, failedAttempts: 0, lockedUntil: null } }),
-      prisma.session.updateMany({ where: { userId: record.userId, revokedAt: null }, data: { revokedAt: new Date() } }),
-    ]);
+    await prisma.$transaction(async (tx) => {
+      const consumed = await tx.emailToken.updateMany({ where: { id: record.id, usedAt: null, expiresAt: { gt: new Date() } }, data: { usedAt: new Date() } });
+      if (consumed.count !== 1) throw new AppError('INVALID_TOKEN', 'This reset link is invalid or has expired.', 400);
+      await tx.user.update({ where: { id: record.userId }, data: { passwordHash, failedAttempts: 0, lockedUntil: null } });
+      await tx.session.updateMany({ where: { userId: record.userId, revokedAt: null }, data: { revokedAt: new Date() } });
+    });
     await notifyUserByEmail(record.userId, 'password_changed');
     return json({ ok: true });
   } catch (err) {

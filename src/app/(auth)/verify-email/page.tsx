@@ -2,37 +2,31 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { apiFetch } from '@/components/ui';
+import { AuthError } from '@/components/auth/fields';
 
 function Verify() {
-  const params = useSearchParams();
-  const token = params.get('token') ?? '';
-  const [state, setState] = useState<'idle' | 'working' | 'ok' | 'error'>('idle');
+  const token = useSearchParams().get('token') ?? '';
+  const [state, setState] = useState<'working' | 'ok' | 'error'>('working');
   const [message, setMessage] = useState('');
-
+  const verification = useRef<{ token: string; promise: Promise<unknown> } | null>(null);
   useEffect(() => {
     if (!token) { setState('error'); setMessage('This verification link is missing its token.'); return; }
-    setState('working');
-    apiFetch('/api/auth/verify-email', { method: 'POST', body: JSON.stringify({ token }) })
-      .then(() => setState('ok'))
-      .catch((e) => { setState('error'); setMessage(e.message); });
+    let active = true;
+    if (verification.current?.token !== token) verification.current = { token, promise: apiFetch('/api/auth/verify-email', { method: 'POST', body: JSON.stringify({ token }) }) };
+    verification.current.promise.then(() => { if (active) setState('ok'); }).catch((e) => { if (active) { setState('error'); setMessage(e.message); } });
+    return () => { active = false; };
   }, [token]);
-
-  return (
-    <div className="panel p-6 text-center">
-      <h1 className="text-lg font-semibold text-white">Email verification</h1>
-      {state === 'working' && <p className="mt-3 text-[12.5px] text-muted">Verifying your address…</p>}
-      {state === 'ok' && <p className="mt-3 text-[12.5px] text-emerald">Your email address is verified.</p>}
-      {state === 'error' && <p className="mt-3 text-[12.5px] text-danger">{message}</p>}
-      <div className="mt-4 flex flex-col gap-2">
-        <Link href="/dashboard" className="btn-primary w-full py-2 text-[12.5px]">Go to dashboard</Link>
-        <Link href="/login" className="text-[12px] text-muted hover:text-white">Sign in instead</Link>
-      </div>
+  return <div>
+    <p className="auth-form-kicker">Account security</p><h1 className="auth-title">Email verification.</h1>
+    <div className="auth-form" aria-live="polite">
+      {state === 'working' && <p className="auth-subtitle">Verifying your address…</p>}
+      {state === 'ok' && <div role="status" className="rounded-xl border border-emerald/25 bg-emerald/10 p-4 text-sm leading-relaxed text-white/80">Your email address is verified.</div>}
+      {state === 'error' && <AuthError message={message} />}
+      <Link href="/dashboard" className="auth-submit">Go to dashboard <span aria-hidden="true">↗</span></Link>
     </div>
-  );
+    <p className="auth-switch"><Link href="/login">Back to sign in ↗</Link></p>
+  </div>;
 }
-
-export default function VerifyEmailPage() {
-  return <Suspense fallback={<div className="panel h-56 animate-pulse" />}><Verify /></Suspense>;
-}
+export default function VerifyEmailPage() { return <Suspense fallback={<div className="h-56 animate-pulse rounded-2xl bg-white/[.03]" />}><Verify /></Suspense>; }

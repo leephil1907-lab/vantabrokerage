@@ -5,7 +5,6 @@ import { prisma } from '@/lib/db';
 import { clientIp, fail, json, parseBody, rateLimit } from '@/lib/http';
 import { registerSchema } from '@/lib/validation';
 import { createSession, hashToken } from '@/lib/auth';
-import { ensureAccounts } from '@/lib/accounts';
 import { sendEventEmail, notifyUserByEmail, emailConfigured } from '@/lib/email';
 import { AppError } from '@/lib/errors';
 
@@ -40,6 +39,7 @@ export async function POST(req: NextRequest) {
           create: { firstName: body.firstName, lastName: body.lastName, country: body.country, phone: body.phone || null },
         },
         kyc: { create: { status: 'NOT_SUBMITTED' } },
+        accounts: { create: { type: 'LIVE', currency: 'USD', isDefault: true, leverage: 100, wallet: { create: { currency: 'USD', available: '0', locked: '0' } } } },
         notifications: {
           create: [
             { type: 'ACCOUNT', title: 'Welcome to PRIMEVEST', body: 'Welcome to your PRIMEVEST workspace. Explore markets and manage your account in one place.' },
@@ -48,8 +48,6 @@ export async function POST(req: NextRequest) {
         },
       },
     });
-
-    await ensureAccounts(user.id);
 
     if (referredById) {
       await prisma.referral.create({

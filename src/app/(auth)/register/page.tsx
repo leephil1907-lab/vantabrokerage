@@ -4,62 +4,59 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { apiFetch, useToast } from '@/components/ui';
+import { AuthError, AuthField, PasswordField } from '@/components/auth/fields';
 
 function RegisterForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', country: 'Nigeria', phone: '', referralCode: params.get('ref') ?? '', acceptTerms: false });
+  const [referralOpen] = useState(Boolean(params.get('ref')));
   const [busy, setBusy] = useState(false);
-  const [errors, setErrors] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { push } = useToast();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBusy(true);
-    setErrors(null);
-    try {
-      const res = await apiFetch<{ emailDelivery: { delivered: boolean } }>('/api/auth/register', {
-        method: 'POST',
-        body: JSON.stringify(form),
-      });
-      push({ tone: res.emailDelivery.delivered ? 'success' : 'error', title: 'Account created', body: res.emailDelivery.delivered ? 'Check your inbox to verify your email.' : 'Email delivery is unavailable. Contact support to verify your account.' });
-      router.push('/dashboard');
-      router.refresh();
-    } catch (err) {
-      setErrors((err as Error).message);
-    } finally {
-      setBusy(false);
+    if (busy) return;
+    if (form.password.length < 10 || !/[A-Za-z]/.test(form.password) || !/[0-9]/.test(form.password)) {
+      setError('Choose a password with at least 10 characters, including a letter and a number.'); return;
     }
+    setBusy(true); setError(null);
+    try {
+      const res = await apiFetch<{ emailDelivery: { delivered: boolean } }>('/api/auth/register', { method: 'POST', body: JSON.stringify(form) });
+      push({ tone: res.emailDelivery.delivered ? 'success' : 'error', title: 'Account created', body: res.emailDelivery.delivered ? 'Check your inbox to verify your email.' : 'Email delivery is unavailable. Contact support to verify your account.' });
+      router.push('/dashboard'); router.refresh();
+    } catch (err) { setError((err as Error).message); }
+    finally { setBusy(false); }
   };
 
-  return (
-    <div className="panel p-6">
-      <h1 className="text-lg font-semibold tracking-tight text-white">Open your account</h1>
-      <p className="mt-1 text-[12.5px] text-muted">Create your PRIMEVEST account and explore the markets.</p>
-      <form onSubmit={submit} className="mt-5 space-y-3">
-        <div className="grid grid-cols-2 gap-2">
-          <label className="block"><span className="label">First name</span><input required value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className="field mt-1.5" /></label>
-          <label className="block"><span className="label">Last name</span><input required value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className="field mt-1.5" /></label>
+  return <div>
+    <p className="auth-form-kicker">Start your journey</p>
+    <h1 className="auth-title">Create your account.</h1>
+    <p className="auth-subtitle">A considered space for your account and the markets you follow.</p>
+    <form onSubmit={submit} className="auth-form">
+      <div className="auth-row">
+        <AuthField id="first-name" label="First name" required maxLength={60} autoComplete="given-name" placeholder="First name" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
+        <AuthField id="last-name" label="Last name" required maxLength={60} autoComplete="family-name" placeholder="Last name" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
+      </div>
+      <AuthField id="register-email" label="Email address" required maxLength={254} type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} placeholder="you@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+      <PasswordField id="register-password" label="Create password" required minLength={10} maxLength={128} autoComplete="new-password" placeholder="Create a password" hint="At least 10 characters, including a letter and a number." aria-describedby="register-password-hint" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+      <AuthField id="country" label="Country of residence" required minLength={2} maxLength={60} autoComplete="country-name" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
+      <details className="auth-options" open={referralOpen || undefined}>
+        <summary>Additional details <span className="auth-label-note">(optional)</span></summary>
+        <div className="auth-options-content">
+          <AuthField id="phone" label="Phone number" note="(optional)" type="tel" maxLength={32} autoComplete="tel" placeholder="Your phone number" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          <AuthField id="referral" label="Referral code" note="(optional)" maxLength={32} autoCapitalize="characters" placeholder="Enter code" value={form.referralCode} onChange={(e) => setForm({ ...form, referralCode: e.target.value.toUpperCase() })} />
         </div>
-        <label className="block"><span className="label">Email</span><input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="field mt-1.5" autoComplete="email" /></label>
-        <label className="block"><span className="label">Password</span><input required type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="field mt-1.5" autoComplete="new-password" placeholder="10+ characters, letters and numbers" /></label>
-        <div className="grid grid-cols-2 gap-2">
-          <label className="block"><span className="label">Country</span><input required value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className="field mt-1.5" /></label>
-          <label className="block"><span className="label">Phone (optional)</span><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="field mt-1.5" /></label>
-        </div>
-        <label className="block"><span className="label">Referral code (optional)</span><input value={form.referralCode} onChange={(e) => setForm({ ...form, referralCode: e.target.value.toUpperCase() })} className="field mt-1.5" /></label>
-        <label className="flex items-start gap-2 text-[11.5px] leading-relaxed text-muted">
-          <input type="checkbox" checked={form.acceptTerms} onChange={(e) => setForm({ ...form, acceptTerms: e.target.checked })} className="mt-0.5 h-3.5 w-3.5 accent-lime" />
-          <span>I accept the <Link href="/legal/terms" className="link">terms</Link>, <Link href="/legal/privacy" className="link">privacy policy</Link> and <Link href="/legal/risk-disclosure" className="link">risk disclosure</Link>.</span>
-        </label>
-        {errors && <p className="rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-[11.5px] text-danger">{errors}</p>}
-        <button type="submit" disabled={busy || !form.acceptTerms} className="btn-primary w-full py-2.5 text-[13px]">{busy ? 'Creating account…' : 'Create account'}</button>
-      </form>
-      <p className="mt-3 text-center text-[12px] text-muted">Already registered? <Link href="/login" className="link">Sign in</Link></p>
-    </div>
-  );
+      </details>
+      <label className="auth-consent"><input type="checkbox" required checked={form.acceptTerms} onChange={(e) => setForm({ ...form, acceptTerms: e.target.checked })} /><span>I agree to the <Link href="/legal/terms">terms</Link>, <Link href="/legal/privacy">privacy policy</Link> and <Link href="/legal/risk-disclosure">risk disclosure</Link>.</span></label>
+      <AuthError message={error} />
+      <button type="submit" disabled={busy} className="auth-submit">{busy ? 'Creating account…' : <>Create account <span aria-hidden="true">↗</span></>}</button>
+    </form>
+    <p className="auth-switch">Already have an account? <Link href="/login">Sign in <span aria-hidden="true">↗</span></Link></p>
+  </div>;
 }
 
 export default function RegisterPage() {
-  return <Suspense fallback={<div className="panel h-96 animate-pulse" />}><RegisterForm /></Suspense>;
+  return <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-white/[.03]" />}><RegisterForm /></Suspense>;
 }
