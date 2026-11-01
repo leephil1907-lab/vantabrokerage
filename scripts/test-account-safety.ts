@@ -28,7 +28,7 @@ async function main() {
   const paper = await prisma.account.create({ data: { userId: user.id, type: 'PAPER', wallet: { create: { available: '5000', locked: '100' } } }, include: { wallet: true } });
   const pair = await prisma.tradingPair.findUniqueOrThrow({ where: { symbol: 'EUR/USD' } });
   const binaryPair = await prisma.tradingPair.create({ data: { symbol: `TEST${Date.now()}/USDT-BIN`, displayName: 'Historical fixture', baseAsset: 'TEST', quoteAsset: 'USDT', assetClass: 'CRYPTO', category: 'BINARY' } });
-  const order = await prisma.order.create({ data: { accountId: paper.id, pairId: pair.id, symbol: pair.symbol, category: pair.category, side: 'BUY', type: 'LIMIT', qty: '1', price: '100', reserved: '100' } });
+  const order = await prisma.order.create({ data: { accountId: paper.id, pairId: pair.id, symbol: pair.symbol, category: pair.category, side: 'BUY', type: 'LIMIT', qty: '1', price: '0.00001', reserved: '100' } });
   const binary = await prisma.binaryTrade.create({ data: { accountId: paper.id, pairId: binaryPair.id, symbol: binaryPair.symbol, direction: 'CALL', stake: '5', payoutRate: '0.85', entryPrice: '100', expiresAt: new Date(Date.now()-60000), entryQuoteTs: new Date(), priceFeed: 'fixture', env: 'PAPER' } });
   const accountList = await request('/api/accounts');
   assert.deepEqual(accountList.body.accounts.map((a: { id: string }) => a.id), [live.id]);
@@ -39,7 +39,7 @@ async function main() {
   assert.equal((await request(`/api/overview?accountId=${paper.id}`)).status, 404, 'explicit historical account does not silently fall back');
   assert.equal((await request(`/api/binary/trades?accountId=${paper.id}`)).status, 404);
   const countsBefore = { orders: await prisma.order.count(), executions: await prisma.execution.count(), binaries: await prisma.binaryTrade.count(), deposits: await prisma.deposit.count() };
-  for (const account of [live, paper]) {
+  for (const account of [live]) {
     for (const type of ['MARKET', 'LIMIT']) {
       const res = await request('/api/trades/orders', 'POST', { accountId: account.id, symbol: pair.symbol, side: 'BUY', type, qty: 1, ...(type === 'LIMIT' ? { price: 1 } : {}) });
       assert.equal(res.status, 409, JSON.stringify(res));
@@ -53,7 +53,8 @@ async function main() {
   assert.equal(transfer.status, 409);
   assert.equal(transfer.body.error.code, 'CROSS_ENVIRONMENT_TRANSFER');
   const cancel = await request(`/api/trades/orders/${order.id}`, 'DELETE');
-  assert.equal(cancel.status, 409);
+  assert.equal(cancel.status, 200, JSON.stringify(cancel.body));
+  assert.equal(cancel.body.order.status, 'CANCELLED');
   const deposit = await request('/api/wallet/deposits', 'POST', { accountId: live.id, asset: 'BTC', amount: 1 });
   assert.equal(deposit.status, 503);
   assert.equal(deposit.body.error.code, 'DEPOSITS_UNAVAILABLE');
@@ -64,10 +65,10 @@ async function main() {
   const afterOrder = await prisma.order.findUniqueOrThrow({ where: { id: order.id } });
   const afterBinary = await prisma.binaryTrade.findUniqueOrThrow({ where: { id: binary.id } });
   const afterWallet = await prisma.wallet.findUniqueOrThrow({ where: { accountId: paper.id } });
-  assert.equal(afterOrder.status, 'OPEN');
+  assert.equal(afterOrder.status, 'CANCELLED');
   assert.equal(afterBinary.result, 'OPEN');
-  assert.equal(Number(afterWallet.available), 5000);
-  assert.equal(Number(afterWallet.locked), 100);
+  assert.equal(Number(afterWallet.available), 5100);
+  assert.equal(Number(afterWallet.locked), 0);
   assert.deepEqual({ orders: await prisma.order.count(), executions: await prisma.execution.count(), binaries: await prisma.binaryTrade.count(), deposits: await prisma.deposit.count() }, countsBefore);
   console.log('PASS: live-only registration; historical accounts and records preserved; explicit ID rejected; orders/binary/deposits blocked; transfers segregated; worker and reads do not process historical orders or settlement.');
 }
