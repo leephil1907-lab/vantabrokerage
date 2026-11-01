@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { Reveal } from '@/components/motion/primitives';
+import { Magnetic, MaskLine, Reveal, Spotlight } from '@/components/motion/primitives';
+import { ShaderHero } from '@/components/three/shader-hero';
 import { AssetMark } from '@/components/asset-mark';
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -47,22 +48,20 @@ export function PageHero({
 }) {
   return (
     <section className="relative overflow-hidden border-b border-white/[0.07]">
-      <div className="pointer-events-none absolute inset-0 grid-lines opacity-60" />
-      <div className="pointer-events-none absolute -right-32 -top-24 h-[380px] w-[380px] rounded-full bg-lime/[0.06] blur-[110px]" />
-      <div className="pointer-events-none absolute -left-20 top-40 h-[260px] w-[260px] rounded-full bg-emerald/[0.05] blur-[100px]" />
+      <ShaderHero />
+      <div className="pointer-events-none absolute inset-0 grid-lines opacity-40" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink-950/70 to-transparent" />
       <div className={`shell relative grid gap-8 pb-12 pt-8 lg:pt-10 ${aside ? 'lg:grid-cols-[1.15fr_0.85fr] lg:items-end' : ''}`}>
         <div>
           {breadcrumbs && <div className="mb-5"><Breadcrumbs items={breadcrumbs} /></div>}
           <Reveal>
             <p className="eyebrow flex items-center gap-2">
-              {symbol && <AssetMark symbol={symbol} size={18} />}
+              {symbol ? <AssetMark symbol={symbol} size={18} /> : <span className="story-dot" />}
               {eyebrow}
               {badge && <span className="chip ml-1 normal-case tracking-normal">{badge}</span>}
             </p>
           </Reveal>
-          <Reveal delay={0.04}>
-            <h1 className="display mt-3 max-w-2xl text-[30px] leading-[1.08] sm:text-[40px]">{title}</h1>
-          </Reveal>
+          <h1 className="display mt-3 max-w-2xl text-[30px] leading-[1.08] sm:text-[40px]"><MaskLine delay={0.05}>{title}</MaskLine></h1>
           <Reveal delay={0.08}>
             <p className="mt-4 max-w-xl text-[13.5px] leading-relaxed text-muted">{body}</p>
           </Reveal>
@@ -79,7 +78,7 @@ export function StatBand({ items }: { items: { k: string; label: string; sub?: s
   return (
     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
       {items.map((i) => (
-        <div key={i.label} className="rounded-xl border border-white/[0.07] bg-ink-850/60 px-3.5 py-3">
+        <div key={i.label} className="rounded-xl border border-white/[0.07] bg-ink-850/60 px-3.5 py-3 transition-all duration-300 ease-premium hover:-translate-y-0.5 hover:border-gold/25">
           <p className="value-mono text-[18px] font-semibold leading-none text-white">{i.k}</p>
           <p className="mt-1.5 text-[11px] font-medium text-white/80">{i.label}</p>
           {i.sub && <p className="mt-0.5 text-[10px] leading-snug text-muted">{i.sub}</p>}
@@ -114,7 +113,7 @@ export function Section({
         <Reveal className={`flex flex-wrap items-end justify-between gap-4 ${children ? 'mb-6' : ''}`}>
           <div>
             {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-            {title && <h2 className={`display ${eyebrow ? 'mt-2' : ''} text-[22px] sm:text-[27px]`}>{title}</h2>}
+            {title && <h2 className={`display ${eyebrow ? 'mt-2' : ''} text-[22px] sm:text-[27px]`}><MaskLine>{title}</MaskLine></h2>}
             {body && <p className="mt-2.5 max-w-2xl text-[13px] leading-relaxed text-muted">{body}</p>}
           </div>
           {aside}
@@ -129,8 +128,9 @@ export function FeatureGrid({ items, cols = 3 }: { items: { title: string; body:
   return (
     <div className={`grid gap-3.5 ${cols === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2'}`}>
       {items.map((i, idx) => (
-        <Reveal key={i.title} delay={idx * 0.035}>
-          <div className="group h-full rounded-2xl border border-white/[0.07] bg-ink-850/70 p-4 transition-colors duration-300 hover:border-white/15">
+        <Reveal key={i.title} delay={idx * 0.035} className="h-full">
+          <Spotlight className="h-full rounded-2xl">
+          <div className="group h-full rounded-2xl border border-white/[0.07] bg-ink-850/70 p-4 transition-all duration-300 ease-premium hover:-translate-y-0.5 hover:border-gold/25">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2">
                 {i.symbol && <AssetMark symbol={i.symbol} size={20} />}
@@ -140,6 +140,7 @@ export function FeatureGrid({ items, cols = 3 }: { items: { title: string; body:
             </div>
             <p className="mt-1.5 text-[12px] leading-relaxed text-muted">{i.body}</p>
           </div>
+          </Spotlight>
         </Reveal>
       ))}
     </div>
@@ -233,11 +234,11 @@ export function CTASection({
       <Reveal className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-b from-ink-800 to-ink-900 p-8 text-center sm:p-10">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_220px_at_50%_-30%,rgba(223,192,136,0.15),transparent)]" />
         <div className="pointer-events-none absolute inset-0 grid-lines opacity-30" />
-        <h2 className="display relative text-[22px] sm:text-[28px]">{title}</h2>
+        <h2 className="display relative text-[22px] sm:text-[28px]"><MaskLine>{title}</MaskLine></h2>
         <p className="relative mx-auto mt-2.5 max-w-xl text-[13px] leading-relaxed text-muted">{body}</p>
         <div className="relative mt-5 flex flex-wrap justify-center gap-3">
-          <Link href={primary.href} className="btn-primary px-5 py-2.5 text-[13px]">{primary.label}</Link>
-          {secondary && <Link href={secondary.href} className="btn-ghost px-5 py-2.5 text-[13px]">{secondary.label}</Link>}
+          <Magnetic strength={0.25}><Link href={primary.href} className="btn-primary px-5 py-2.5 text-[13px]">{primary.label}</Link></Magnetic>
+          {secondary && <Magnetic strength={0.25}><Link href={secondary.href} className="btn-ghost px-5 py-2.5 text-[13px]">{secondary.label}</Link></Magnetic>}
         </div>
         <p className="relative mt-4 text-[10.5px] text-muted">{footnote ?? 'Leveraged and derivative products carry a high risk of loss.'}</p>
       </Reveal>

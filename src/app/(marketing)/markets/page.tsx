@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Reveal } from '@/components/motion/primitives';
+import { Magnetic, MaskLine, Reveal } from '@/components/motion/primitives';
+import { ShaderHero } from '@/components/three/shader-hero';
 import { AssetMark } from '@/components/asset-mark';
 import { LiveMarketTable } from '@/components/live-market-table';
 import { CryptoDiscovery } from '@/components/crypto-discovery';
@@ -22,14 +23,14 @@ export default function MarketsPage() {
   return (
     <>
       <section className="relative overflow-hidden border-b border-white/[0.07] bg-ink-950">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[url('/images/market-orbit.webp')] bg-cover bg-center opacity-30" />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/90 to-ink-950/35" />
+        <ShaderHero />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink-950/85 via-ink-950/55 to-transparent" />
         <div className="shell relative grid min-h-[390px] items-center gap-4 py-14 sm:py-20 lg:grid-cols-[1fr_0.75fr]">
           <div className="relative z-10">
             <Reveal><p className="eyebrow">Market intelligence</p></Reveal>
-            <Reveal delay={0.05}><h1 className="display mt-4 max-w-2xl text-[40px] leading-[1.05] sm:text-[56px]">The markets move.<br/><span className="text-lime">Stay ready.</span></h1></Reveal>
+            <h1 className="display mt-4 max-w-2xl text-[40px] leading-[1.05] sm:text-[56px]"><MaskLine delay={0.05}>The markets move.</MaskLine><MaskLine delay={0.14}><span className="text-lime">Stay ready.</span></MaskLine></h1>
             <Reveal delay={0.1}><p className="mt-5 max-w-xl text-[14px] leading-7 text-muted">Explore global currencies and digital assets in one considered workspace. Follow provider-sourced prices and discover crypto markets.</p></Reveal>
-            <Reveal delay={0.15}><div className="mt-7 flex flex-wrap gap-3"><a href="#crypto-discovery-heading" className="btn-primary px-5 py-3">Explore crypto markets <span aria-hidden>↗</span></a><Link href="/dashboard/forex" className="btn-ghost px-5 py-3">Open forex desk</Link></div></Reveal>
+            <Reveal delay={0.15}><div className="mt-7 flex flex-wrap gap-3"><Magnetic strength={0.25}><a href="#crypto-discovery-heading" className="btn-primary px-5 py-3">Explore crypto markets <span aria-hidden>↗</span></a></Magnetic><Magnetic strength={0.25}><Link href="/dashboard/forex" className="btn-ghost px-5 py-3">Open forex desk</Link></Magnetic></div></Reveal>
             <p className="mt-5 text-[11px] text-white/45">Reference prices can be delayed or unavailable.</p>
           </div>
           <div className="absolute -right-12 top-1/2 hidden h-[370px] w-[370px] -translate-y-1/2 opacity-80 lg:block xl:right-16" aria-hidden="true"><HeroScene /></div>
