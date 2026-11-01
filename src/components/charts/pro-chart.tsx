@@ -35,7 +35,7 @@ type Overlay = 'ema20' | 'ema50' | 'sma50' | 'volume';
 
 const UP = '#2ee6a8';
 const DOWN = '#ff5b6e';
-const LIME = '#c8f751';
+const LIME = '#dfc088';
 
 function ema(values: number[], period: number) {
   const k = 2 / (period + 1);
@@ -159,8 +159,8 @@ export function ProChart({
       timeScale: { borderColor: 'rgba(255,255,255,0.07)', timeVisible: true, secondsVisible: false, rightOffset: 6, barSpacing: 7 },
       crosshair: {
         mode: 1,
-        vertLine: { color: 'rgba(200,247,81,0.45)', width: 1, style: LineStyle.Dashed, labelBackgroundColor: '#1b2128' },
-        horzLine: { color: 'rgba(200,247,81,0.45)', width: 1, style: LineStyle.Dashed, labelBackgroundColor: '#1b2128' },
+        vertLine: { color: 'rgba(223,192,136,0.45)', width: 1, style: LineStyle.Dashed, labelBackgroundColor: '#1b2128' },
+        horzLine: { color: 'rgba(223,192,136,0.45)', width: 1, style: LineStyle.Dashed, labelBackgroundColor: '#1b2128' },
       },
       handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
       handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
@@ -186,7 +186,7 @@ export function ProChart({
       priceSeries.current = null;
     }
     const precision = priceDp(symbol) > 4 ? 6 : Math.max(2, priceDp(symbol));
-    const common = { priceLineVisible: true, lastValueVisible: true, priceLineColor: 'rgba(200,247,81,0.5)' };
+    const common = { priceLineVisible: true, lastValueVisible: true, priceLineColor: 'rgba(223,192,136,0.5)' };
     if (kind === 'candles') {
       priceSeries.current = chart.addSeries(CandlestickSeries, {
         upColor: UP, downColor: DOWN, borderUpColor: UP, borderDownColor: DOWN, wickUpColor: 'rgba(46,230,168,0.7)', wickDownColor: 'rgba(255,91,110,0.7)',
@@ -197,7 +197,7 @@ export function ProChart({
       priceSeries.current = chart.addSeries(LineSeries, { color: LIME, lineWidth: 2, priceFormat: { type: 'price', precision, minMove: 10 ** -precision }, ...common });
     } else {
       priceSeries.current = chart.addSeries(AreaSeries, {
-        lineColor: LIME, topColor: 'rgba(200,247,81,0.28)', bottomColor: 'rgba(200,247,81,0.01)', lineWidth: 2,
+        lineColor: LIME, topColor: 'rgba(223,192,136,0.28)', bottomColor: 'rgba(223,192,136,0.01)', lineWidth: 2,
         priceFormat: { type: 'price', precision, minMove: 10 ** -precision }, ...common,
       });
     }

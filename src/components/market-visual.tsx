@@ -158,7 +158,7 @@ export function HeroChart({ symbol = 'BTC/USDT' }: { symbol?: string }) {
               );
             })}
             {view.length > 0 && (
-              <line x1={0} x2={w} y1={y(view[view.length - 1].close)} y2={y(view[view.length - 1].close)} stroke="#c8f751" strokeWidth="0.8" strokeDasharray="4 4" opacity="0.55" />
+              <line x1={0} x2={w} y1={y(view[view.length - 1].close)} y2={y(view[view.length - 1].close)} stroke="#dfc088" strokeWidth="0.8" strokeDasharray="4 4" opacity="0.55" />
             )}
           </svg>
         )}

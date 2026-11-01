@@ -244,7 +244,7 @@ export function ChartPanel({
 
             {indicators.ema && (
               <>
-                <polyline points={geo!.ema20.map((v, i) => `${padL + i * geo!.bw + geo!.bw / 2},${geo!.y(v)}`).join(' ')} fill="none" stroke="#c8f751" strokeWidth="1.1" opacity="0.85" />
+                <polyline points={geo!.ema20.map((v, i) => `${padL + i * geo!.bw + geo!.bw / 2},${geo!.y(v)}`).join(' ')} fill="none" stroke="#dfc088" strokeWidth="1.1" opacity="0.85" />
                 <polyline points={geo!.ema50.map((v, i) => `${padL + i * geo!.bw + geo!.bw / 2},${geo!.y(v)}`).join(' ')} fill="none" stroke="#7c8bd9" strokeWidth="1.1" opacity="0.75" />
               </>
             )}

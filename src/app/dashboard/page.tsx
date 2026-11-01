@@ -23,7 +23,7 @@ type Overview = {
   allocation: { label: string; value: number }[];
 };
 
-const DONUT_COLORS = ['#c8f751', '#2ee6a8', '#60a5fa', '#ffb020', '#ff5b6e', '#a78bfa', '#f472b6', '#8a97a6'];
+const DONUT_COLORS = ['#dfc088', '#2ee6a8', '#60a5fa', '#ffb020', '#ff5b6e', '#a78bfa', '#f472b6', '#8a97a6'];
 
 function StatCard({ label, value, sub, tone, icon }: { label: string; value: string; sub?: React.ReactNode; tone?: 'up' | 'down' | 'neutral'; icon: React.ReactNode }) {
   return (

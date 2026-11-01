@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 /**
@@ -29,7 +29,7 @@ function Globe() {
     const count = 520;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
-    const lime = new THREE.Color('#c8f751');
+    const lime = new THREE.Color('#dfc088');
     const emerald = new THREE.Color('#2ee6a8');
     for (let i = 0; i < count; i++) {
       // Fibonacci sphere, biased so the "equator" reads denser like a globe.
@@ -65,19 +65,19 @@ function Globe() {
       {/* Latitude / longitude wireframe */}
       <lineSegments>
         <edgesGeometry args={[new THREE.SphereGeometry(1.5, 26, 18)]} />
-        <lineBasicMaterial color={coreColor('#4d7c4a', 1)} transparent opacity={0.16} />
+        <lineBasicMaterial color={coreColor('#7a6134', 1)} transparent opacity={0.2} />
       </lineSegments>
 
       {/* Glow shell */}
       <mesh ref={shell} scale={1.055}>
         <sphereGeometry args={[1.5, 48, 32]} />
-        <meshBasicMaterial color={coreColor('#c8f751', 0.5)} transparent opacity={0.07} side={THREE.BackSide} depthWrite={false} />
+        <meshBasicMaterial color={coreColor('#dfc088', 0.5)} transparent opacity={0.07} side={THREE.BackSide} depthWrite={false} />
       </mesh>
 
       {/* Dark core so back-side lines read as depth */}
       <mesh ref={inner}>
         <icosahedronGeometry args={[1.36, 1]} />
-        <meshStandardMaterial color="#0b1210" roughness={0.35} metalness={0.6} wireframe transparent opacity={0.55} />
+        <meshStandardMaterial color="#14100a" roughness={0.3} metalness={0.7} wireframe transparent opacity={0.55} />
       </mesh>
 
       {/* Price particles */}
@@ -92,7 +92,7 @@ function Globe() {
       {/* Equatorial ring */}
       <mesh rotation={[Math.PI / 2.35, 0, 0]}>
         <torusGeometry args={[2.02, 0.004, 8, 160]} />
-        <meshBasicMaterial color="#c8f751" transparent opacity={0.4} />
+        <meshBasicMaterial color="#dfc088" transparent opacity={0.4} />
       </mesh>
       <mesh rotation={[Math.PI / 2.9, 0.7, 0]}>
         <torusGeometry args={[1.86, 0.003, 8, 140]} />
@@ -104,10 +104,20 @@ function Globe() {
 
 function Rig() {
   const { camera, pointer } = useThree();
+  const scroll = useRef(0);
+  useEffect(() => {
+    const onScroll = () => { scroll.current = window.scrollY; };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   useFrame((_, delta) => {
+    // Scroll-linked dolly: the globe recedes and tilts gently as the page moves.
+    const s = Math.min(scroll.current / 900, 1);
     camera.position.x = THREE.MathUtils.damp(camera.position.x, pointer.x * 0.5, 2, delta);
-    camera.position.y = THREE.MathUtils.damp(camera.position.y, -pointer.y * 0.32 + 0.1, 2, delta);
-    camera.lookAt(0, 0, 0);
+    camera.position.y = THREE.MathUtils.damp(camera.position.y, -pointer.y * 0.32 + 0.1 - s * 0.35, 2, delta);
+    camera.position.z = THREE.MathUtils.damp(camera.position.z, 4.4 + s * 0.7, 2, delta);
+    camera.lookAt(0, -s * 0.15, 0);
   });
   return null;
 }
@@ -124,7 +134,7 @@ export default function HeroCanvas() {
         style={{ opacity: ready ? 1 : 0, transition: 'opacity 700ms ease' }}
       >
         <ambientLight intensity={0.5} />
-        <directionalLight position={[3, 4, 5]} intensity={1.1} color="#d9ffb0" />
+        <directionalLight position={[3, 4, 5]} intensity={1.15} color="#ffe9c4" />
         <pointLight position={[-4, -2, -3]} intensity={1.4} color="#2ee6a8" />
         <Globe />
         <Rig />

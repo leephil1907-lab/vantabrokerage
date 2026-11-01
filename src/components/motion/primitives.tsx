@@ -167,7 +167,7 @@ export function Spotlight({ children, className = '' }: { children: ReactNode; c
   const y = useMotionValue(50);
   const sx = useSpring(x, { stiffness: 240, damping: 30 });
   const sy = useSpring(y, { stiffness: 240, damping: 30 });
-  const bg = useTransform([sx, sy], ([a, b]: number[]) => `radial-gradient(280px circle at ${a}% ${b}%, rgba(200,247,81,0.10), transparent 65%)`);
+  const bg = useTransform([sx, sy], ([a, b]: number[]) => `radial-gradient(280px circle at ${a}% ${b}%, rgba(223,192,136,0.10), transparent 65%)`);
 
   if (reduce) return <div className={`relative ${className}`}>{children}</div>;
   return (
@@ -182,6 +182,71 @@ export function Spotlight({ children, className = '' }: { children: ReactNode; c
     >
       <motion.span aria-hidden className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: bg }} />
       <div className="relative z-[1]">{children}</div>
+    </div>
+  );
+}
+
+/** Magnetic hover wrapper: the child drifts toward the pointer, then snaps back. Fine pointers only. */
+export function Magnetic({ children, strength = 0.32, className = '' }: { children: ReactNode; strength?: number; className?: string }) {
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const reduce = useReducedMotion();
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const sx = useSpring(x, { stiffness: 260, damping: 18, mass: 0.4 });
+  const sy = useSpring(y, { stiffness: 260, damping: 18, mass: 0.4 });
+
+  if (reduce) return <span className={`inline-block ${className}`}>{children}</span>;
+  return (
+    <motion.span
+      ref={ref}
+      className={`inline-block ${className}`}
+      style={{ x: sx, y: sy }}
+      onMouseMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        x.set((e.clientX - (r.left + r.width / 2)) * strength);
+        y.set((e.clientY - (r.top + r.height / 2)) * strength);
+      }}
+      onMouseLeave={() => { x.set(0); y.set(0); }}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+/** Line-mask heading reveal: text slides up from behind an overflow mask when scrolled into view. */
+export function MaskLine({ children, className = '', delay = 0, as = 'span' }: { children: ReactNode; className?: string; delay?: number; as?: 'span' | 'div' | 'h1' | 'h2' | 'p' }) {
+  const reduce = useReducedMotion();
+  const Comp = motion[as] as typeof motion.span;
+  return (
+    <span className={`block overflow-hidden ${className}`} style={{ paddingBottom: '0.08em', marginBottom: '-0.08em' }}>
+      <Comp
+        className="block will-change-transform"
+        initial={reduce ? undefined : { y: '110%' }}
+        whileInView={reduce ? undefined : { y: '0%' }}
+        viewport={{ once: true, margin: '-40px' }}
+        transition={{ duration: 0.85, ease: EASE, delay }}
+      >
+        {children}
+      </Comp>
+    </span>
+  );
+}
+
+/** Infinite marquee strip. Content is duplicated for a seamless loop; pauses on hover; static under reduced motion. */
+export function Marquee({ children, speed = 42, reverse = false, className = '' }: { children: ReactNode; speed?: number; reverse?: boolean; className?: string }) {
+  const reduce = useReducedMotion();
+  return (
+    <div className={`group relative overflow-hidden ${className}`}>
+      <div
+        className="flex w-max items-center"
+        style={reduce ? undefined : {
+          animation: `ticker ${speed}s linear infinite`,
+          animationDirection: reverse ? 'reverse' : 'normal',
+        }}
+      >
+        <div className="flex shrink-0 items-center">{children}</div>
+        <div className="flex shrink-0 items-center" aria-hidden>{children}</div>
+      </div>
     </div>
   );
 }

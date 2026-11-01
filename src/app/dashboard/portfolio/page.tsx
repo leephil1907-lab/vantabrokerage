@@ -50,7 +50,7 @@ export default function PortfolioPage() {
               <p className="label">Allocation</p>
               <div className="mt-3 space-y-2.5">
                 {[
-                  ['Cash', data.allocation.cash, '#c8f751'],
+                  ['Cash', data.allocation.cash, '#dfc088'],
                   ['Margin locked', data.allocation.marginLocked, '#38bdf8'],
                   ['Crypto holdings', data.allocation.assets, '#2ee6a8'],
                   ['Short-expiry at risk', data.allocation.binaryAtRisk, '#ffb020'],

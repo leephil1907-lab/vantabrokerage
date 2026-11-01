@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { PrimevestGlyph } from '@/components/brand';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { HeroScene } from '@/components/three/hero-scene';
+import { Magnetic } from '@/components/motion/primitives';
 
 const SLIDES = [
   { image: '/images/hero-dealing.jpg', kicker: 'The dealing desk', title: 'Precision, in every fill.', text: 'Orders execute against live reference quotes with full ledger provenance — markets, sessions and risk in one considered workspace.' },
@@ -40,6 +42,7 @@ export function HeroCarousel({ children }: { children: ReactNode }) {
       />
     </AnimatePresence>
     <div className="story-hero-overlay" aria-hidden="true" />
+    <div className="story-hero-3d" aria-hidden="true"><HeroScene /></div>
     <div className="story-hero-inner">
       <div className="story-hero-copy">
         <div className="story-eyebrow"><span className="story-dot" /> PRIMEVEST <span className="story-eyebrow-divider" /> {slide.kicker}</div>
@@ -58,7 +61,7 @@ export function HeroCarousel({ children }: { children: ReactNode }) {
           </AnimatePresence>
         </div>
         <div className="story-actions">
-          <Link href="/markets" className="btn-primary story-button">Explore markets <span aria-hidden="true">↗</span></Link>
+          <Magnetic strength={0.25}><Link href="/markets" className="btn-primary story-button">Explore markets <span aria-hidden="true">↗</span></Link></Magnetic>
           <a href="#live-charts" className="story-secondary">View live charts <span aria-hidden="true">→</span></a>
         </div>
       </div>

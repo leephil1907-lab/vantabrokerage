@@ -30,13 +30,13 @@ export function FallbackOrbit({ dim = false }: { dim?: boolean }) {
       <svg viewBox="0 0 320 320" className="h-full max-h-[420px] w-full max-w-[420px]">
         <defs>
           <radialGradient id="orbit-core" cx="50%" cy="45%" r="55%">
-            <stop offset="0%" stopColor="rgba(200,247,81,0.22)" />
+            <stop offset="0%" stopColor="rgba(223,192,136,0.22)" />
             <stop offset="55%" stopColor="rgba(46,230,168,0.10)" />
             <stop offset="100%" stopColor="transparent" />
           </radialGradient>
         </defs>
         <circle cx="160" cy="150" r="120" fill="url(#orbit-core)" />
-        <g stroke="rgba(200,247,81,0.22)" fill="none">
+        <g stroke="rgba(223,192,136,0.22)" fill="none">
           <ellipse cx="160" cy="150" rx="120" ry="120" strokeDasharray="2 7" />
           <ellipse cx="160" cy="150" rx="120" ry="46" />
           <ellipse cx="160" cy="150" rx="120" ry="86" strokeDasharray="3 8" opacity="0.6" />
@@ -48,7 +48,7 @@ export function FallbackOrbit({ dim = false }: { dim?: boolean }) {
         {[
           [272, 150], [96, 74], [214, 236], [66, 196], [246, 96],
         ].map(([x, y], i) => (
-          <circle key={i} cx={x} cy={y} r={i % 2 ? 3 : 4} fill={i % 2 ? '#2ee6a8' : '#c8f751'} opacity="0.85" />
+          <circle key={i} cx={x} cy={y} r={i % 2 ? 3 : 4} fill={i % 2 ? '#2ee6a8' : '#dfc088'} opacity="0.85" />
         ))}
       </svg>
     </div>

@@ -231,7 +231,7 @@ export function CTASection({
   return (
     <section className="shell pb-16 pt-4">
       <Reveal className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-b from-ink-800 to-ink-900 p-8 text-center sm:p-10">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_220px_at_50%_-30%,rgba(200,247,81,0.15),transparent)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_220px_at_50%_-30%,rgba(223,192,136,0.15),transparent)]" />
         <div className="pointer-events-none absolute inset-0 grid-lines opacity-30" />
         <h2 className="display relative text-[22px] sm:text-[28px]">{title}</h2>
         <p className="relative mx-auto mt-2.5 max-w-xl text-[13px] leading-relaxed text-muted">{body}</p>

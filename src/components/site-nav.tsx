@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion, useScroll, useSpring } from 'framer-motion';
 import { Logo } from './brand';
 import { ThemeToggle } from './theme-toggle';
-import { MotionIndicator, Pop } from './motion/primitives';
+import { Magnetic, MotionIndicator, Pop } from './motion/primitives';
 
 type Item = { href: string; label: string; desc?: string };
 
@@ -20,6 +20,7 @@ const PRIMARY: { label: string; href?: string; items?: Item[] }[] = [
   ] },
   { label: 'Markets', items: [
     { href: '/markets', label: 'Market overview', desc: 'Explore forex, crypto and more' },
+    { href: '/markets/screener', label: 'Global screener', desc: 'Scan world stocks, crypto, FX and CFDs — gainers, technicals and volume' },
     { href: '/#live-charts', label: 'Live charts', desc: 'Interactive charts and external market depth' },
     { href: '/#market-sessions', label: 'Market sessions', desc: 'Follow the major forex trading windows' },
   ] },
@@ -42,6 +43,8 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
   const closeTimer = useRef<number | null>(null);
   const pathname = usePathname();
   const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 26, restDelta: 0.001 });
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -131,7 +134,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
           ) : (
             <>
               <Link href="/login" className="btn-ghost px-3.5 py-2 text-[13px]">Sign in</Link>
-              <Link href="/register" className="btn-primary px-4 py-2 text-[13px]">Open account</Link>
+              <Magnetic strength={0.22}><Link href="/register" className="btn-primary px-4 py-2 text-[13px]">Open account</Link></Magnetic>
             </>
           )}
         </div>
@@ -149,6 +152,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
           </motion.span>
         </button></div>
       </div>
+      <motion.span aria-hidden className="absolute inset-x-0 bottom-0 h-px origin-left bg-gradient-to-r from-gold/70 via-gold/40 to-transparent" style={{ scaleX: progress }} />
 
       {/* Mobile sheet */}
       {open && (
