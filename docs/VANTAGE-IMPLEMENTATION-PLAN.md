@@ -101,3 +101,13 @@ An optional hybrid route can be considered later, after the internal execution l
 
 - `src/components/home/hero-carousel.tsx`: changed to continuous automatic rotation, removed visible manual controls, and removed pause-on-hover/focus behavior. Reduced-motion preferences still suppress the transition animation while the slide sequence continues.
 - All other work remains pending until implemented and verified. No live execution capability is claimed by this change.
+
+
+## Neon persistence verification — 1 November 2026
+
+- The connected Neon project named `PRIMEVEST` is present (project ID `blue-firefly-02784990`); its default `production` branch is `ready`.
+- The `neondb.public` schema contains the application's core tables, including `User`, `Account`, `Wallet`, `LedgerTransaction`, `LedgerEntry`, `TradingPair`, `MarketQuote`, `Order`, `Execution`, `Position`, `Deposit` and `Withdrawal`.
+- The repository's `prisma/schema.prisma`, `src/lib/db.ts`, `.env.example` and `package.json` are identical between `main` and this implementation branch. No existing database connection configuration or Prisma schema change has been replaced by this branch.
+- A read-only query found no `public._prisma_migrations` table in the production database. The live schema exists, but migration history is not currently verifiable through Prisma's migration ledger. Do not run `prisma migrate deploy`, `prisma migrate reset`, or a schema push against production until the existing schema has been reconciled with version-controlled migration SQL and a safe baseline strategy is reviewed.
+- No production data, schema, credentials or connection strings were modified or exposed during this verification.
+- Vercel's configured database environment keys are scoped to Production; Preview does not currently have an isolated database configuration. Configure a separate Neon preview branch and preview-only secrets before relying on Preview deployments for migration or end-to-end testing.
