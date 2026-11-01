@@ -1,9 +1,11 @@
 /**
- * Background market refresh worker. Trading and settlement jobs are paused;
+ * Market refresh and isolated PAPER-account processing worker. LIVE trading remains blocked;
  * historical records are left unchanged. Run with: npm run worker.
  */
 import { prisma } from '../lib/db';
 import { listMarkets } from '../lib/markets';
+import { matchRestingOrders } from '../lib/execution';
+import { revaluePositions, runLiquidationEngine, runProtectiveExitEngine } from '../lib/risk';
 
 const state = { quoteTick: 0 };
 
@@ -24,13 +26,18 @@ async function record(name: string, fn: () => Promise<unknown>) {
 }
 
 async function tick() {
-  // Historical order and settlement records are preserved, not processed.
   state.quoteTick++;
   if (state.quoteTick % 3 === 0) await record('markets.refresh', async () => { const r = await listMarkets({ refresh: true }); return { pairs: r.length }; });
+  await record('paper.orders.match', async () => ({ filled: await matchRestingOrders() }));
+  if (state.quoteTick % 2 === 0) {
+    await record('paper.positions.revalue', async () => ({ positions: (await revaluePositions()).length }));
+    await record('paper.positions.protective-exits', async () => ({ closed: (await runProtectiveExitEngine()).length }));
+    await record('paper.positions.liquidations', async () => ({ liquidated: (await runLiquidationEngine()).length }));
+  }
 }
 
 async function main() {
-  console.log('[worker] VANTA Markets worker starting…');
+  console.log('[worker] PRIMEVEST market and practice-trading worker starting…');
   let running = true;
   const shutdown = async (signal: string) => {
     console.log(`[worker] received ${signal}, shutting down`);
