@@ -14,7 +14,7 @@ export function LiveTicket({ symbol }: { symbol: string }) {
     <div className="grid grid-cols-2 gap-1 rounded-xl bg-black/30 p-1" aria-label="Order type">{(['market','limit'] as const).map(t => <button key={t} onClick={() => setType(t)} aria-pressed={type === t} className={`rounded-lg py-2 text-xs font-medium capitalize transition ${type === t ? 'bg-white/10 text-white' : 'text-muted hover:text-white'}`}>{t}</button>)}</div>
     {type === 'limit' && <label className="block"><span className="label">Limit price</span><input value={price} onChange={e => setPrice(e.target.value)} inputMode="decimal" placeholder="0.00" className="field mt-2" /></label>}
     <label className="block"><span className="label">Amount</span><input value={quantity} onChange={e => setQuantity(e.target.value)} inputMode="decimal" placeholder="0.00" className="field mt-2" /></label>
-    <div className="rounded-xl border border-white/[.07] bg-black/20 p-3 text-[11px] leading-relaxed text-muted">Live order matching is not connected. These fields are for reviewing the interface and cannot place an order.</div>
+    <div className="rounded-xl border border-white/[.07] bg-black/20 p-3 text-[11px] leading-relaxed text-muted">Order execution is currently unavailable.</div>
     <button disabled className="w-full cursor-not-allowed rounded-xl bg-white/[.08] py-3 text-xs font-semibold text-white/35">Trading unavailable</button>
     <p className="text-center text-[10px] leading-relaxed text-muted">External chart prices are reference data, not PRIMEVEST order-book prices.</p>
   </div>;

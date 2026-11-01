@@ -1,3 +1,6 @@
+/** ARCHIVED: this legacy suite assumes a historical paper execution engine and is not
+ * a valid test of the current live-account-only configuration. Do not run it on
+ * customer data. See scripts/test-account-safety.ts for current safeguards. */
 /**
  * End-to-end integration test suite.
  *
@@ -78,6 +81,7 @@ async function section(title: string, fn: () => Promise<void>) {
 }
 
 async function main() {
+  throw new Error('Archived legacy paper suite is incompatible with current safeguards; run npm test against the disposable account-safety database instead.');
   console.log(`VANTA Markets — end-to-end suite against ${BASE}`);
   const stamp = Date.now();
   const clientEmail = `e2e.${stamp}@example.test`;

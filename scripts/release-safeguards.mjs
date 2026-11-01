@@ -5,6 +5,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 const base = process.env.BASE_URL || 'http://127.0.0.1:3001';
+if (base !== 'http://127.0.0.1:3001' || process.env.ALLOW_DISPOSABLE_REVIEW_TEST !== '1') throw new Error('Use only the isolated disposable server.');
 const email = `guard.${Date.now()}@example.test`;
 const post = async (path, body, cookie = '') => fetch(`${base}${path}`, { method: 'POST', headers: { 'content-type': 'application/json', ...(cookie ? { cookie } : {}) }, body: JSON.stringify(body) });
 const registration = await post('/api/auth/register', { email, password: 'Vanta!Test2026', firstName: 'Guard', lastName: 'Test', country: 'Nigeria', acceptTerms: true });

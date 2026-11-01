@@ -239,7 +239,7 @@ export function CTASection({
           <Link href={primary.href} className="btn-primary px-5 py-2.5 text-[13px]">{primary.label}</Link>
           {secondary && <Link href={secondary.href} className="btn-ghost px-5 py-2.5 text-[13px]">{secondary.label}</Link>}
         </div>
-        <p className="relative mt-4 text-[10.5px] text-muted">{footnote ?? 'Leveraged and derivative products carry a high risk of loss. Simulated results do not reflect live performance.'}</p>
+        <p className="relative mt-4 text-[10.5px] text-muted">{footnote ?? 'Leveraged and derivative products carry a high risk of loss.'}</p>
       </Reveal>
     </section>
   );

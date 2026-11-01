@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { fail, json, parseBody, rateLimit } from '@/lib/http';
 import { requireUser } from '@/lib/auth';
-import { placeOrder, matchRestingOrders } from '@/lib/execution';
+import { placeOrder } from '@/lib/execution';
 import { getAccountForUser } from '@/lib/accounts';
 import { serializeOrder } from '@/lib/serialize';
 
@@ -27,13 +27,11 @@ export async function POST(req: NextRequest) {
     await rateLimit(`order:${user.id}`, 30, 60);
     const body = await parseBody(req, orderSchema);
     const result = await placeOrder({ userId: user.id, ...body });
-    // Resting orders may already be marketable — try to match immediately.
-    if (!result.filled) matchRestingOrders(body.symbol).catch(() => undefined);
     return json({
       order: serializeOrder(result.order),
       filled: result.filled,
       quote: result.quote,
-      executionMode: 'paper',
+      executionMode: 'unavailable',
     }, { status: 201 });
   } catch (err) {
     return fail(err);

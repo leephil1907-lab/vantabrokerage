@@ -79,7 +79,7 @@ export function CryptoDiscovery({ compactLayout = false }: { compactLayout?: boo
         <div>
           <p className="eyebrow">Digital assets · market overview</p>
           <h2 id="crypto-discovery-heading" className="display mt-2 text-[26px] sm:text-[32px]">Explore crypto markets</h2>
-          <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-muted">Discover USD reference prices and real asset icons from CoinGecko. Not every listed asset is available for paper trading.</p>
+          <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-muted">Discover USD reference prices and asset icons from CoinGecko. Prices are indicative and may be delayed.</p>
         </div>
         <div aria-live="polite" className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] ${delayed ? 'border-siren/25 text-siren' : 'border-white/10 text-muted'}`}>
           <span className={`h-1.5 w-1.5 rounded-full ${delayed ? 'bg-siren' : 'bg-emerald'}`} />

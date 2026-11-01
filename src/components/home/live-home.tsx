@@ -195,27 +195,25 @@ function SparkArea({ symbol, up, tick }: { symbol: string; up: boolean; tick: nu
 /* ── Data sections ────────────────────────────────────────────────────────── */
 
 const INSTRUMENTS = [
-  { title: 'Forex', href: '/trading/forex', symbol: 'EUR/USD', copy: 'Seven seeded FX majors, modeled spreads, paper order types and instrument-specific leverage limits.', tag: '7 pairs' },
-  { title: 'Indices & CFDs', href: '/trading/cfd', symbol: 'NAS100', copy: 'NASDAQ, S&P 500, Dow, DAX and FTSE, marked and margined by a server-side risk engine.', tag: '5 indices' },
-  { title: 'Commodities', href: '/trading/cfd', symbol: 'XAUUSD', copy: 'Gold, silver, WTI crude and natural gas CFDs priced from live futures feeds.', tag: '4 markets' },
-  { title: 'Crypto spot', href: '/trading/crypto', symbol: 'BTC/USDT', copy: 'Crypto paper markets with indicative depth, holdings and locked-balance accounting.', tag: '10 pairs' },
-  { title: 'Perpetual futures', href: '/trading/futures', symbol: 'ETH/USDT', copy: 'Long and short with cross or isolated margin, funding, liquidation price and risk engine.', tag: 'Up to 100×' },
-  { title: 'Short-expiry', href: '/trading/short-expiry', symbol: 'SOL/USDT', copy: 'CALL / PUT contracts from 30 seconds to 1 hour, settled on verifiable price timestamps.', tag: '30s–1h' },
+  { title: 'Forex', href: '/trading/forex', symbol: 'EUR/USD', copy: 'Follow major currency pairs and explore indicative reference prices.', tag: 'Currencies' },
+  { title: 'Indices & commodities', href: '/trading/cfd', symbol: 'NAS100', copy: 'Explore information on indices and commodity-linked markets.', tag: 'Global markets' },
+  { title: 'Crypto', href: '/trading/crypto', symbol: 'BTC/USDT', copy: 'Discover digital assets and follow reference prices.', tag: 'Digital assets' },
+  { title: 'Futures', href: '/trading/futures', symbol: 'ETH/USDT', copy: 'Learn about futures and market risk.', tag: 'Market education' },
 ];
 
 const STEPS = [
-  { n: '01', title: 'Create your account', body: 'Register with an email address. A live account and a simulated paper account are provisioned instantly — no payment details required.', href: '/register', cta: 'Register' },
-  { n: '02', title: 'Explore your paper balance', body: 'Paper balances are simulated. Funding is not ready for live use; automated deposit verification is not connected.', href: '/accounts', cta: 'Account environments' },
-  { n: '03', title: 'Trade the markets', body: 'Choose an instrument, size the position server-side and execute. Every fill records its quote, provider and timestamp so nothing is invented.', href: '/markets', cta: 'Browse markets' },
+  { n: '01', title: 'Create your account', body: 'Register with your email address and set up your profile.', href: '/register', cta: 'Register' },
+  { n: '02', title: 'Explore your dashboard', body: 'Review your account information and security settings.', href: '/accounts', cta: 'Your account' },
+  { n: '03', title: 'Follow the markets', body: 'Explore currencies and digital assets with provider-sourced reference prices.', href: '/markets', cta: 'Browse markets' },
 ];
 
 const ADVANTAGES = [
-  { title: 'Server-side execution', body: 'Every fill is priced from a server-fetched quote and written to an immutable execution record with its quote timestamp.', icon: 'server' },
-  { title: 'Double-entry ledger', body: 'Balances are never a mutable number. Each movement is a balanced transaction with a counterparty entry, reconcilable to the cent.', icon: 'ledger' },
-  { title: 'Continuous risk engine', body: 'Mark prices, margin ratios, liquidation prices and funding are recomputed by a background worker — never by the browser.', icon: 'shield' },
-  { title: 'Paper and live separated', body: 'Simulated balances are labelled PAPER throughout. Live orders are disabled; no live execution provider has been integrated.', icon: 'split' },
-  { title: 'Audit-logged back office', body: 'Administrators act through logged workflows. Every approval, restriction and configuration change records actor, IP and timestamp.', icon: 'audit' },
-  { title: 'Verifiable market data', body: 'Prices come from named providers — Kraken, Coinbase and Yahoo Finance — and every quote stores its source and fetch time.', icon: 'feed' },
+  { title: 'Market overview', body: 'Explore a range of market information in one workspace.', icon: 'server' },
+  { title: 'Account dashboard', body: 'Review your profile and account activity in one place.', icon: 'ledger' },
+  { title: 'Security settings', body: 'Manage your credentials and review account sessions.', icon: 'shield' },
+  { title: 'Market discovery', body: 'Follow currency pairs and digital asset reference prices.', icon: 'split' },
+  { title: 'Account support', body: 'Open a support request from your dashboard.', icon: 'audit' },
+  { title: 'Provider-sourced data', body: 'Market prices are supplied by third parties and may be delayed or unavailable.', icon: 'feed' },
 ];
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -228,11 +226,10 @@ const ICONS: Record<string, React.ReactNode> = {
 };
 
 const FAQS = [
-  ['Is this a live brokerage?', 'No. PRIMEVEST is a technology demonstration offering paper trading. Live order routing, automated custody and verified deposits are not implemented. Do not deposit real funds.'],
-  ['Where do the prices come from?', 'Market data is pulled server-side from named providers — Kraken, Coinbase and Yahoo Finance for configured instruments. Each quote records its provider and fetch time, and stale quotes are labelled as delayed rather than silently served.'],
-  ['How are balances protected from client manipulation?', 'Balances live in a double-entry ledger on the server. The browser never sends a price, a fill or a resulting balance — it sends an intent, and the server validates, prices and settles it.'],
-  ['Can I try it without depositing?', 'Yes. Every account is created with a paper trading account funded with a simulated balance. Paper trades are flagged as PAPER everywhere they appear.'],
-  ['What do I need before withdrawing?', 'Identity verification must be approved, and withdrawals re-authenticate the session (password plus two-factor if enabled) before reserving funds and queueing them for finance review.'],
+  ['What can I explore on PRIMEVEST?', 'Explore market information, manage your profile and access your account dashboard.'],
+  ['Where do the prices come from?', 'Prices come from third-party market data providers. Reference prices may be delayed or unavailable and are not executable quotes.'],
+  ['How can I protect my account?', 'Use a strong password and review the security settings and active sessions in your dashboard.'],
+  ['Where can I find support?', 'Sign in and open a support request from your dashboard.'],
 ];
 
 export function LiveHome({ markets }: { markets: M[] }) {
@@ -265,8 +262,6 @@ export function LiveHome({ markets }: { markets: M[] }) {
               <span className="text-[11px] font-medium text-white/85">
                 Market prices · subject to availability
               </span>
-              <span className="h-3 w-px bg-white/15" />
-              <span className="text-[11px] text-muted">Live trading unavailable</span>
             </motion.div>
 
             <motion.h1
@@ -288,7 +283,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
               transition={{ duration: 0.6, ease: EASE, delay: 0.12 }}
               className="mt-5 max-w-xl text-[14.5px] leading-relaxed text-muted"
             >
-              Explore provider-sourced forex and crypto reference prices. Live trading and deposits are not connected; please do not send funds.
+              Explore provider-sourced forex and crypto reference prices in a focused market workspace.
             </motion.p>
 
             <motion.div
@@ -308,12 +303,11 @@ export function LiveHome({ markets }: { markets: M[] }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.28 }}
-              className="mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-white/[0.07] pt-5"
+              className="mt-9 grid max-w-lg grid-cols-2 gap-4 border-t border-white/[0.07] pt-5"
             >
               {[
                 { v: table.length, suffix: '', label: 'Configured instruments' },
                 { v: 5, suffix: '', label: 'Terminals' },
-                { v: 0, suffix: '', label: 'Live execution venues' },
               ].map((s) => (
                 <div key={s.label}>
                   <dt className="text-[22px] font-semibold text-white"><Counter value={s.v} suffix={s.suffix} /></dt>
@@ -439,11 +433,10 @@ export function LiveHome({ markets }: { markets: M[] }) {
       <section className="relative border-y border-white/[0.07] bg-ink-900/30">
         <div className="shell py-16 sm:py-20">
           <Reveal>
-            <p className="eyebrow">Trading instruments</p>
-            <h2 className="display mt-2 text-[26px] sm:text-[30px]">Five terminals, one account</h2>
+            <p className="eyebrow">Market categories</p>
+            <h2 className="display mt-2 text-[26px] sm:text-[30px]">Explore markets in one place</h2>
             <p className="mt-2.5 max-w-xl text-[13.5px] leading-relaxed text-muted">
-              Each desk has its own execution semantics — margin and liquidation for derivatives, reserved balance for spot,
-              server-timestamped settlement for short-expiry.
+              Discover currencies, digital assets and information about global markets.
             </p>
           </Reveal>
           <Stagger className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -472,7 +465,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
       <section className="shell py-16 sm:py-20">
         <Reveal className="text-center">
           <p className="eyebrow justify-center">Getting started</p>
-          <h2 className="display mt-2 text-[26px] sm:text-[32px]">Three steps to your first trade</h2>
+          <h2 className="display mt-2 text-[26px] sm:text-[32px]">Three steps to get started</h2>
           <p className="mx-auto mt-2.5 max-w-lg text-[13.5px] leading-relaxed text-muted">
             No sales call, no minimum deposit to test. Open an account and the platform provisions everything you need.
           </p>
@@ -504,8 +497,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
             <p className="eyebrow">Why PRIMEVEST</p>
             <h2 className="display mt-2 text-[26px] sm:text-[30px]">A closer look at the platform</h2>
             <p className="mt-3 text-[13.5px] leading-relaxed text-muted">
-              The visible charts are the smallest part of the system. Underneath sit authentication with device history, a KYC
-              review queue, order management, margin and liquidation logic, ledger accounting and a permissioned back office.
+              Follow the markets, manage your account and find the information you need in a focused workspace.
             </p>
             {crypto.length > 0 && (
               <div className="mt-6 grid grid-cols-2 gap-2.5">
@@ -583,15 +575,15 @@ export function LiveHome({ markets }: { markets: M[] }) {
         <Reveal className="relative overflow-hidden rounded-3xl border border-white/[0.09] bg-gradient-to-b from-ink-800 to-ink-900 p-9 text-center sm:p-12">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_260px_at_50%_-30%,rgba(200,247,81,0.16),transparent)]" />
           <div className="pointer-events-none absolute inset-0 grid-lines opacity-40" />
-          <h2 className="display relative text-[26px] sm:text-[34px]">Open your account in under a minute</h2>
+          <h2 className="display relative text-[26px] sm:text-[34px]">Open your PRIMEVEST account</h2>
           <p className="relative mx-auto mt-3 max-w-xl text-[13.5px] leading-relaxed text-muted">
-            Register to get a live account, a funded paper account and access to every terminal. No payment details required to start.
+            Register to access your account dashboard and explore market information.
           </p>
           <div className="relative mt-6 flex flex-wrap justify-center gap-3">
             <Link href="/register" className="btn-primary px-6 py-3 text-[13.5px]">Create account</Link>
             <Link href="/login" className="btn-ghost px-6 py-3 text-[13.5px]">Sign in</Link>
           </div>
-          <p className="relative mt-4 text-[10.5px] text-muted">Simulated results on paper accounts. Trading involves risk of loss.</p>
+          <p className="relative mt-4 text-[10.5px] text-muted">Market prices are for reference. Trading involves risk of loss.</p>
         </Reveal>
       </section>
     </>

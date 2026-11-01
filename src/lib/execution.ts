@@ -62,20 +62,16 @@ export async function loadAccount(userId: string, accountId: string) {
   return account;
 }
 
-function assertLiveAllowed(account: Account) {
-  if (account.type === 'LIVE') {
-    throw new AppError(
-      'LIVE_EXECUTION_UNAVAILABLE',
-      'Live execution provider is not connected. This deployment supports paper trading only — switch to your paper account to continue.',
-      409,
-    );
-  }
+function assertLiveAllowed(_account: Account) {
+  // No real execution venue or matching engine has been integrated. Never create
+  // simulated fills or real orders while this safeguard is in place.
+  throw new AppError('LIVE_EXECUTION_UNAVAILABLE', 'Order execution is currently unavailable.', 409);
 }
 
 export async function placeOrder(input: PlaceOrderInput) {
-  const pair = await loadTradablePair(input.symbol);
   const account = await loadAccount(input.userId, input.accountId);
   assertLiveAllowed(account);
+  const pair = await loadTradablePair(input.symbol);
 
   const qty = round(Number(input.qty), pair.qtyPrecision);
   if (!isFinite(qty) || qty <= 0) throw new AppError('INVALID_QTY', 'Order quantity must be greater than zero.', 400);
@@ -366,6 +362,7 @@ export async function cancelOrder(userId: string, orderId: string) {
   const order = await prisma.order.findUnique({ where: { id: orderId }, include: { account: true } });
   if (!order) throw new AppError('NOT_FOUND', 'Order not found.', 404);
   if (order.account.userId !== userId) throw new AppError('FORBIDDEN', 'You cannot cancel this order.', 403);
+  assertLiveAllowed(order.account);
   if (order.status !== 'OPEN') throw new AppError('ORDER_NOT_OPEN', 'Only open orders can be cancelled.', 409);
 
   return prisma.$transaction(async (tx) => {

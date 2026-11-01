@@ -10,20 +10,22 @@ export const MAX_STAKE = 5000;
 /**
  * Short-expiry CALL/PUT trades. Settlement is always performed server-side using a
  * fresh provider quote at expiry and recorded with both entry and exit quote timestamps.
- * In paper mode the environment is flagged `PAPER` on every record and surfaced in the UI.
+ * Execution is currently blocked for all account types.
  */
+function assertExecutionUnavailable() {
+  throw new AppError('LIVE_EXECUTION_UNAVAILABLE', 'Order execution is currently unavailable.', 409);
+}
+
 export async function openBinaryTrade(input: { userId: string; accountId: string; symbol: string; direction: 'CALL' | 'PUT'; stake: number; expirySeconds: number }) {
+  const account = await prisma.account.findFirst({ where: { id: input.accountId, userId: input.userId } });
+  if (!account) throw new AppError('NOT_FOUND', 'Account not found.', 404);
+  if (account.status !== 'ACTIVE') throw new AppError('ACCOUNT_RESTRICTED', 'Account is not active.', 403);
+  assertExecutionUnavailable();
+
   const pair = await prisma.tradingPair.findUnique({ where: { symbol: input.symbol } });
   if (!pair) throw new AppError('NOT_FOUND', 'Market not found.', 404);
   if (!pair.enabled || !['BINARY', 'CRYPTO'].includes(pair.category)) throw new AppError('MARKET_DISABLED', 'Short-expiry trading is unavailable for this market.', 403);
   if (!EXPIRY_OPTIONS.includes(input.expirySeconds)) throw new AppError('INVALID_EXPIRY', 'Unsupported expiry selected.', 400);
-
-  const account = await prisma.account.findFirst({ where: { id: input.accountId, userId: input.userId } });
-  if (!account) throw new AppError('NOT_FOUND', 'Account not found.', 404);
-  if (account.status !== 'ACTIVE') throw new AppError('ACCOUNT_RESTRICTED', 'Account is not active.', 403);
-  if (account.type === 'LIVE') {
-    throw new AppError('LIVE_EXECUTION_UNAVAILABLE', 'Live short-expiry execution is not connected in this deployment. Use your paper account.', 409);
-  }
 
   const stake = round(input.stake, 2);
   if (!isFinite(stake) || stake < MIN_STAKE || stake > MAX_STAKE) {

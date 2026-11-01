@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
         kyc: { create: { status: 'NOT_SUBMITTED' } },
         notifications: {
           create: [
-            { type: 'ACCOUNT', title: 'Welcome to PRIMEVEST', body: 'Your PRIMEVEST workspace is ready. Live trading and funding are not yet available.' },
-            { type: 'SECURITY', title: 'Confirm your email address', body: 'Verify your email to secure your account. Funding and withdrawals require additional services and checks.' },
+            { type: 'ACCOUNT', title: 'Welcome to PRIMEVEST', body: 'Welcome to your PRIMEVEST workspace. Explore markets and manage your account in one place.' },
+            { type: 'SECURITY', title: 'Confirm your email address', body: 'Verify your email to help secure your account.' },
           ],
         },
       },

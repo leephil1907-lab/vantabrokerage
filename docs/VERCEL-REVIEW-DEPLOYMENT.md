@@ -20,7 +20,7 @@ npm run db:seed-review
 
 The review seed inserts reference instrument and asset definitions only. It creates **no staff accounts, users, balances, orders, deposits, price records or sample trading history**. It uses existing static instrument definitions; the prices shown are subsequently obtained from providers. It is safe to rerun on the same isolated review database, but its upserts may update matching instrument definitions: never point it at a database with customer data without a reviewed migration plan. Only forex and Kraken-mapped crypto spot reference definitions are included. Other instrument categories may remain empty. Provider availability, rights and freshness must be verified; definitions do not imply a market is tradeable.
 
-**Do not run `npm run seed` against a hosted/review deployment.** The development seed includes known staff credentials and simulated settings; the script now refuses its full seed in production or on Vercel. It must never be used with real data. Create your own private review user through the registration page after deployment. That user is not an administrator. Registration still provisions a legacy paper account, so use `PAPER_STARTING_BALANCE=0` for the review; other legacy simulation functionality remains in the code. This variable is not a security or trading-disable switch.
+**Do not run `npm run seed` against a hosted/review deployment.** The development seed includes known staff credentials and simulated settings; the script now refuses its full seed in production or on Vercel. It must never be used with real data. Create your own private review user through the registration page after deployment. That user is not an administrator. Registration creates only a LIVE account. Historical paper records are preserved but are not exposed through account selection or processed by the worker. Trading and customer deposits are blocked for all accounts.
 
 ## 3. Import into Vercel
 
@@ -31,7 +31,6 @@ Import the GitHub repository as a new Next.js project; use the repository root. 
 | `DATABASE_URL` | Server-side pooled connection URL for the isolated PostgreSQL database; never a local `127.0.0.1` URL. |
 | `SESSION_SECRET` | A unique cryptographically random secret, at least 32 characters; e.g. generate locally with `openssl rand -hex 32`. Do not share or commit it. |
 | `APP_URL` | The exact stable protected HTTPS origin for that environment, without a path; verification and reset emails use this origin. Do not copy a production URL into Preview. |
-| `PAPER_STARTING_BALANCE` | `0` for review; this does not disable legacy simulated actions. |
 | `CRYPTO_DEPOSIT_ADDRESSES` | Leave unset or `{}`. Deposits remain unavailable. |
 | `COINGECKO_DEMO_API_KEY` | Optional, server-side only; review the provider's plan, usage limits and redistribution rights. |
 

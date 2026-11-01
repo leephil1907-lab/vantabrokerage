@@ -1,0 +1,7 @@
+# Account transition and execution safeguards
+
+New registrations create exactly one empty LIVE account. The account and overview APIs only expose LIVE accounts. Historical PAPER accounts, balances, orders and ledger records are not deleted, reclassified or moved into real-money accounts. Explicit historical account IDs are rejected rather than silently switching accounts.
+
+All new orders, position closes and short-expiry contracts are blocked regardless of account type. Customer deposits remain blocked. The current worker refreshes market data only: it does not match resting orders, revalue/liquidate positions, settle contracts or charge funding. Deployments with an independently running **older worker must stop or upgrade that worker**; updating the website alone cannot stop a separate old process. Do not manually convert, transfer or delete historical simulated funds. Real-money operation requires its own approved execution, custody, payment, legal and operational arrangements.
+
+The current targeted integration test (`npm test`, `scripts/test-account-safety.ts`) requires an explicitly opted-in isolated local database named `vanta_nodemo_test` and a server on localhost:3001. It creates historical test fixtures directly; never run it against customer data. `scripts/test-e2e.ts` is archived because it assumed paper execution and intentionally refuses to run. Public copy, dashboard, deposit and responsive checks are in `scripts/test-public-copy.mjs` and `scripts/test-live-design.mjs`.

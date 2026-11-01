@@ -4,8 +4,6 @@ import { fail, json } from '@/lib/http';
 import { requireUser } from '@/lib/auth';
 import { ensureAccounts, accountEquity, getAccountForUser } from '@/lib/accounts';
 import { listMarkets } from '@/lib/markets';
-import { revaluePositions, runLiquidationEngine } from '@/lib/risk';
-import { settleExpiredBinaryTrades } from '@/lib/binary';
 import { d } from '@/lib/ledger';
 
 export const dynamic = 'force-dynamic';
@@ -16,12 +14,9 @@ export async function GET(req: NextRequest) {
     await ensureAccounts(user.id);
     const url = new URL(req.url);
     const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined);
-    await revaluePositions(account.id);
-    await settleExpiredBinaryTrades().catch(() => undefined);
-    await runLiquidationEngine().catch(() => undefined);
 
     const [accounts, positions, orders, entries, watch, notifCount, dbUser, binaryOpen] = await Promise.all([
-      prisma.account.findMany({ where: { userId: user.id }, include: { wallet: true } }),
+      prisma.account.findMany({ where: { userId: user.id, type: 'LIVE' }, include: { wallet: true } }),
       prisma.position.findMany({ where: { accountId: account.id, status: 'OPEN' }, orderBy: { createdAt: 'desc' }, take: 20 }),
       prisma.order.findMany({ where: { accountId: account.id, status: 'OPEN' }, orderBy: { createdAt: 'desc' }, take: 20 }),
       prisma.ledgerEntry.findMany({ where: { wallet: { accountId: account.id } }, include: { transaction: true }, orderBy: { createdAt: 'desc' }, take: 10 }),
@@ -51,7 +46,7 @@ export async function GET(req: NextRequest) {
       })),
       markets: markets.slice(0, 14),
       unreadNotifications: notifCount,
-      executionMode: 'paper',
+      executionMode: 'unavailable',
     }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (err) {
     return fail(err);

@@ -109,7 +109,7 @@ export function OrderPanel({
         tone: 'success',
         title: res.filled ? `${side} filled · ${market.symbol}` : `${type} order placed · ${market.symbol}`,
         body: res.filled
-          ? `Executed at the server quote${res.executionMode === 'paper' ? ' in your paper account' : ''}.`
+          ? 'Order processed.'
           : 'Resting order created and margin reserved. The worker will fill it when the trigger is met.',
       });
       setQty(''); setPrice(''); setTp(''); setSl(''); setPct(null);
@@ -127,7 +127,7 @@ export function OrderPanel({
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <p className="label">Place order</p>
-        {accountType === 'PAPER' ? <Badge tone="blue">paper</Badge> : <Badge tone="lime">live</Badge>}
+        <Badge tone="amber">Trading unavailable</Badge>
       </div>
 
       <div className="grid grid-cols-2 gap-1 rounded-xl bg-ink-900 p-1">
@@ -221,14 +221,14 @@ export function OrderPanel({
 
       {error && <p className="rounded-lg border border-danger/30 bg-danger/10 px-2.5 py-2 text-[11px] leading-relaxed text-danger">{error}</p>}
 
-      <button onClick={submit} disabled={!canSubmit} className={side === 'BUY' ? 'btn-up py-2.5 text-[13px]' : 'btn-down py-2.5 text-[13px]'}>
-        {busy ? 'Submitting…' : `${side === 'BUY' ? (isSpot ? 'Buy' : 'Long') : isSpot ? 'Sell' : 'Short'} ${market.symbol}`}
+      <button onClick={submit} disabled className={side === 'BUY' ? 'btn-up py-2.5 text-[13px]' : 'btn-down py-2.5 text-[13px]'}>
+        Trading unavailable
       </button>
       {side === 'BUY' && requiredForBuy > available + 1e-9 && (
         <p className="text-center text-[10.5px] text-siren">Insufficient available balance — reduce quantity or leverage, or transfer funds from your other account.</p>
       )}
       <p className="text-center text-[10px] leading-relaxed text-muted">
-        Orders are priced from the server quote ({quote?.source ?? 'provider'}), never from the browser.
+        Reference prices are not executable quotes.
       </p>
     </div>
   );

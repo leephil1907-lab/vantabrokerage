@@ -13,12 +13,12 @@ const PRIMARY: { label: string; href?: string; items?: Item[] }[] = [
   { label: 'Trading', items: [
     { href: '/trading/forex', label: 'Forex & CFDs', desc: 'Majors plus indices and commodities with server-side margin' },
     { href: '/trading/short-expiry', label: 'Short-Expiry', desc: 'CALL / PUT contracts from 30 seconds to 1 hour' },
-    { href: '/trading/crypto', label: 'Crypto Spot', desc: 'Crypto paper markets with indicative depth and holdings' },
+    { href: '/trading/crypto', label: 'Crypto Spot', desc: 'Crypto reference prices and market information' },
     { href: '/trading/futures', label: 'Perpetual Futures', desc: 'Long/short, cross or isolated margin, funding' },
   ] },
   { label: 'Markets', href: '/markets' },
   { label: 'Accounts', items: [
-    { href: '/accounts', label: 'Account types', desc: 'Paper and live account environments' },
+    { href: '/accounts', label: 'Account types', desc: 'Account information and settings' },
     { href: '/trading-conditions', label: 'Trading conditions', desc: 'Spreads, leverage limits, swap and expiry rules' },
     { href: '/deposits-withdrawals', label: 'Deposits & withdrawals', desc: 'Funding methods, review windows and limits' },
   ] },
@@ -72,7 +72,7 @@ export function SiteNav({ authenticated }: { authenticated: boolean }) {
           <div className="flex items-center gap-4">
             <Link href="/help" className="transition-colors hover:text-white">Support</Link>
             <Link href="/deposits-withdrawals" className="transition-colors hover:text-white">Payments</Link>
-            <span className="text-white/50">Demo account available</span>
+            <span className="text-white/50">Explore global markets</span>
           </div>
         </div>
       </div>

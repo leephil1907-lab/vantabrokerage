@@ -71,7 +71,7 @@ export function SiteFooter() {
           <p className="text-[11.5px] font-semibold uppercase tracking-wide text-siren">Risk warning</p>
           <p className="mt-1.5 text-[11.5px] leading-relaxed text-muted">
             Trading foreign exchange, CFDs, short-expiry products and crypto derivatives involves substantial risk of loss and is not suitable for every investor.
-            Leverage can amplify both gains and losses. Paper trading uses simulated funds and does not represent real market execution. Past performance is not indicative
+            Leverage can amplify both gains and losses. Past performance is not indicative
             of future results. Only trade with capital you can afford to lose.
           </p>
         </div>
@@ -79,7 +79,7 @@ export function SiteFooter() {
         <div className="mt-8 flex flex-col justify-between gap-3 border-t border-white/[0.07] pt-6 text-[11.5px] text-muted sm:flex-row">
           <p>© {new Date().getFullYear()} PRIMEVEST. All rights reserved.</p>
           <p className="max-w-2xl leading-relaxed">
-            PRIMEVEST is a technology demonstration platform. Live trading, automated custody and payment processing are not connected. Do not deposit real funds.
+            Market data is for reference. Trading and deposits are currently unavailable.
           </p>
         </div>
       </div>

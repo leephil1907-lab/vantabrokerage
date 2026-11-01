@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { fail, json, parseBody, rateLimit } from '@/lib/http';
 import { requireUser } from '@/lib/auth';
-import { openBinaryTrade, settleExpiredBinaryTrades } from '@/lib/binary';
+import { openBinaryTrade } from '@/lib/binary';
 import { getAccountForUser } from '@/lib/accounts';
 import { d } from '@/lib/ledger';
 
@@ -46,8 +46,6 @@ export async function GET(req: NextRequest) {
     const user = await requireUser();
     const url = new URL(req.url);
     const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined);
-    // Settle anything expired on read so the panel stays consistent even without the worker.
-    await settleExpiredBinaryTrades().catch(() => undefined);
     const trades = await prisma.binaryTrade.findMany({ where: { accountId: account.id }, orderBy: { createdAt: 'desc' }, take: 100 });
     const open = trades.filter((t) => t.result === 'OPEN');
     const settled = trades.filter((t) => t.result !== 'OPEN');

@@ -26,7 +26,7 @@ try {
     return { live, paper, enabled: accounts.liveExecutionEnabled, order: { status: order.status, body: await order.json() }, deposit: { status: deposit.status, body: await deposit.json() }, markets };
   });
   assert.equal(data.live.available, 0);
-  assert.equal(data.paper.available, 0, 'PAPER_STARTING_BALANCE must be zero for this review test');
+  assert.equal(data.paper, undefined, 'no paper account is provisioned');
   assert.equal(data.enabled, false);
   assert.equal(data.order.status, 409);
   assert.equal(data.order.body.error.code, 'LIVE_EXECUTION_UNAVAILABLE');
@@ -36,7 +36,7 @@ try {
   for (const path of ['/dashboard', '/dashboard/deposits', '/dashboard/crypto', '/dashboard/forex']) {
     const res = await page.goto(base + path, { waitUntil: 'domcontentloaded' });
     assert.equal(res.status(), 200, path);
-    if (path === '/dashboard/deposits') await page.getByText('Funding is not available yet').waitFor();
+    if (path === '/dashboard/deposits') await page.getByText('Funding unavailable').waitFor();
     if (path.endsWith('/crypto') || path.endsWith('/forex')) await page.getByText('Live trading unavailable', { exact: true }).first().waitFor();
   }
   console.log('PASS: fresh review registration, zero starting balances, blocked real orders/deposits, reference markets and private dashboard routes');

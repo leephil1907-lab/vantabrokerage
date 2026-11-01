@@ -24,7 +24,7 @@ export function useAccount({ liveOnly = false }: { liveOnly?: boolean } = {}) {
         setLiveEnabled(!!b.liveExecutionEnabled);
         const stored = typeof window !== 'undefined' ? window.localStorage.getItem('vanta.accountId') : null;
         const fromStore = visibleAccounts.find((a: AccountOption) => a.id === stored);
-        const fallback = visibleAccounts.find((a: AccountOption) => a.type === (liveOnly ? 'LIVE' : 'PAPER')) ?? visibleAccounts[0];
+        const fallback = visibleAccounts.find((a: AccountOption) => a.type === 'LIVE') ?? visibleAccounts[0];
         setAccountId((fromStore ?? fallback)?.id ?? '');
       })
       .finally(() => !cancelled && setLoading(false));
@@ -73,8 +73,7 @@ export function AccountSwitcher({
           {fmtMoney(active.available)} <span className="text-muted">available</span>
         </span>
       )}
-      {active?.type === 'PAPER' && <Badge tone="blue">simulated funds</Badge>}
-      {active?.type === 'LIVE' && !liveEnabled && <Badge tone="amber">live execution not connected</Badge>}
+      {active?.type === 'LIVE' && !liveEnabled && <Badge tone="amber">Trading unavailable</Badge>}
     </div>
   );
 }

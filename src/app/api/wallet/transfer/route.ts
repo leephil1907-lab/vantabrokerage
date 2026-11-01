@@ -21,7 +21,8 @@ export async function POST(req: NextRequest) {
     ]);
     if (!from || !to) throw new AppError('NOT_FOUND', 'Account not found.', 404);
     // Simulated funds must never enter a live account, or vice versa.
-    if (from.type !== to.type) throw new AppError('CROSS_ENVIRONMENT_TRANSFER', 'Transfers between paper and live accounts are not permitted.', 409);
+    if (from.type !== to.type) throw new AppError('CROSS_ENVIRONMENT_TRANSFER', 'Transfers between account types are not permitted.', 409);
+    if (from.type !== 'LIVE') throw new AppError('ACCOUNT_UNAVAILABLE', 'This account is unavailable.', 409);
     if (from.currency !== to.currency) throw new AppError('CURRENCY_MISMATCH', 'Transfers between different account currencies are not supported.', 409);
     const amount = round(body.amount, 10);
     const reference = `transfer-${randomBytes(6).toString('hex')}`;

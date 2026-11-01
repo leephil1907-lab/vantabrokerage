@@ -8,7 +8,7 @@ export async function GET() {
   try {
     const user = await requireUser();
     await ensureAccounts(user.id);
-    const accounts = await prisma.account.findMany({ where: { userId: user.id }, include: { wallet: true }, orderBy: { type: 'asc' } });
+    const accounts = await prisma.account.findMany({ where: { userId: user.id, type: 'LIVE' }, include: { wallet: true }, orderBy: { type: 'asc' } });
     const withEquity = await Promise.all(
       accounts.map(async (a) => ({ ...a, equity: await accountEquity(a.id) })),
     );
