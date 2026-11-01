@@ -33,7 +33,7 @@ const TABS = [
   { id: 'NAS100', label: 'NAS100', kind: 'Index' },
 ];
 
-function HeroTerminal({ markets, source }: { markets: M[]; source: string | null }) {
+function HeroTerminal({ markets }: { markets: M[] }) {
   const [tab, setTab] = useState(0);
   const [tick, setTick] = useState(0);
   const current = TABS[tab];
@@ -61,7 +61,7 @@ function HeroTerminal({ markets, source }: { markets: M[]; source: string | null
           </span>
           <span className="ml-1 text-[10.5px] uppercase tracking-[0.16em] text-muted">PRIMEVEST terminal</span>
         </div>
-        <FeedStatus state={market?.stale ? 'delayed' : 'live'} label={market?.stale ? 'Delayed' : source ? `Live · ${source}` : 'Live'} />
+        <FeedStatus state={!market?.last || !market.source ? 'offline' : market.stale ? 'delayed' : 'live'} label={!market?.last || !market.source ? 'Feed unavailable' : market.stale ? 'Delayed reference' : 'Reference price'} />
       </div>
 
       {/* symbol tabs */}
@@ -119,7 +119,7 @@ function HeroTerminal({ markets, source }: { markets: M[]; source: string | null
           </div>
 
           <div className="mt-3 h-[132px]">
-            <SparkArea symbol={current.id} up={up} tick={tick} />
+            {market?.last ? <SparkArea symbol={current.id} up={up} tick={tick} /> : <div className="flex h-full items-center justify-center rounded-xl border border-white/[0.06] bg-black/20 text-[11px] text-muted">Chart unavailable for this market</div>}
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2">
@@ -141,15 +141,19 @@ function HeroTerminal({ markets, source }: { markets: M[]; source: string | null
 /** Area sparkline drawn from real candle closes (fetched, never synthesised). */
 function SparkArea({ symbol, up, tick }: { symbol: string; up: boolean; tick: number }) {
   const [points, setPoints] = useState<number[]>([]);
+  const [unavailable, setUnavailable] = useState(false);
   useEffect(() => {
     let cancelled = false;
+    setPoints([]);
+    setUnavailable(false);
     fetch(`/api/markets/${encodeURIComponent(symbol)}/candles?interval=5m&limit=48`)
       .then((r) => r.json())
-      .then((d) => { if (!cancelled && d?.candles?.length) setPoints(d.candles.map((c: { close: number }) => c.close)); })
-      .catch(() => {});
+      .then((d) => { if (cancelled) return; if (d?.candles?.length) setPoints(d.candles.map((c: { close: number }) => c.close)); else setUnavailable(true); })
+      .catch(() => { if (!cancelled) setUnavailable(true); });
     return () => { cancelled = true; };
   }, [symbol]);
 
+  if (unavailable) return <div className="flex h-full items-center justify-center text-[11px] text-muted">Chart data unavailable</div>;
   if (points.length < 2) return <div className="skeleton-shimmer h-full w-full" />;
 
   const min = Math.min(...points);
@@ -235,7 +239,6 @@ export function LiveHome({ markets }: { markets: M[] }) {
   const { markets: liveMarkets } = useMarkets();
   const table = (liveMarkets.length ? liveMarkets : markets) as M[];
   const majors = table.filter((m) => ['EUR/USD', 'GBP/USD', 'USD/JPY', 'XAUUSD', 'BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'NAS100'].includes(m.symbol));
-  const source = table.find((m) => m.source)?.source ?? null;
   const crypto = table.filter((m) => m.category === 'SPOT').slice(0, 4);
   const [faq, setFaq] = useState<number | null>(0);
 
@@ -263,7 +266,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
                 Market prices · subject to availability
               </span>
               <span className="h-3 w-px bg-white/15" />
-              <span className="text-[11px] text-muted">Paper trading demo</span>
+              <span className="text-[11px] text-muted">Live trading unavailable</span>
             </motion.div>
 
             <motion.h1
@@ -272,8 +275,8 @@ export function LiveHome({ markets }: { markets: M[] }) {
               transition={{ duration: 0.65, ease: EASE, delay: 0.05 }}
               className="display mt-6 text-[40px] leading-[1.03] sm:text-[54px] lg:text-[58px]"
             >
-              Trade forex, crypto and
-              <br className="hidden sm:block" /> short-expiry{' '}
+              Explore forex and crypto
+              <br className="hidden sm:block" /> markets{' '}
               <span className="relative whitespace-nowrap">
                 <span className="bg-gradient-to-r from-lime via-lime-400 to-emerald bg-clip-text text-transparent">in seconds.</span>
               </span>
@@ -285,7 +288,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
               transition={{ duration: 0.6, ease: EASE, delay: 0.12 }}
               className="mt-5 max-w-xl text-[14.5px] leading-relaxed text-muted"
             >
-              Explore forex and crypto across five paper-trading terminals with simulated funds and provider-sourced market data. Live execution is not available; do not deposit real funds.
+              Explore provider-sourced forex and crypto reference prices. Live trading and deposits are not connected; please do not send funds.
             </motion.p>
 
             <motion.div
@@ -308,9 +311,9 @@ export function LiveHome({ markets }: { markets: M[] }) {
               className="mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-white/[0.07] pt-5"
             >
               {[
-                { v: 44, suffix: '', label: 'Seeded instruments' },
+                { v: table.length, suffix: '', label: 'Configured instruments' },
                 { v: 5, suffix: '', label: 'Terminals' },
-                { v: 100, suffix: '%', label: 'Server-side pricing' },
+                { v: 0, suffix: '', label: 'Live execution venues' },
               ].map((s) => (
                 <div key={s.label}>
                   <dt className="text-[22px] font-semibold text-white"><Counter value={s.v} suffix={s.suffix} /></dt>
@@ -333,7 +336,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
               transition={{ duration: 0.8, ease: EASE, delay: 0.15 }}
               className="relative"
             >
-              <HeroTerminal markets={table} source={source} />
+              <HeroTerminal markets={table} />
             </motion.div>
           </div>
         </div>
@@ -394,6 +397,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
                 </tr>
               </thead>
               <tbody>
+                {!majors.length && <tr><td colSpan={6} className="px-5 py-8 text-center text-[12px] text-muted">No market quotes are available right now.</td></tr>}
                 {majors.map((m, i) => {
                   const up = (m.change24h ?? 0) >= 0;
                   const dp = priceDp(m.symbol);
