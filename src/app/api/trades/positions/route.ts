@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await requireUser();
     const url = new URL(req.url);
-    const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined);
+    const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined, { allowPaper: true });
     const status = url.searchParams.get('status') === 'closed' ? 'CLOSED' : 'OPEN';
     if (status === 'OPEN') await revaluePositions(account.id);
     const positions = await prisma.position.findMany({ where: { accountId: account.id, status }, orderBy: { createdAt: 'desc' }, take: 200 });
