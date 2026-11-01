@@ -179,7 +179,7 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
         />
         <div className="max-h-[220px] overflow-auto scroll-thin">
           {tab === 'positions' && (deskPositions.length === 0 ? (
-            <EmptyState title="No open positions" body="Your practice positions will appear here after a simulated order is filled." />
+            <EmptyState title="No open positions" body="Your demo positions will appear here after a simulated order is filled." />
           ) : (
             <table className="w-full min-w-[780px]">
               <thead><tr><th className="th">Market</th><th className="th">Side</th><th className="th text-right">Qty</th><th className="th text-right">Entry</th><th className="th text-right">Mark</th><th className="th text-right">Margin</th><th className="th text-right">P/L</th><th className="th text-right">Liq.</th><th className="th" /></tr></thead>
@@ -223,7 +223,7 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
             </table>
           ))}
           {tab === 'history' && (executions.length === 0 ? (
-            <EmptyState title="No fills yet" body="Confirmed practice fills will appear here after simulated orders execute." />
+            <EmptyState title="No fills yet" body="Confirmed demo fills will appear here after simulated orders execute." />
           ) : (
             <table className="w-full min-w-[620px]">
               <thead><tr><th className="th">Market</th><th className="th">Side</th><th className="th text-right">Qty</th><th className="th text-right">Price</th><th className="th text-right">Fee</th><th className="th">Venue</th><th className="th">Time</th></tr></thead>
