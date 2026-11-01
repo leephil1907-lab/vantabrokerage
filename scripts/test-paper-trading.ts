@@ -1,6 +1,7 @@
 /** End-to-end practice trading test. Only runs against disposable local PostgreSQL + localhost. */
 import { PrismaClient } from '@prisma/client';
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { matchRestingOrders } from '../src/lib/execution';
 
 const url = new URL(process.env.DATABASE_URL ?? '');
@@ -87,8 +88,15 @@ async function main() {
     accountId: paperId, symbol: spotPair.symbol, side: 'BUY', type: 'LIMIT', qty: 0.001, price: 51000, leverage: 1,
   });
   assert.equal(spotLimit.status, 201, JSON.stringify(spotLimit.body));
-  const spotMatched = await matchRestingOrders(spotPair.symbol);
-  assert.equal(spotMatched.filled, 1);
+  const worker = spawn('npx', ['tsx', 'src/worker/index.ts'], { env: process.env, stdio: 'ignore', detached: true });
+  try {
+    await new Promise(resolve => setTimeout(resolve, 6500));
+    assert.equal(worker.exitCode, null, 'background trading worker remains running');
+  } finally {
+    if (worker.pid) process.kill(-worker.pid, 'SIGTERM');
+  }
+  const spotOrderAfterWorker = await prisma.order.findUniqueOrThrow({ where: { id: spotLimit.body.order.id } });
+  assert.equal(spotOrderAfterWorker.status, 'FILLED', 'background worker matches the resting practice spot order');
   const spotHolding = await prisma.holding.findUniqueOrThrow({ where: { walletId_asset: { walletId: (await prisma.wallet.findUniqueOrThrow({ where: { accountId: paperId } })).id, asset: 'BTC' } } });
   assert.equal(Number(spotHolding.amount), 0.001);
 
