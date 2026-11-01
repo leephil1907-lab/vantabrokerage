@@ -15,7 +15,8 @@
     "vercel-build": "node scripts/check-vercel-env.mjs && prisma generate && next build",
     "db:seed-review": "tsx prisma/seed.ts --review-markets-only",
     "test:auth": "tsx scripts/test-auth-experience.ts",
-    "test:paper": "tsx scripts/test-paper-trading.ts"
+    "test:paper": "tsx scripts/test-paper-trading.ts",
+    "test:terminal": "node scripts/test-terminal-workspace.mjs"
   },
   "keywords": [],
   "author": "",
