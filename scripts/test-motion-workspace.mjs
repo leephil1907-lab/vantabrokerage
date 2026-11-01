@@ -11,7 +11,7 @@ try {
  for (const width of [320,390,768,1440]) {
   const page = await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'}); const errors=[]; page.on('pageerror', e=>errors.push(e.message));
   await page.goto(base,{waitUntil:'domcontentloaded'}); await page.getByRole('heading',{name:'Perspective for every move.'}).waitFor();
-  await page.getByRole('button',{name:'Next slide'}).click(); await page.getByRole('heading',{name:'A wider world. One view.'}).waitFor();
+  assert.equal(await page.getByRole('button',{name:/Next slide|Previous slide|Pause slideshow|Play slideshow/}).count(),0,'hero carousel must not expose manual controls');\n  await page.getByRole('heading',{name:'A wider world. One view.'}).waitFor({timeout:10000});
   assert.equal(await page.locator('.story-brand-stamp').count(),1);
   await page.getByRole('button',{name:'Solana',exact:false}).last().click();
   await page.waitForTimeout(1000); assert.match(await page.locator('.showcase-workspace').innerText(),/SOL\/USD/);
