@@ -48,6 +48,20 @@ body {
 :where(button, a, summary, [role='button']):not(.no-press):active { transform: scale(0.975); }
 :where(button, a, [role='button']):not(.no-press) { transition-property: transform, background-color, border-color, color, opacity, box-shadow; transition-duration: .18s; transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
 
+/* Live motion-flow ticker: seamless marquee, pauses on interaction,
+   falls back to a scrollable row for reduced motion. */
+.ticker-track { animation: ticker-x 48s linear infinite; will-change: transform; }
+.ticker-marquee { mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+.ticker-marquee:hover .ticker-track, .ticker-marquee:focus-within .ticker-track { animation-play-state: paused; }
+@keyframes ticker-x { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none; }
+  .ticker-marquee { overflow-x: auto; mask-image: none; }
+}
+
+/* Dark islands inside the light theme keep light-on-dark typography. */
+.theme-island-dark { --theme-white: 246 243 235; --muted-rgb: 205 197 178; color-scheme: dark; }
+
 /* Anchored sections clear the sticky nav when jumped to. */
 [id] { scroll-margin-top: 88px; }
 

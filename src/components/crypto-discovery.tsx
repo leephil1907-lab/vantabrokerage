@@ -1,4 +1,5 @@
 'use client';
+import { Select } from '@/components/ui/select';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -91,7 +92,7 @@ export function CryptoDiscovery({ compactLayout = false }: { compactLayout?: boo
           <div className="flex items-center gap-2"><span className="text-[13px] font-semibold text-white">Market directory</span><span className="chip">{data ? `${rows.length} assets` : '—'}</span></div>
           <div className="flex w-full gap-2 sm:w-auto">
             <label className="min-w-0 flex-1 sm:w-56"><span className="sr-only">Search crypto assets</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search assets" className="field-sm" /></label>
-            <label><span className="sr-only">Sort crypto assets</span><select value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="field-sm h-full w-auto"><option value="rank">Market rank</option><option value="gainers">Top gainers</option><option value="losers">Top losers</option></select></label>
+            <div className="w-[150px]"><Select aria-label="Sort crypto assets" value={sort} onChange={(v) => setSort(v as Sort)} options={[{ value: 'rank', label: 'Market rank' }, { value: 'gainers', label: 'Top gainers' }, { value: 'losers', label: 'Top losers' }]} buttonClassName="h-9 text-[12px]" /></div>
           </div>
         </div>
         {!data && !error ? <div className="space-y-2 p-5" aria-label="Loading market data">{Array.from({ length: 6 }, (_, i) => <div key={i} className="skeleton h-10 w-full" />)}</div> : !data ? (

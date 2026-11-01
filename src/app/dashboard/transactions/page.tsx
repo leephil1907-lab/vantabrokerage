@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AccountSwitcher, useAccount } from '@/components/terminal/account-bar';
 import { Badge, EmptyState, apiFetch } from '@/components/ui';
-import { fmtMoney, relTime } from '@/lib/format';
+import { fmtMoney, relTime, friendlyLedgerDescription } from '@/lib/format';
 
 type Entry = { id: string; direction: string; amount: number; balanceAfter: number; type: string; status: string; description: string | null; reference: string | null; metadata: Record<string, unknown>; createdAt: string };
 
@@ -50,7 +50,7 @@ export default function TransactionsPage() {
                   <tr key={e.id} className="table-row">
                     <td className="td whitespace-nowrap text-[11px] text-muted">{new Date(e.createdAt).toLocaleString('en-GB')}</td>
                     <td className="td"><Badge tone={e.direction === 'CREDIT' ? 'green' : 'gray'}>{e.type.replace(/_/g, ' ')}</Badge></td>
-                    <td className="td max-w-[260px] truncate text-[11.5px] text-muted">{e.description ?? '—'}</td>
+                    <td className="td max-w-[260px] truncate text-[11.5px] text-muted">{friendlyLedgerDescription(e.description, e.type)}</td>
                     <td className={`td text-right value-mono ${e.direction === 'CREDIT' ? 'text-emerald' : 'text-white'}`}>{e.direction === 'CREDIT' ? '+' : '−'}{fmtMoney(e.amount)}</td>
                     <td className="td text-right value-mono text-muted">{fmtMoney(e.balanceAfter)}</td>
                     <td className="td text-[11px] text-muted">{e.status}</td>

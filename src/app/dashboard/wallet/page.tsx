@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { AccountSwitcher, useAccount } from '@/components/terminal/account-bar';
 import { Badge, EmptyState, apiFetch, useToast } from '@/components/ui';
-import { fmtMoney, fmtSigned, relTime } from '@/lib/format';
+import { fmtMoney, fmtSigned, relTime, friendlyLedgerDescription } from '@/lib/format';
 
 type Entry = { id: string; direction: string; amount: number; balanceAfter: number; type: string; description: string | null; createdAt: string };
 type TxPayload = { available: number; locked: number; entries: Entry[] };
@@ -91,7 +91,7 @@ export default function WalletPage() {
                 {tx.entries.map((e) => (
                   <tr key={e.id} className="table-row">
                     <td className="td"><Badge tone={e.direction === 'CREDIT' ? 'green' : 'gray'}>{e.type.replace(/_/g, ' ')}</Badge></td>
-                    <td className="td max-w-[220px] truncate text-[11.5px] text-muted">{e.description ?? '—'}</td>
+                    <td className="td max-w-[220px] truncate text-[11.5px] text-muted">{friendlyLedgerDescription(e.description, e.type)}</td>
                     <td className={`td text-right value-mono ${e.direction === 'CREDIT' ? 'text-emerald' : 'text-white'}`}>{e.direction === 'CREDIT' ? '+' : '−'}{fmtMoney(e.amount)}</td>
                     <td className="td text-right value-mono text-muted">{fmtMoney(e.balanceAfter)}</td>
                     <td className="td text-[11px] text-muted">{relTime(e.createdAt)}</td>

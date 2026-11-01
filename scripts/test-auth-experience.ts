@@ -13,6 +13,7 @@ const prisma = new PrismaClient();
 const hash = (token: string) => createHash('sha256').update(token + (process.env.SESSION_SECRET ?? '')).digest('hex');
 const email = `auth.${Date.now()}@example.test`;
 async function main() {
+  await prisma.rateLimitBucket.deleteMany({}); // disposable test DB: reset rate limits between runs
 const browser = await chromium.launch({ args: ['--no-sandbox'] });
 try {
   // Viewport sizing, responsive text/fields, reduced-motion navigation and overflow.
@@ -47,7 +48,7 @@ try {
   await page.getByRole('button', { name: 'Create account' }).click();
   await page.waitForURL('**/dashboard', { timeout: 30000 });
   const user = await prisma.user.findUniqueOrThrow({ where: { email }, include: { accounts: true } });
-  assert.deepEqual(user.accounts.map(a => a.type), ['LIVE']);
+  assert.deepEqual(user.accounts.map(a => a.type).sort(), ['LIVE', 'PAPER']);
   const mail = await prisma.emailOutbox.findFirstOrThrow({ where: { to: email, template: 'verify_email' }, orderBy: { createdAt: 'desc' } });
   const link = mail.body.match(/https?:\/\/[^\s]+verify-email\?token=[^\s\\]+/)?.[0];
   assert.ok(link);

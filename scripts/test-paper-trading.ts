@@ -23,6 +23,7 @@ async function request(path: string, method = 'GET', body?: unknown) {
 }
 
 async function main() {
+  await prisma.rateLimitBucket.deleteMany({}); // disposable test DB: reset rate limits between runs
   const email = `paper-flow.${Date.now()}@example.test`;
   const registration = await request('/api/auth/register', 'POST', {
     email, password: 'Practice!Test2026', firstName: 'Practice', lastName: 'Trader', country: 'Nigeria', acceptTerms: true,
@@ -30,11 +31,11 @@ async function main() {
   assert.equal(registration.status, 201, JSON.stringify(registration.body));
   const liveAccounts = await request('/api/accounts');
   assert.equal(liveAccounts.status, 200);
-  assert.equal(liveAccounts.body.accounts.length, 1);
-  const liveId = liveAccounts.body.accounts[0].id as string;
+  assert.equal(liveAccounts.body.accounts.length, 2, 'signup provisions live + demo');
+  const liveId = (liveAccounts.body.accounts as { id: string; type: string }[]).find((a) => a.type === 'LIVE')!.id;
 
   const opened = await request('/api/accounts', 'POST');
-  assert.equal(opened.status, 201, JSON.stringify(opened.body));
+  assert.ok([200, 201].includes(opened.status), JSON.stringify(opened.body));
   const paperId = opened.body.account.id as string;
   assert.equal(opened.body.account.type, 'PAPER');
   assert.equal(opened.body.account.available, 100000);
@@ -54,12 +55,12 @@ async function main() {
   // Policy since dealing unblock: LIVE orders are accepted but execute as
   // internal (simulated) dealing with provenance — real custody stays blocked
   // (deposits disabled, virtual capital labelled; covered by test-account-safety).
-  const liveInternal = await request('/api/trades/orders', 'POST', {
+  // A zero-balance live account cannot trade: real-money semantics from day one.
+  const liveUnfunded = await request('/api/trades/orders', 'POST', {
     accountId: liveId, symbol: pair.symbol, side: 'BUY', type: 'MARKET', qty: 100, leverage: 1,
   });
-  assert.equal(liveInternal.status, 201);
-  assert.equal(liveInternal.body.accountType, 'LIVE');
-  assert.equal(liveInternal.body.executionMode, 'internal');
+  assert.equal(liveUnfunded.status, 400);
+  assert.equal(liveUnfunded.body.error.code, 'INSUFFICIENT_FUNDS');
 
   const market = await request('/api/trades/orders', 'POST', {
     accountId: paperId, symbol: pair.symbol, side: 'BUY', type: 'MARKET', qty: 1000, leverage: 10,
@@ -144,7 +145,7 @@ async function main() {
 
   const finalWallet = await prisma.wallet.findUniqueOrThrow({ where: { accountId: paperId } });
   assert.ok(Number(finalWallet.available) > 0);
-  const capital = await prisma.ledgerTransaction.findUnique({ where: { reference: `paper-capital:${paperId}` }, include: { entries: true } });
+  const capital = await prisma.ledgerTransaction.findUnique({ where: { reference: `virtual-capital:${paperId}` }, include: { entries: true } });
   assert.ok(capital);
   assert.equal(capital.entries.length, 2);
   assert.equal(capital.entries[0].amount.toString(), capital.entries[1].amount.toString());

@@ -15,21 +15,23 @@ async function request(path: string, method = 'GET', body?: unknown) {
   return { status: res.status, body: await res.json() };
 }
 async function main() {
+  await prisma.rateLimitBucket.deleteMany({}); // disposable test DB: reset rate limits between runs
   const email = `safety.${Date.now()}@example.test`;
   const registration = await request('/api/auth/register', 'POST', { email, password: 'Review!Test2026', firstName: 'Test', lastName: 'Client', country: 'Nigeria', acceptTerms: true });
   assert.equal(registration.status, 201, JSON.stringify(registration.body));
   assert.ok(cookie);
   const user = await prisma.user.findUniqueOrThrow({ where: { email }, include: { accounts: { include: { wallet: true } } } });
-  assert.equal(user.accounts.length, 1, 'new registration provisions exactly one account');
-  const live = user.accounts[0];
-  assert.equal(live.type, 'LIVE');
-  assert.equal(Number(live.wallet?.available), 100000, 'unfunded accounts receive labelled virtual starting capital');
-  const capital = await prisma.ledgerTransaction.findFirst({ where: { reference: `virtual-capital:${live.id}` } });
+  assert.equal(user.accounts.length, 2, 'new registration provisions a live and a demo account');
+  const live = user.accounts.find((a) => a.type === 'LIVE')!;
+  const demo = user.accounts.find((a) => a.type === 'PAPER')!;
+  assert.equal(Number(live.wallet?.available), 0, 'live accounts start at zero');
+  assert.equal(Number(demo.wallet?.available), 100000, 'the demo account receives labelled virtual starting capital');
+  const capital = await prisma.ledgerTransaction.findFirst({ where: { reference: `virtual-capital:${demo.id}` } });
   assert.ok(capital, 'virtual capital is posted through the ledger');
   assert.match(String(capital?.description), /no cash value/i, 'virtual capital is labelled as non-cash');
 
   // Historical account/order/trade fixture. Direct DB writes are only for this disposable test.
-  const paper = await prisma.account.create({ data: { userId: user.id, type: 'PAPER', wallet: { create: { available: '5000', locked: '100' } } }, include: { wallet: true } });
+  const paper = await prisma.account.update({ where: { id: demo.id }, data: { wallet: { update: { available: '5000', locked: '100' } } }, include: { wallet: true } });
   const pair = await prisma.tradingPair.findUniqueOrThrow({ where: { symbol: 'EUR/USD' } });
   const binaryPair = await prisma.tradingPair.findUniqueOrThrow({ where: { symbol: 'EUR/USD-BIN' } });
   const order = await prisma.order.create({ data: { accountId: paper.id, pairId: pair.id, symbol: pair.symbol, category: pair.category, side: 'BUY', type: 'LIMIT', qty: '1', price: '0.00001', reserved: '100' } });
@@ -40,11 +42,14 @@ async function main() {
   assert.deepEqual(accountList.body.accounts.map((a: { id: string }) => a.id).sort(), [live.id, paper.id].sort());
   const overview = await request('/api/overview');
   assert.equal(overview.status, 200);
-  assert.equal(overview.body.executionMode, 'internal');
-  assert.equal(overview.body.activeAccount.id, live.id);
-  const paperOverview = await request(`/api/overview?accountId=${paper.id}`);
-  assert.equal(paperOverview.status, 200, 'explicit practice account is available in the workspace');
-  assert.equal(paperOverview.body.executionMode, 'paper');
+  assert.equal(overview.body.executionMode, 'paper', 'the funded demo workspace is the default view');
+  assert.equal(overview.body.activeAccount.id, paper.id);
+  const liveOverview = await request(`/api/overview?accountId=${live.id}`);
+  assert.equal(liveOverview.status, 200, 'the live account is available in the workspace');
+  assert.equal(liveOverview.body.executionMode, 'internal');
+
+  // Fund the live wallet for this disposable test (live accounts start at zero).
+  await prisma.wallet.update({ where: { accountId: live.id }, data: { available: '10000' } });
 
   // Internal dealing: customer orders fill at the reference quote with venue provenance.
   const market = await request('/api/trades/orders', 'POST', { accountId: live.id, symbol: pair.symbol, side: 'BUY', type: 'MARKET', qty: 0.01, leverage: 10, marginMode: 'CROSS' });

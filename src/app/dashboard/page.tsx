@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Spotlight } from '@/components/motion/primitives';
 import { useMemo, useState } from 'react';
 import { usePolling, Badge, EmptyState, Skeleton, apiFetch, useToast } from '@/components/ui';
-import { fmtMoney, fmtPct, fmtPrice, fmtSigned, fmtQty, priceDp, relTime } from '@/lib/format';
+import { fmtMoney, fmtPct, fmtPrice, fmtSigned, fmtQty, priceDp, relTime, friendlyLedgerDescription } from '@/lib/format';
 import { useAccount } from '@/components/terminal/account-bar';
 
 type EquityPoint = { day: string; balance: number };
@@ -170,10 +170,10 @@ export default function DashboardOverview() {
 
       {/* ── Live price ticker ────────────────────────────────────────────── */}
       {data && data.markets.length > 0 && (
-        <div className="panel -mx-1 overflow-x-auto px-1 py-2">
-          <div className="flex min-w-max gap-2 px-1">
-            {data.markets.map((m) => (
-              <span key={m.symbol} className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5 text-[11px]">
+        <div className="ticker-marquee panel relative -mx-1 overflow-hidden px-1 py-2">
+          <div className="ticker-track flex min-w-max gap-2 px-1">
+            {[...data.markets, ...data.markets].map((m, i) => (
+              <span key={`${m.symbol}-${i}`} aria-hidden={i >= data.markets.length} className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5 text-[11px]">
                 <strong className="font-semibold text-white">{m.symbol}</strong>
                 <span className="font-mono text-muted">{m.last != null ? fmtPrice(m.last, priceDp(m.symbol)) : '—'}</span>
                 <span className={`font-mono ${((m.change24h ?? 0) >= 0) ? 'text-emerald' : 'text-danger'}`}>{fmtPct(m.change24h)}</span>
@@ -216,7 +216,7 @@ export default function DashboardOverview() {
 
       {/* ── Main grid ────────────────────────────────────────────────────── */}
       <div className="grid gap-4 xl:grid-cols-3">
-        <div className="space-y-4 xl:col-span-2">
+        <div className="min-w-0 space-y-4 xl:col-span-2">
           {/* Portfolio performance */}
           <section className="panel p-4 sm:p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -247,7 +247,7 @@ export default function DashboardOverview() {
                     : data.recentTransactions.map((t) => (
                       <tr key={t.id} className="border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02]">
                         <td className="whitespace-nowrap px-4 py-2.5 text-muted sm:px-5">{relTime(t.createdAt)}</td>
-                        <td className="max-w-[260px] truncate px-4 py-2.5 text-white">{t.description ?? t.type}</td>
+                        <td className="max-w-[260px] truncate px-4 py-2.5 text-white">{friendlyLedgerDescription(t.description, t.type)}</td>
                         <td className="px-4 py-2.5"><Badge tone="gray">{t.type.replace(/_/g, ' ').toLowerCase()}</Badge></td>
                         <td className={`whitespace-nowrap px-4 py-2.5 text-right font-mono font-semibold sm:px-5 ${t.direction === 'CREDIT' ? 'text-emerald' : 'text-danger'}`}>{t.direction === 'CREDIT' ? '+' : '−'}{fmtMoney(t.amount)}</td>
                       </tr>
@@ -261,7 +261,7 @@ export default function DashboardOverview() {
         {/* Right column */}
         <div className="space-y-4">
           {/* Wallet card */}
-          <section className="relative overflow-hidden rounded-2xl border border-lime/25 bg-gradient-to-br from-[#16240f] via-[#101a0c] to-[#0b120a] p-5 shadow-panel">
+          <section className="theme-island-dark relative overflow-hidden rounded-2xl border border-lime/25 bg-gradient-to-br from-[#1d1710] via-[#171208] to-[#100c06] p-5 shadow-panel">
             <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-lime/15 blur-3xl" />
             <div className="relative">
               <div className="flex items-center justify-between">
@@ -285,7 +285,7 @@ export default function DashboardOverview() {
           {/* Diversification */}
           <section className="panel p-4 sm:p-5">
             <h2 className="text-[15px] font-semibold text-white">Diversification</h2>
-            <p className="mb-4 text-[11px] text-muted">Cash, committed funds and holdings at reference marks</p>
+            <p className="mb-4 text-[11px] text-muted">Cash, committed funds and holdings across your markets</p>
             {data ? <Donut allocation={data.allocation} /> : <Skeleton className="h-[124px]" />}
           </section>
 

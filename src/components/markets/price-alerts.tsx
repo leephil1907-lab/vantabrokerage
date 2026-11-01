@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { Select } from '@/components/ui/select';
 import { apiFetch, Badge, useToast, EmptyState } from '@/components/ui';
 import { fmtPrice, priceDp, relTime } from '@/lib/format';
 
@@ -42,13 +43,9 @@ export function PriceAlerts({ symbols }: { symbols: string[] }) {
       </div>
       <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto_auto]">
         <label className="sr-only" htmlFor="alert-symbol">Market</label>
-        <select id="alert-symbol" value={symbol} onChange={(e) => setSymbol(e.target.value)} className="rounded-lg border border-white/10 bg-ink-900 px-3 py-2 text-[12px] text-white outline-none focus:border-lime/60">
-          {symbols.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
+        <Select id="alert-symbol" value={symbol} onChange={setSymbol} options={symbols.map((sym) => ({ value: sym, label: sym }))} buttonClassName="h-10 text-[12px]" />
         <label className="sr-only" htmlFor="alert-dir">Direction</label>
-        <select id="alert-dir" value={direction} onChange={(e) => setDirection(e.target.value as 'ABOVE' | 'BELOW')} className="rounded-lg border border-white/10 bg-ink-900 px-3 py-2 text-[12px] text-white outline-none focus:border-lime/60">
-          <option value="ABOVE">Crosses above</option><option value="BELOW">Crosses below</option>
-        </select>
+        <Select id="alert-dir" value={direction} onChange={(v) => setDirection(v as 'ABOVE' | 'BELOW')} options={[{ value: 'ABOVE', label: 'Rises above' }, { value: 'BELOW', label: 'Falls below' }]} buttonClassName="h-10 text-[12px]" />
         <label className="sr-only" htmlFor="alert-threshold">Target price</label>
         <input id="alert-threshold" inputMode="decimal" placeholder="Target price" value={threshold} onChange={(e) => setThreshold(e.target.value)} className="rounded-lg border border-white/10 bg-ink-900 px-3 py-2 font-mono text-[12px] text-white outline-none focus:border-lime/60" />
         <button onClick={create} disabled={busy} className="btn-primary px-4 py-2 text-[12px] disabled:opacity-60">{busy ? 'Saving…' : 'Create alert'}</button>

@@ -2,10 +2,10 @@ import { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import { prisma } from '@/lib/db';
+import { ensureAccounts } from '@/lib/accounts';
 import { clientIp, fail, json, parseBody, rateLimit } from '@/lib/http';
 import { registerSchema } from '@/lib/validation';
 import { createSession, hashToken } from '@/lib/auth';
-import { grantVirtualCapital } from '@/lib/accounts';
 import { sendEventEmail, notifyUserByEmail, emailConfigured } from '@/lib/email';
 import { AppError } from '@/lib/errors';
 
@@ -51,8 +51,8 @@ export async function POST(req: NextRequest) {
     });
 
     // Fund the freshly created account with labelled virtual starting capital.
+    await ensureAccounts(user.id);
     const freshAccount = await prisma.account.findFirst({ where: { userId: user.id, type: 'LIVE' } });
-    if (freshAccount) await grantVirtualCapital(freshAccount.id);
 
     if (referredById) {
       await prisma.referral.create({

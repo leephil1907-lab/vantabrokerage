@@ -122,7 +122,7 @@ export function ChatWidget() {
         onClick={() => setOpen((v) => !v)}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.96 }}
-        className="fixed bottom-[calc(76px+env(safe-area-inset-bottom))] right-4 z-[90] flex h-14 w-14 items-center justify-center rounded-full md:bottom-5 md:right-5 bg-gradient-to-br from-gold to-gold-600 text-ink-950 shadow-[0_10px_36px_-10px_rgba(223,192,136,0.65)]"
+        className="fixed bottom-[calc(70px+env(safe-area-inset-bottom))] right-3 z-[90] flex h-12 w-12 items-center justify-center rounded-full md:bottom-5 md:right-5 md:h-14 md:w-14 md:bottom-5 md:right-5 bg-gradient-to-br from-gold to-gold-600 text-ink-950 shadow-[0_10px_36px_-10px_rgba(223,192,136,0.65)]"
       >
         {open ? (
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
@@ -141,7 +141,7 @@ export function ChatWidget() {
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             role="dialog"
             aria-label="PRIMEVEST Customer Support"
-            className="fixed bottom-[calc(140px+env(safe-area-inset-bottom))] right-3 z-[90] flex h-[min(520px,calc(100dvh-216px))] md:bottom-24 md:right-5 md:h-[min(560px,calc(100dvh-120px))] w-[min(380px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl border border-white/10 bg-ink-900/97 shadow-2xl backdrop-blur-xl sm:right-5"
+            className="fixed bottom-[calc(126px+env(safe-area-inset-bottom))] right-3 z-[90] flex h-[min(520px,calc(100dvh-216px))] md:bottom-24 md:right-5 md:h-[min(560px,calc(100dvh-120px))] w-[min(380px,calc(100vw-32px))] flex-col overflow-hidden rounded-2xl border border-white/10 bg-ink-900/97 shadow-2xl backdrop-blur-xl sm:right-5"
           >
             <div className="relative flex items-center gap-3 border-b border-white/[0.08] px-4 py-3">
               <span aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />

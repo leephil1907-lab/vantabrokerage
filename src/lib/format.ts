@@ -79,3 +79,11 @@ export const priceDp = (symbol: string) => {
   if (sym.startsWith('XAG') || sym.startsWith('WTI') || sym.startsWith('BRENT')) return 3;
   return 2;
 };
+
+/** UI-friendly ledger descriptions: internal labels stay in the database,
+ *  visitors see plain product language. */
+export function friendlyLedgerDescription(desc: string | null, type?: string): string {
+  if (!desc) return type ?? String.fromCharCode(8212);
+  if (desc.startsWith('Virtual trading capital') || desc.startsWith('Virtual practice starting balance')) return 'Demo starting balance';
+  return desc;
+}

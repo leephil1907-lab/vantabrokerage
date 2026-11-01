@@ -2,6 +2,10 @@ import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 
 const base = process.env.BASE_URL ?? 'http://127.0.0.1:3001';
+const { PrismaClient } = await import('@prisma/client');
+const prisma = new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL } } });
+await prisma.rateLimitBucket.deleteMany({});
+await prisma.$disconnect();
 const email = `terminal-ui.${Date.now()}@example.test`;
 const registration = await fetch(`${base}/api/auth/register`, {
   method: 'POST',
@@ -22,9 +26,8 @@ page.on('pageerror', error => errors.push(error.message));
 
 try {
   await page.goto(`${base}/dashboard/trade?symbol=EUR%2FUSD`, { waitUntil: 'domcontentloaded' });
-  await page.getByRole('button', { name: 'Open Demo Account' }).first().waitFor({ timeout: 20000 });
-  await page.getByRole('button', { name: 'Open Demo Account' }).first().click();
-  await page.locator('span:visible').filter({ hasText: 'Demo · simulated' }).first().waitFor({ timeout: 10000 });
+  // New signups land directly in the funded demo workspace.
+  await page.locator('span:visible').filter({ hasText: 'Demo · simulated' }).first().waitFor({ timeout: 20000 });
   await page.locator('label:visible').filter({ hasText: 'Quantity' }).locator('input').fill('100');
   await page.locator('button:visible').filter({ hasText: /Place demo buy order/i }).click();
   await page.getByRole('status').filter({ hasText: 'Demo order filled' }).waitFor({ timeout: 15000 });

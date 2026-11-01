@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Select } from '@/components/ui/select';
 import { apiFetch } from '@/components/ui';
 import { fmtMoney } from '@/lib/format';
 
@@ -48,7 +49,7 @@ export function LiveTicket({ symbol, accountId, accountType, available, onSubmit
     <div className="grid grid-cols-2 gap-1 rounded-xl bg-black/30 p-1" aria-label="Order type">{(['MARKET','LIMIT'] as const).map(t => <button type="button" key={t} onClick={() => setType(t)} aria-pressed={type === t} className={`rounded-lg py-2 text-xs font-medium transition ${type === t ? 'bg-white/10 text-white' : 'text-muted hover:text-white'}`}>{t}</button>)}</div>
     {type === 'LIMIT' && <label className="block"><span className="label">Limit price</span><input value={price} onChange={e => setPrice(e.target.value)} inputMode="decimal" placeholder="0.00" className="field mt-2" /></label>}
     <label className="block"><span className="label">Quantity</span><input value={quantity} onChange={e => setQuantity(e.target.value)} inputMode="decimal" placeholder="0.00" className="field mt-2" /></label>
-    <label className="block"><span className="label">Leverage</span><select value={leverage} onChange={e => setLeverage(e.target.value)} className="field mt-2"><option value="1">1×</option><option value="2">2×</option><option value="5">5×</option><option value="10">10×</option><option value="20">20×</option><option value="50">50×</option><option value="100">100×</option></select></label>
+    <Select label="Leverage" value={leverage} onChange={setLeverage} options={[1, 2, 5, 10, 20, 50, 100].map((n) => ({ value: String(n), label: `${n}×` }))} />
     <div className="rounded-xl border border-white/[.07] bg-black/20 p-3 text-[11px] leading-relaxed text-muted"><div className="flex justify-between"><span>Available demo balance</span><strong className="value-mono text-white">{fmtMoney(available)}</strong></div><p className="mt-2">Demo trading uses virtual funds.</p></div>
     {error && <p role="alert" className="rounded-lg border border-danger/20 bg-danger/10 p-2.5 text-[11px] text-danger">{error}</p>}
     {message && <p role="status" className="rounded-lg border border-lime/20 bg-lime/[.06] p-2.5 text-[11px] text-lime">{message}</p>}

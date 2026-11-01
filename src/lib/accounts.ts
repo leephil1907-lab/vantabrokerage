@@ -11,8 +11,16 @@ export async function ensureAccounts(userId: string) {
     update: {},
     include: { wallet: true },
   });
-  await grantVirtualCapital(live.id);
-  return [live];
+  // A live account always starts at zero. The labelled virtual starting
+  // capital lives on the demo (paper) account, which is provisioned too.
+  const paper = await prisma.account.upsert({
+    where: { userId_type: { userId, type: 'PAPER' } },
+    create: { userId, type: 'PAPER', currency: 'USD', isDefault: false, leverage: 100, wallet: { create: { currency: 'USD', available: '0', locked: '0' } } },
+    update: {},
+    include: { wallet: true },
+  });
+  await grantVirtualCapital(paper.id);
+  return [live, paper];
 }
 
 /** Starting trading capital for accounts with no funding history.
@@ -47,6 +55,7 @@ export async function getAccountForUser(userId: string, accountId?: string, opts
   await ensureAccounts(userId);
   const account = await prisma.account.findFirst({
     where: { userId, type: opts.allowPaper ? { in: ['LIVE', 'PAPER'] } : 'LIVE', ...(accountId ? { id: accountId } : {}) },
+    orderBy: { type: 'desc' }, // PAPER first: the funded demo workspace is the default view
     include: { wallet: { include: { holdings: true } } },
   });
   if (!account) throw new AppError('NOT_FOUND', 'Account not found.', 404);

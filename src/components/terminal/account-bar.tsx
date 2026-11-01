@@ -24,7 +24,7 @@ export function useAccount({ liveOnly = false, accountType }: { liveOnly?: boole
         setLiveEnabled(!!b.liveExecutionEnabled);
         const stored = typeof window !== 'undefined' ? window.localStorage.getItem('vanta.accountId') : null;
         const fromStore = visibleAccounts.find((a: AccountOption) => a.id === stored);
-        const fallback = visibleAccounts.find((a: AccountOption) => a.type === 'LIVE') ?? visibleAccounts[0];
+        const fallback = visibleAccounts.find((a: AccountOption) => a.type === 'PAPER') ?? visibleAccounts[0];
         setAccountId((fromStore ?? fallback)?.id ?? '');
       })
       .finally(() => !cancelled && setLoading(false));
