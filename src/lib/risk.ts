@@ -79,8 +79,8 @@ export async function revaluePositions(accountId?: string): Promise<PositionValu
 }
 
 /** Force-close any position whose margin ratio has fallen below the liquidation threshold. */
-export async function runLiquidationEngine() {
-  const valuations = await revaluePositions();
+export async function runLiquidationEngine(accountId?: string) {
+  const valuations = await revaluePositions(accountId);
   const events: { positionId: string; symbol: string; loss: number }[] = [];
   for (const v of valuations) {
     if (v.marginRatio > LIQUIDATION_THRESHOLD) continue;
@@ -136,8 +136,8 @@ export async function runLiquidationEngine() {
 }
 
 /** Evaluate TP/SL triggers against live marks. */
-export async function runProtectiveExitEngine() {
-  const positions = await prisma.position.findMany({ where: { status: 'OPEN', account: { type: 'PAPER' }, OR: [{ takeProfit: { not: null } }, { stopLoss: { not: null } }] } });
+export async function runProtectiveExitEngine(accountId?: string) {
+  const positions = await prisma.position.findMany({ where: { status: 'OPEN', account: { type: 'PAPER' }, ...(accountId ? { accountId } : {}), OR: [{ takeProfit: { not: null } }, { stopLoss: { not: null } }] } });
   const closed: string[] = [];
   for (const pos of positions) {
     const pair = await prisma.tradingPair.findUnique({ where: { id: pos.pairId } });
