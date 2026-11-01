@@ -47,9 +47,13 @@ export async function companyNews(symbol: string, days = 7): Promise<NewsItem[]>
   return raw.slice(0, 20).map((n) => ({ id: String(n.id), headline: n.headline, summary: n.summary ?? '', source: n.source, url: n.url, publishedAt: new Date(n.datetime * 1000).toISOString(), symbol: n.symbol }));
 }
 
-/** Company profile: GET /stock/profile2?symbol= */
+/** Company profile: GET /stock/profile2?symbol= (marketCapitalization and shareOutstanding are in millions) */
 export async function companyProfile(symbol: string) {
-  return get<{ name?: string; logo?: string; marketCapitalization?: number; sector?: string; website?: string; country?: string } | null>('/stock/profile2', { symbol });
+  return get<{
+    country?: string; currency?: string; exchange?: string; finnhubIndustry?: string;
+    ipo?: string; logo?: string; marketCapitalization?: number; name?: string;
+    phone?: string; shareOutstanding?: number; ticker?: string; weburl?: string;
+  } | null>('/stock/profile2', { symbol });
 }
 
 /** Quote: GET /quote?symbol= */

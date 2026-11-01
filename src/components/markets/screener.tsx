@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { Badge, Skeleton, apiFetch } from '@/components/ui';
+import { ProfileDrawer, type ProfileTarget } from '@/components/markets/profile-drawer';
 import { fmtPct, fmtPrice } from '@/lib/format';
 
 type Row = { symbol: string; name: string; description: string; price: number | null; changePct: number | null; volume: number | null; marketCap: number | null; sector: string | null; exchange: string | null; relVolume: number | null; rating: number | null; type: string | null };
@@ -46,6 +47,7 @@ export function Screener() {
   const [data, setData] = useState<Response | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<ProfileTarget | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true); setError(null);
@@ -100,7 +102,16 @@ export function Screener() {
                     <a href={`https://www.tradingview.com/symbols/${encodeURIComponent(r.symbol)}/`} target="_blank" rel="noopener noreferrer" className="font-mono text-[11.5px] font-semibold text-lime hover:underline">{r.symbol}</a>
                     <span className="block text-[9.5px] text-muted">{r.exchange ?? ''}</span>
                   </td>
-                  <td className="max-w-[220px] truncate px-3 py-2.5 text-white" title={r.description}>{r.name}</td>
+                  <td className="max-w-[220px] truncate px-3 py-2.5 text-white" title={r.description}>
+                    {market === 'stocks' ? (
+                      <button
+                        type="button"
+                        onClick={() => setProfile({ symbol: r.symbol, ticker: r.symbol.split(':').pop() ?? r.symbol })}
+                        className="max-w-full truncate text-left hover:text-lime hover:underline"
+                        title={`View ${r.name} company profile`}
+                      >{r.name} <span className="text-[9.5px] text-muted">ⓘ</span></button>
+                    ) : r.name}
+                  </td>
                   <td className="whitespace-nowrap px-3 py-2.5 text-right font-mono text-white">{r.price != null ? fmtPrice(r.price, r.price < 1 ? 5 : 2) : '—'}</td>
                   <td className={`whitespace-nowrap px-3 py-2.5 text-right font-mono font-semibold ${(r.changePct ?? 0) >= 0 ? 'text-emerald' : 'text-danger'}`}>{fmtPct(r.changePct)}</td>
                   <td className="whitespace-nowrap px-3 py-2.5 text-right font-mono text-muted">{compact(r.volume)}{r.relVolume != null && r.relVolume > 2 ? <span className="ml-1 text-lime" title="Relative volume vs 10-day average">×{r.relVolume.toFixed(1)}</span> : null}</td>
@@ -117,6 +128,7 @@ export function Screener() {
         <span className="text-[10.5px] text-muted">Page {page + 1}</span>
         <button disabled={!data || (page + 1) * 25 >= data.total} onClick={() => setPage((p) => p + 1)} className="btn-ghost px-3 py-1.5 text-[11px] disabled:opacity-40">Next →</button>
       </div>
+      <ProfileDrawer target={profile} onClose={() => setProfile(null)} />
     </section>
   );
 }

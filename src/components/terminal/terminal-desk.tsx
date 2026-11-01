@@ -11,6 +11,7 @@ import { ProChart } from '@/components/charts/pro-chart';
 import { TradingViewPanel } from '@/components/terminal/tradingview-panel';
 import { VenueDepth } from '@/components/terminal/venue-depth';
 import { MarketSessions } from '@/components/markets/market-sessions';
+import { SymbolNews } from '@/components/markets/symbol-news';
 import { SessionStats } from '@/components/charts/analysis';
 import { Tabs, Badge, apiFetch, useToast, EmptyState } from '@/components/ui';
 import { AssetMark } from '@/components/asset-mark';
@@ -281,6 +282,7 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
             <p className="border-b border-white/[0.06] px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Reference market statistics</p>
             <SessionStats symbol={symbol} quote={quote} />
           </div>
+          <SymbolNews symbol={symbol} />
           <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40 p-3">
             <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Recent trades</p><p className="mt-3 text-[11px] leading-relaxed text-muted">PRIMEVEST trade history will appear when matching is available.</p>
           </div>
