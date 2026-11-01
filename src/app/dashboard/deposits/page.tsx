@@ -33,8 +33,8 @@ export default function DepositsPage() {
         <Link href="/dashboard/transactions" className="btn-ghost px-4 py-2.5 text-xs">View transactions <span aria-hidden="true">↗</span></Link>
       </div>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,.65fr)]">
-        <section className="panel overflow-hidden">
-          <div className="border-b border-white/[.07] px-5 py-5 sm:px-7"><div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl border border-lime/20 bg-lime/10 text-xl text-lime">↙</span><div><h2 className="text-base font-semibold text-white">Add funds</h2><p className="mt-1 text-xs text-muted">Choose a funding method to see its availability.</p></div></div></div>
+        <section className="panel">
+          <div className="rounded-t-2xl border-b border-white/[.07] px-5 py-5 sm:px-7"><div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl border border-lime/20 bg-lime/10 text-xl text-lime">↙</span><div><h2 className="text-base font-semibold text-white">Add funds</h2><p className="mt-1 text-xs text-muted">Choose a funding method to see its availability.</p></div></div></div>
           <div className="space-y-6 p-5 sm:p-7">
             <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/[.06] bg-black/20 p-1.5" role="tablist" aria-label="Funding method">
               {(['crypto', 'bank'] as const).map((m) => <button key={m} role="tab" aria-selected={method === m} onClick={() => setMethod(m)} className={`rounded-xl px-3 py-3 text-sm font-medium transition ${method === m ? 'bg-white/[.09] text-white shadow-sm' : 'text-muted hover:text-white'}`}>{m === 'crypto' ? '◈  Crypto' : '▤  Bank transfer'}</button>)}
