@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await requireUser();
     const url = new URL(req.url);
-    const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined);
+    const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined, { allowPaper: true });
     const [closed, fills, binary, funding, liquidations] = await Promise.all([
       prisma.position.findMany({ where: { accountId: account.id, status: 'CLOSED' }, orderBy: { closedAt: 'desc' }, take: 100 }),
       prisma.execution.findMany({ where: { order: { accountId: account.id } }, include: { order: true }, orderBy: { createdAt: 'desc' }, take: 100 }),
