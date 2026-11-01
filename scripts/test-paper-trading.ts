@@ -76,6 +76,22 @@ async function main() {
   const filledLimit = await prisma.order.findUniqueOrThrow({ where: { id: limit.body.order.id } });
   assert.equal(filledLimit.status, 'FILLED');
 
+  const spotPair = await prisma.tradingPair.findUniqueOrThrow({ where: { symbol: 'BTC/USDT' } });
+  const spotNow = new Date();
+  await prisma.marketQuote.upsert({
+    where: { pairId: spotPair.id },
+    create: { pairId: spotPair.id, bid: '50000.00000000', ask: '50010.00000000', last: '50005.00000000', source: 'isolated-test-fixture', fetchedAt: spotNow },
+    update: { bid: '50000.00000000', ask: '50010.00000000', last: '50005.00000000', source: 'isolated-test-fixture', fetchedAt: spotNow },
+  });
+  const spotLimit = await request('/api/trades/orders', 'POST', {
+    accountId: paperId, symbol: spotPair.symbol, side: 'BUY', type: 'LIMIT', qty: 0.001, price: 51000, leverage: 1,
+  });
+  assert.equal(spotLimit.status, 201, JSON.stringify(spotLimit.body));
+  const spotMatched = await matchRestingOrders(spotPair.symbol);
+  assert.equal(spotMatched.filled, 1);
+  const spotHolding = await prisma.holding.findUniqueOrThrow({ where: { walletId_asset: { walletId: (await prisma.wallet.findUniqueOrThrow({ where: { accountId: paperId } })).id, asset: 'BTC' } } });
+  assert.equal(Number(spotHolding.amount), 0.001);
+
   const positions = await request(`/api/trades/positions?accountId=${paperId}`);
   assert.equal(positions.status, 200, JSON.stringify(positions.body));
   assert.equal(positions.body.account.type, 'PAPER');
@@ -89,7 +105,7 @@ async function main() {
 
   const fills = await request(`/api/trades/history?accountId=${paperId}`);
   assert.equal(fills.status, 200);
-  assert.equal(fills.body.executions.length, 2);
+  assert.equal(fills.body.executions.length, 3);
   assert.ok(fills.body.executions.every((fill: { venue: string }) => fill.venue === 'paper-simulation'));
 
   const waiting = await request('/api/trades/orders', 'POST', {
