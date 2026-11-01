@@ -1,14 +1,22 @@
 import { fail, json } from '@/lib/http';
 import { requireUser } from '@/lib/auth';
-import { ensureAccounts, accountEquity } from '@/lib/accounts';
+import { ensureAccounts, accountEquity, createPaperAccount } from '@/lib/accounts';
 import { prisma } from '@/lib/db';
 import { d } from '@/lib/ledger';
+
+export async function POST() {
+  try {
+    const user = await requireUser();
+    const account = await createPaperAccount(user.id);
+    return json({ account: { id: account.id, type: account.type, currency: account.currency, available: Number(account.wallet?.available ?? 0), locked: Number(account.wallet?.locked ?? 0) } }, { status: 201 });
+  } catch (err) { return fail(err); }
+}
 
 export async function GET() {
   try {
     const user = await requireUser();
     await ensureAccounts(user.id);
-    const accounts = await prisma.account.findMany({ where: { userId: user.id, type: 'LIVE' }, include: { wallet: true }, orderBy: { type: 'asc' } });
+    const accounts = await prisma.account.findMany({ where: { userId: user.id, type: { in: ['LIVE', 'PAPER'] } }, include: { wallet: true }, orderBy: { type: 'asc' } });
     const withEquity = await Promise.all(
       accounts.map(async (a) => ({ ...a, equity: await accountEquity(a.id) })),
     );
