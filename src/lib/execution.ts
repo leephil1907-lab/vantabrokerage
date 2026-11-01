@@ -308,7 +308,11 @@ export async function closePosition(opts: { userId: string; positionId: string; 
   const releasedMargin = round((d(position.initialMargin) * closeQty) / d(position.qty), 10);
   const fee = round(exitPrice * closeQty * d(pair.takerFee), 10);
 
+  const closeRef = `${position.id}:${Date.now()}:${Math.round(closeQty * 1e10)}`;
   const out = await prisma.$transaction(async (tx) => {
+    // Optimistic row claim prevents concurrent close requests from settling the same quantity twice.
+    const claim = await tx.position.updateMany({ where: { id: position.id, status: 'OPEN', qty: position.qty }, data: { updatedAt: new Date() } });
+    if (claim.count !== 1) throw new AppError('POSITION_CHANGED', 'This position has already changed. Refresh and try again.', 409);
     const wallet = await getOrCreateWallet(tx, position.accountId, position.account.currency);
     const fullyClosed = closeQty >= d(position.qty) - 1e-12;
 
@@ -321,11 +325,11 @@ export async function closePosition(opts: { userId: string; positionId: string; 
       amount: Math.abs(pnl),
       direction: pnl >= 0 ? 'CREDIT' : 'DEBIT',
       description: `${pnl >= 0 ? 'Profit' : 'Loss'} on ${position.symbol} ${position.side}`,
-      reference: `pos-close:${position.id}:${Date.now()}`,
+      reference: `pos-close:${closeRef}`,
       metadata: { symbol: position.symbol, entry: d(position.entryPrice), exit: exitPrice, qty: closeQty },
     });
     if (fee > 0) {
-      await postLedger(tx, { type: 'TRADE_FEE', walletId: wallet.id, amount: fee, direction: 'DEBIT', description: `Exit fee · ${position.symbol}`, reference: `fee:close:${position.id}` });
+      await postLedger(tx, { type: 'TRADE_FEE', walletId: wallet.id, amount: fee, direction: 'DEBIT', description: `Exit fee · ${position.symbol}`, reference: `fee:close:${closeRef}` });
     }
 
     if (fullyClosed) {
@@ -367,10 +371,12 @@ export async function cancelOrder(userId: string, orderId: string) {
   if (order.status !== 'OPEN') throw new AppError('ORDER_NOT_OPEN', 'Only open orders can be cancelled.', 409);
 
   return prisma.$transaction(async (tx) => {
+    const claim = await tx.order.updateMany({ where: { id: order.id, status: 'OPEN' }, data: { status: 'CANCELLED', cancelledAt: new Date(), reserved: '0' } });
+    if (claim.count !== 1) throw new AppError('ORDER_NOT_OPEN', 'This order has already changed.', 409);
     const wallet = await getOrCreateWallet(tx, order.accountId, order.account.currency);
     const reserved = d(order.reserved);
     if (reserved > 0) await unlockFunds(tx, wallet.id, reserved);
-    return tx.order.update({ where: { id: order.id }, data: { status: 'CANCELLED', cancelledAt: new Date(), reserved: '0' } });
+    return tx.order.findUniqueOrThrow({ where: { id: order.id } });
   });
 }
 
@@ -400,8 +406,9 @@ export async function matchRestingOrders(symbol?: string) {
       if (!trigger) continue;
 
       await prisma.$transaction(async (tx) => {
-        const current = await tx.order.findUnique({ where: { id: order.id } });
-        if (!current || current.status !== 'OPEN') return;
+        // Claim the order inside the transaction so multiple worker instances cannot double-fill it.
+        const claim = await tx.order.updateMany({ where: { id: order.id, status: 'OPEN' }, data: { status: 'PARTIALLY_FILLED' } });
+        if (claim.count !== 1) return;
         const derivative = isDerivative(pair);
         const fillPrice = round(q, 8);
         const notional = round(fillPrice * d(order.qty), 10);
