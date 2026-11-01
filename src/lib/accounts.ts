@@ -1,6 +1,6 @@
 import { prisma } from './db';
 import { AppError } from './errors';
-import { d } from './ledger';
+import { d, postLedger } from './ledger';
 import type { Account } from '@prisma/client';
 
 /** New accounts have a single customer account; historical records are preserved. */
@@ -14,14 +14,42 @@ export async function ensureAccounts(userId: string) {
   return [live];
 }
 
-export async function getAccountForUser(userId: string, accountId?: string) {
+export async function getAccountForUser(userId: string, accountId?: string, opts: { allowPaper?: boolean } = {}) {
   await ensureAccounts(userId);
   const account = await prisma.account.findFirst({
-    where: { userId, type: 'LIVE', ...(accountId ? { id: accountId } : {}) },
+    where: { userId, type: opts.allowPaper ? { in: ['LIVE', 'PAPER'] } : 'LIVE', ...(accountId ? { id: accountId } : {}) },
     include: { wallet: { include: { holdings: true } } },
   });
   if (!account) throw new AppError('NOT_FOUND', 'Account not found.', 404);
   return account;
+}
+
+/** Create an explicitly simulated account with a virtual, non-cash starting balance. */
+export async function createPaperAccount(userId: string) {
+  await ensureAccounts(userId);
+  const existing = await prisma.account.findUnique({ where: { userId_type: { userId, type: 'PAPER' } }, include: { wallet: true } });
+  if (existing) return existing;
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const account = await tx.account.create({
+        data: { userId, type: 'PAPER', currency: 'USD', leverage: 100, isDefault: false, wallet: { create: { currency: 'USD', available: '0', locked: '0' } } },
+        include: { wallet: true },
+      });
+      if (!account.wallet) throw new Error('Practice wallet could not be created.');
+      await postLedger(tx, {
+        type: 'BONUS', walletId: account.wallet.id, amount: 100000, direction: 'CREDIT',
+        description: 'Virtual practice starting balance — no cash value',
+        reference: `paper-capital:${account.id}`, systemAccount: 'PAPER_CAPITAL',
+        metadata: { environment: 'PAPER', cashValue: 0, purpose: 'practice-trading' },
+      });
+      return account;
+    });
+  } catch (error) {
+    // Concurrent create requests are idempotent: return the account that won the unique-key race.
+    const raced = await prisma.account.findUnique({ where: { userId_type: { userId, type: 'PAPER' } }, include: { wallet: true } });
+    if (raced) return raced;
+    throw error;
+  }
 }
 
 export function accountSummary(account: Account & { wallet: { available: unknown; locked: unknown } | null }) {
