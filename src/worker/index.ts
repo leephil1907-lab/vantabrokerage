@@ -1,23 +1,11 @@
 /**
- * VANTA Markets background worker.
- *
- * Runs the time-driven parts of the platform:
- *  - resting order matching against live quotes
- *  - position revaluation + liquidation engine
- *  - take-profit / stop-loss execution
- *  - short-expiry settlement
- *  - funding settlement for perpetuals
- *  - market quote refresh for the catalogue
- *
- * Run with:  npm run worker
+ * Background market refresh worker. Trading and settlement jobs are paused;
+ * historical records are left unchanged. Run with: npm run worker.
  */
 import { prisma } from '../lib/db';
-import { matchRestingOrders } from '../lib/execution';
-import { runLiquidationEngine, runProtectiveExitEngine, settleFunding } from '../lib/risk';
-import { settleExpiredBinaryTrades } from '../lib/binary';
 import { listMarkets } from '../lib/markets';
 
-const state = { fundingTick: 0, quoteTick: 0 };
+const state = { quoteTick: 0 };
 
 async function record(name: string, fn: () => Promise<unknown>) {
   const run = await prisma.jobRun.create({ data: { name, status: 'RUNNING' } });
@@ -36,16 +24,9 @@ async function record(name: string, fn: () => Promise<unknown>) {
 }
 
 async function tick() {
-  await record('orders.match', () => matchRestingOrders());
-  await record('binary.settle', () => settleExpiredBinaryTrades().then((r) => ({ settled: r.length })));
-  await record('positions.protect', () => runProtectiveExitEngine().then((r) => ({ closed: r.length })));
-  await record('positions.liquidate', () => runLiquidationEngine().then((r) => ({ liquidated: r.length })));
-
+  // Historical order and settlement records are preserved, not processed.
   state.quoteTick++;
   if (state.quoteTick % 3 === 0) await record('markets.refresh', async () => { const r = await listMarkets({ refresh: true }); return { pairs: r.length }; });
-
-  state.fundingTick++;
-  if (state.fundingTick % 240 === 0) await record('funding.settle', () => settleFunding());
 }
 
 async function main() {

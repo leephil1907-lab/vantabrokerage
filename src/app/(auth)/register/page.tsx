@@ -35,7 +35,7 @@ function RegisterForm() {
   return (
     <div className="panel p-6">
       <h1 className="text-lg font-semibold tracking-tight text-white">Open your account</h1>
-      <p className="mt-1 text-[12.5px] text-muted">Get a live account plus a funded paper account, instantly.</p>
+      <p className="mt-1 text-[12.5px] text-muted">Create your PRIMEVEST account and explore the markets.</p>
       <form onSubmit={submit} className="mt-5 space-y-3">
         <div className="grid grid-cols-2 gap-2">
           <label className="block"><span className="label">First name</span><input required value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className="field mt-1.5" /></label>

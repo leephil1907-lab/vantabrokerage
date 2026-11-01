@@ -22,3 +22,8 @@ Observed 1 November 2026 at `https://vantabrokerage.vercel.app/`. This is a poin
 7. **Before real customers or money.** Obtain jurisdiction-specific legal/licensing review and independent security, privacy and financial-control audits; review KYC/AML/sanctions, market-data licensing, incident response and terms. Brand-name clearance also remains open.
 
 Reference files: `docs/DEPLOYMENT-READINESS.md`, `docs/VERCEL-REVIEW-DEPLOYMENT.md`, `docs/TRANSACTIONAL-EMAIL.md` and `docs/PRIMEVEST-NAME-SCREENING.md`.
+
+
+## Follow-up operating-state update — 1 November 2026
+
+A subsequent repository change (`b07f38f`, “Remove paper account provisioning and refresh customer copy”) superseded earlier references in this assessment to an internal PAPER session. The current source blocks order execution for all account types, creates only an empty LIVE account for new registrations, withholds customer deposit addresses and pauses matching, liquidation, short-expiry settlement and funding jobs in the worker. Historical PAPER records are preserved but hidden from ordinary account selection. The current worker refreshes market data only. This update does not change the point-in-time observations above about the live deployment, and no deployment was performed as part of the repository change.

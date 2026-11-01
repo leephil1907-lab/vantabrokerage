@@ -1,56 +1,26 @@
 import { prisma } from './db';
 import { AppError } from './errors';
-import { d, money } from './ledger';
+import { d } from './ledger';
 import type { Account } from '@prisma/client';
 
-export const STARTING_PAPER_BALANCE = Number(process.env.PAPER_STARTING_BALANCE ?? 100000);
-
+/** New accounts have a single customer account; historical records are preserved. */
 export async function ensureAccounts(userId: string) {
-  const existing = await prisma.account.findMany({ where: { userId }, include: { wallet: true } });
-  const haveLive = existing.some((a) => a.type === 'LIVE');
-  const havePaper = existing.some((a) => a.type === 'PAPER');
-  if (!haveLive) {
-    const live = await prisma.account.create({
-      data: {
-        userId,
-        type: 'LIVE',
-        currency: 'USD',
-        isDefault: false,
-        leverage: 100,
-        wallet: { create: { currency: 'USD', available: '0', locked: '0' } },
-      },
-      include: { wallet: true },
-    });
-    existing.push(live);
-  }
-  if (!havePaper) {
-    const paper = await prisma.account.create({
-      data: {
-        userId,
-        type: 'PAPER',
-        currency: 'USD',
-        isDefault: true,
-        leverage: 100,
-        wallet: { create: { currency: 'USD', available: money(STARTING_PAPER_BALANCE), locked: '0' } },
-      },
-      include: { wallet: true },
-    });
-    existing.push(paper);
-  }
-  await prisma.account.updateMany({ where: { userId, type: 'LIVE', isDefault: true }, data: { isDefault: false } });
-  await prisma.account.updateMany({ where: { userId, type: 'PAPER', isDefault: false }, data: { isDefault: true } });
-  return existing;
+  const live = await prisma.account.upsert({
+    where: { userId_type: { userId, type: 'LIVE' } },
+    create: { userId, type: 'LIVE', currency: 'USD', isDefault: true, leverage: 100, wallet: { create: { currency: 'USD', available: '0', locked: '0' } } },
+    update: {},
+    include: { wallet: true },
+  });
+  return [live];
 }
 
 export async function getAccountForUser(userId: string, accountId?: string) {
   await ensureAccounts(userId);
-  const where = accountId ? { id: accountId, userId } : { userId, type: 'PAPER' as const };
-  const account = await prisma.account.findFirst({ where, include: { wallet: { include: { holdings: true } } } });
-  if (!account) {
-    const fallback = await prisma.account.findFirst({ where: { userId }, include: { wallet: { include: { holdings: true } } }, orderBy: { type: 'asc' } });
-    if (!fallback) throw new AppError('NOT_FOUND', 'No trading account available.', 404);
-    return fallback;
-  }
+  const account = await prisma.account.findFirst({
+    where: { userId, type: 'LIVE', ...(accountId ? { id: accountId } : {}) },
+    include: { wallet: { include: { holdings: true } } },
+  });
+  if (!account) throw new AppError('NOT_FOUND', 'Account not found.', 404);
   return account;
 }
 

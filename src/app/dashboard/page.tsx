@@ -17,7 +17,7 @@ type Overview = {
   recentTransactions: { id: string; direction: string; amount: number; type: string; description: string | null; createdAt: string }[];
   markets: { symbol: string; category: string; last: number | null; change24h: number | null; source: string | null; stale: boolean }[];
   unreadNotifications: number;
-  executionMode: 'live' | 'paper';
+  executionMode: 'unavailable';
 };
 
 export default function DashboardOverview() {
@@ -52,8 +52,8 @@ export default function DashboardOverview() {
         <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-32 h-80 w-80 rounded-full bg-lime/[.09] blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-6">
           <div><p className="text-[10px] font-semibold uppercase tracking-[.22em] text-lime">Your workspace / Overview</p><h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Welcome back{data?.profile.firstName ? `, ${data.profile.firstName}` : ''}<span className="text-lime">.</span></h1><p className="mt-3 max-w-xl text-sm leading-relaxed text-white/50">Your markets, activity and account in one place.</p>
-            <div className="mt-6 flex flex-wrap gap-2"><Link href="/dashboard/crypto" className="btn-primary px-4 py-2.5 text-xs">Explore trading <span aria-hidden="true">↗</span></Link><Link href="/dashboard/deposits" className="btn-ghost px-4 py-2.5 text-xs">Deposit funds</Link></div></div>
-          <div className="min-w-[210px] rounded-xl border border-white/[.08] bg-black/20 p-4"><p className="text-[10px] uppercase tracking-[.16em] text-white/45">Trading session</p><p className="mt-2 flex items-center gap-2 text-sm font-medium text-white"><span className="h-2 w-2 rounded-full bg-emerald-400" /> Internal engine available</p><p className="mt-1 text-[11px] text-white/45">Paper account · provider-fed reference quotes</p></div>
+            <div className="mt-6 flex flex-wrap gap-2"><Link href="/dashboard/crypto" className="btn-primary px-4 py-2.5 text-xs">Explore trading <span aria-hidden="true">↗</span></Link><Link href="/dashboard/deposits" className="btn-ghost px-4 py-2.5 text-xs">View funding</Link></div></div>
+          <div className="min-w-[210px] rounded-xl border border-white/[.08] bg-black/20 p-4"><p className="text-[10px] uppercase tracking-[.16em] text-white/45">Market information</p><p className="mt-2 text-sm font-medium text-white">Reference prices</p><p className="mt-1 text-[11px] text-white/45">Subject to data availability</p></div>
         </div>
       </section>
 
@@ -103,7 +103,7 @@ export default function DashboardOverview() {
         <>
           {/* KPI row */}
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Stat label="Account equity" value={fmtMoney(data.equity.equity)} sub="Ledger balance · custody not connected" accent />
+            <Stat label="Account equity" value={fmtMoney(data.equity.equity)} sub="Recorded ledger balance" accent />
             <Stat label="Unrealised P/L" value={fmtSigned(data.equity.unrealizedPnl)} sub={`${data.openPositions.length} open positions`} tone={data.equity.unrealizedPnl >= 0 ? 'up' : 'down'} />
             <Stat label="Margin in use" value={fmtMoney(data.equity.marginUsed)} sub={`${fmtMoney(data.equity.locked)} locked balance`} />
             <Stat label="Open orders" value={String(data.openOrders.length)} sub="Orders on this account" />
@@ -118,7 +118,7 @@ export default function DashboardOverview() {
                   <Link href="/dashboard/positions" className="text-[11.5px] text-lime hover:underline">All positions</Link>
                 </div>
                 {data.openPositions.length === 0 ? (
-                  <EmptyState title="No open positions" body="Your internal paper positions will appear here after your first fill." action={<Link href="/dashboard/forex" className="btn-primary px-3 py-1.5 text-[12px]">Open terminal</Link>} />
+                  <EmptyState title="No open positions" body="Your positions will appear here when live trading is available." action={<Link href="/dashboard/forex" className="btn-primary px-3 py-1.5 text-[12px]">Open terminal</Link>} />
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[640px]">
@@ -212,7 +212,6 @@ export default function DashboardOverview() {
                       <div className="flex items-center justify-between">
                         <span className="flex items-center gap-1.5 text-[12px] font-semibold text-white">
                           {a.type}
-                          {a.type === 'PAPER' && <Badge tone="blue">simulated</Badge>}
                         </span>
                         <span className="value-mono text-[12px] text-white">{fmtMoney(a.equity.equity)}</span>
                       </div>
@@ -256,7 +255,7 @@ export default function DashboardOverview() {
                   <Link href="/dashboard/transactions" className="text-[11.5px] text-lime hover:underline">All</Link>
                 </div>
                 {data.recentTransactions.length === 0 ? (
-                  <p className="mt-3 text-[11.5px] text-muted">No ledger entries yet. Deposits are currently unavailable.</p>
+                  <p className="mt-3 text-[11.5px] text-muted">No ledger entries yet.</p>
                 ) : (
                   <div className="mt-2 space-y-2">
                     {data.recentTransactions.map((t) => (

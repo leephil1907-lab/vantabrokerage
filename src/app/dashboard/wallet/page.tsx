@@ -105,7 +105,7 @@ export default function WalletPage() {
         <div className="space-y-4">
           <section className="panel p-4">
             <p className="text-[13px] font-semibold text-white">Move funds between accounts</p>
-            <p className="mt-1 text-[11.5px] leading-relaxed text-muted">Only accounts of the same type can transfer between each other. Paper and live balances cannot be mixed.</p>
+            <p className="mt-1 text-[11.5px] leading-relaxed text-muted">Transfers can only be made between eligible accounts of the same type.</p>
             <div className="mt-3 space-y-2.5">
               <label className="block">
                 <span className="label">From</span>
@@ -134,16 +134,11 @@ export default function WalletPage() {
               <Link href="/dashboard/deposits" className="btn-ghost py-2 text-[12px]">Deposit</Link>
               <Link href="/dashboard/withdrawals" className="btn-ghost py-2 text-[12px]">Withdraw</Link>
             </div>
-            {active?.type === 'PAPER' && (
-              <p className="mt-2.5 rounded-lg border border-sky-400/25 bg-sky-400/10 px-2.5 py-2 text-[10.5px] leading-relaxed text-sky-300">
-                You are viewing your paper account. Deposits and withdrawals only apply to the live account.
-              </p>
-            )}
           </section>
 
           <section className="panel p-4">
             <p className="text-[13px] font-semibold text-white">Crypto holdings</p>
-            {holdings.length === 0 ? <p className="mt-2 text-[11.5px] text-muted">No holdings yet — buy on the spot terminal.</p> : (
+            {holdings.length === 0 ? <p className="mt-2 text-[11.5px] text-muted">No holdings yet.</p> : (
               <div className="mt-2 space-y-1.5">
                 {holdings.map((h) => (
                   <div key={h.asset} className="flex items-center justify-between text-[11.5px]">

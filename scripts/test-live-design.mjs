@@ -7,24 +7,26 @@ const browser = await chromium.launch({ args: ['--no-sandbox'] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 950 } });
 const page = await ctx.newPage();
 try {
-  await page.goto(base + '/login');
-  await page.fill('input[type=email]', process.env.SEED_ADMIN_EMAIL || 'admin@vantamarkets.com');
-  await page.fill('input[type=password]', process.env.SEED_ADMIN_PASSWORD || 'Vanta!Admin2026');
-  await page.click('button[type=submit]');
-  await page.waitForURL('**/dashboard**');
+  if (process.env.ALLOW_DISPOSABLE_REVIEW_TEST !== '1') throw new Error('Use only an isolated disposable server.');
+  await page.goto(base + '/register');
+  const registration = await page.evaluate(async () => {
+    const res = await fetch('/api/auth/register', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: `design.${Date.now()}@example.test`, password: 'Review!Test2026', firstName: 'Design', lastName: 'Tester', country: 'Nigeria', acceptTerms: true }) });
+    return { status: res.status, body: await res.json() };
+  });
+  assert.equal(registration.status, 201, JSON.stringify(registration.body));
+  await page.goto(base + '/dashboard');
   const accounts = await page.evaluate(async () => (await fetch('/api/accounts')).json());
   assert.ok(accounts.accounts, `accounts API: ${JSON.stringify(accounts)}`);
   const live = accounts.accounts.find(a => a.type === 'LIVE');
-  const paper = accounts.accounts.find(a => a.type === 'PAPER');
-  assert.ok(live && paper);
-  // A previously-selected paper account must not leak simulated balances into these views.
-  await page.evaluate(id => localStorage.setItem('vanta.accountId', id), paper.id);
+  assert.ok(live && accounts.accounts.length === 1);
+  // An outdated local selection must fall back to the customer account.
+  await page.evaluate(() => localStorage.setItem('vanta.accountId', 'outdated-account-id'));
   await page.goto(base + '/dashboard');
-  await page.getByText('Ledger balance · custody not connected').waitFor();
+  await page.getByText('Recorded ledger balance').waitFor();
   assert.equal(await page.getByText('SIMULATED', { exact: false }).count(), 0);
 
   await page.goto(base + '/dashboard/deposits');
-  await page.getByText('Funding is not available yet').waitFor();
+  await page.getByText('Funding unavailable').waitFor();
   assert.equal(await page.getByRole('button', { name: 'Deposits unavailable' }).isDisabled(), true);
   await page.getByRole('tab', { name: /Bank transfer/ }).click();
   await page.getByText('Bank details will be shown only').waitFor();

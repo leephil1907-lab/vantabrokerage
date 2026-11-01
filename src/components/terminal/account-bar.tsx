@@ -7,7 +7,7 @@ import { fmtMoney } from '@/lib/format';
 export type AccountOption = { id: string; type: 'LIVE' | 'PAPER'; available: number; locked: number; currency: string };
 
 /** Account switcher shared by every terminal. Persists the selection locally. */
-export function useAccount({ paperOnly = false, liveOnly = false }: { paperOnly?: boolean; liveOnly?: boolean } = {}) {
+export function useAccount({ liveOnly = false }: { liveOnly?: boolean } = {}) {
   const [accounts, setAccounts] = useState<AccountOption[]>([]);
   const [accountId, setAccountId] = useState<string>('');
   const [liveEnabled, setLiveEnabled] = useState(false);
@@ -19,17 +19,17 @@ export function useAccount({ paperOnly = false, liveOnly = false }: { paperOnly?
       .then((r) => r.json())
       .then((b) => {
         if (cancelled || !b.accounts) return;
-        const visibleAccounts = liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : paperOnly ? b.accounts.filter((a: AccountOption) => a.type === 'PAPER') : b.accounts;
+        const visibleAccounts = liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : b.accounts;
         setAccounts(visibleAccounts);
         setLiveEnabled(!!b.liveExecutionEnabled);
         const stored = typeof window !== 'undefined' ? window.localStorage.getItem('vanta.accountId') : null;
         const fromStore = visibleAccounts.find((a: AccountOption) => a.id === stored);
-        const fallback = visibleAccounts.find((a: AccountOption) => a.type === 'PAPER') ?? visibleAccounts[0];
+        const fallback = visibleAccounts.find((a: AccountOption) => a.type === 'LIVE') ?? visibleAccounts[0];
         setAccountId((fromStore ?? fallback)?.id ?? '');
       })
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, [paperOnly]);
+  }, [liveOnly]);
 
   const select = (id: string) => {
     setAccountId(id);
@@ -38,7 +38,7 @@ export function useAccount({ paperOnly = false, liveOnly = false }: { paperOnly?
 
   const active = accounts.find((a) => a.id === accountId) ?? null;
   return { accounts, accountId, select, active, liveEnabled, loading, reloadAccounts: () => {
-    fetch('/api/accounts', { cache: 'no-store' }).then((r) => r.json()).then((b) => b.accounts && setAccounts(liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : paperOnly ? b.accounts.filter((a: AccountOption) => a.type === 'PAPER') : b.accounts)).catch(() => undefined);
+    fetch('/api/accounts', { cache: 'no-store' }).then((r) => r.json()).then((b) => b.accounts && setAccounts(liveOnly ? b.accounts.filter((a: AccountOption) => a.type === 'LIVE') : b.accounts)).catch(() => undefined);
   } };
 }
 
@@ -73,8 +73,7 @@ export function AccountSwitcher({
           {fmtMoney(active.available)} <span className="text-muted">available</span>
         </span>
       )}
-      {active?.type === 'PAPER' && <Badge tone="blue">simulated funds</Badge>}
-      {active?.type === 'LIVE' && !liveEnabled && <Badge tone="amber">live execution not connected</Badge>}
+      {active?.type === 'LIVE' && !liveEnabled && <Badge tone="amber">Trading unavailable</Badge>}
     </div>
   );
 }

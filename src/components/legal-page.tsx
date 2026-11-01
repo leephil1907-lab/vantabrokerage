@@ -88,8 +88,7 @@ export function LegalPage({
             </Reveal>
           ))}
           <div className="rounded-xl border border-white/[0.07] bg-ink-850/60 px-4 py-3 text-[11px] leading-relaxed text-muted">
-            This document is provided for the platform as configured in its current deployment. Where the platform operates in paper
-            mode, all balances and results are simulated and no real funds are held or transmitted.
+            This information reflects the platform as currently configured.
           </div>
         </article>
       </div>

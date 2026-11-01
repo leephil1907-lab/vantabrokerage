@@ -15,7 +15,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="w-full max-w-md">{children}</div>
         </main>
         <footer className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-8 text-center text-[10.5px] leading-relaxed text-muted">
-          Trading forex, CFDs and crypto derivatives carries a high risk of loss. This platform may operate with paper trading where execution providers are not connected.
+          Trading forex, CFDs and crypto derivatives carries a high risk of loss. Market prices are for reference and may be delayed.
         </footer>
       </div>
     </ToastProvider>

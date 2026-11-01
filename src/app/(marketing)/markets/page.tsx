@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic';
 
 const DESKS = [
   { href: '/trading/forex', symbol: 'EUR/USD', title: 'Forex', body: 'Explore currency pairs with a focused trading workspace.', tag: 'Currencies' },
-  { href: '/trading/crypto', symbol: 'BTC/USDT', title: 'Crypto spot', body: 'Follow digital assets and practise spot trading on paper.', tag: 'Digital assets' },
-  { href: '/trading/futures', symbol: 'ETH/USDT', title: 'Perpetual futures', body: 'Explore long and short positions in a simulated environment.', tag: 'Derivatives' },
+  { href: '/trading/crypto', symbol: 'BTC/USDT', title: 'Crypto spot', body: 'Follow digital asset reference prices and market information.', tag: 'Digital assets' },
+  { href: '/trading/futures', symbol: 'ETH/USDT', title: 'Perpetual futures', body: 'Learn about futures, market movements and risk.', tag: 'Derivatives' },
   { href: '/trading/cfd', symbol: 'XAUUSD', title: 'Indices & commodities', body: 'Follow major indices and commodity-linked markets.', tag: 'Multi-asset' },
 ];
 
@@ -26,9 +26,9 @@ export default function MarketsPage() {
           <div className="relative z-10">
             <Reveal><p className="eyebrow">Market intelligence</p></Reveal>
             <Reveal delay={0.05}><h1 className="display mt-4 max-w-2xl text-[40px] leading-[1.05] sm:text-[56px]">The markets move.<br/><span className="text-lime">Stay ready.</span></h1></Reveal>
-            <Reveal delay={0.1}><p className="mt-5 max-w-xl text-[14px] leading-7 text-muted">Explore global currencies and digital assets in one considered workspace. Follow provider-sourced prices, discover crypto markets and practise with a paper account.</p></Reveal>
+            <Reveal delay={0.1}><p className="mt-5 max-w-xl text-[14px] leading-7 text-muted">Explore global currencies and digital assets in one considered workspace. Follow provider-sourced prices and discover crypto markets.</p></Reveal>
             <Reveal delay={0.15}><div className="mt-7 flex flex-wrap gap-3"><a href="#crypto-discovery-heading" className="btn-primary px-5 py-3">Explore crypto markets <span aria-hidden>↗</span></a><Link href="/dashboard/forex" className="btn-ghost px-5 py-3">Open forex desk</Link></div></Reveal>
-            <p className="mt-5 text-[11px] text-white/45">Reference prices can be delayed. Live-money execution is unavailable.</p>
+            <p className="mt-5 text-[11px] text-white/45">Reference prices can be delayed or unavailable.</p>
           </div>
           <div className="absolute -right-12 top-1/2 hidden h-[370px] w-[370px] -translate-y-1/2 opacity-80 lg:block xl:right-16" aria-hidden="true"><HeroScene /></div>
         </div>
@@ -44,7 +44,7 @@ export default function MarketsPage() {
           <LiveMarketTable category="FOREX" limit={12} />
         </div>
       </section>
-      <CTASection title="Find your rhythm in the markets" body="Explore the trading workspace with simulated funds. Paper results do not represent live execution." primary={{ href: '/register', label: 'Create paper account' }} secondary={{ href: '/trading-conditions', label: 'Trading conditions' }} />
+      <CTASection title="Find your rhythm in the markets" body="Explore reference prices and market information in your account workspace." primary={{ href: '/register', label: 'Create account' }} secondary={{ href: '/trading-conditions', label: 'Trading conditions' }} />
     </>
   );
 }

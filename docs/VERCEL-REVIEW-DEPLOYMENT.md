@@ -1,16 +1,16 @@
 # Vercel deployment: protected design review
 
-This runbook prepares the current Next.js website for a **private, access-controlled review**, not a public brokerage launch. Vercel deployment itself has not been tested yet. Real-money execution is hard-blocked, the customer deposit endpoint returns 503, and no external broker, custody or payment provider is connected. Internal paper orders are matched by PRIMEVEST against provider-sourced reference quotes; those quotes are not external executable liquidity. Some legacy pages and APIs still include simulated features; this deployment is not a no-simulation production system.
+This runbook prepares the current Next.js website for a **private, access-controlled review**, not a public brokerage launch. Vercel deployment itself has not been tested yet. Real-money execution is hard-blocked, the customer deposit endpoint returns 503, no internal matching engine or custody/payment provider is connected, and the displayed external prices are references—not PRIMEVEST executable quotes. Some legacy pages and APIs still include simulated features; this deployment is not a no-simulation production system.
 
 ## 1. Prepare infrastructure first
 
-- Create an isolated PostgreSQL database for this review. Never use a customer, existing staging or production database. Ensure network access, TLS, backups and suitable connection pooling for Vercel's serverless instances. Keep preview and production databases and secrets separate. For Prisma 6, configure `DATABASE_URL` as the provider-supported pooled URL for app traffic and `DIRECT_URL` as the direct PostgreSQL URL for migrations.
+- Create an isolated PostgreSQL database for this review. Never use a customer, existing staging or production database. Ensure network access, TLS, backups and suitable connection pooling for Vercel's serverless instances. Keep preview and production databases and secrets separate. For Prisma 6, use a direct PostgreSQL URL for migrations and a provider-supported pooled URL for app traffic when appropriate.
 - Enable deployment protection for **every URL/environment** that will be created, including the initial Production deployment and any custom domain, not just preview URLs. Check whether your Vercel plan supports the protection method you require. If you cannot protect the initial deployment, do not deploy this build. Vercel's first CLI deployment of a new project can be a Production deployment even without `--prod`; Git pushes to the production branch also create Production deployments. Do not assume a URL is private because it is called a preview.
 - No real funds, real customer personal information or real API credentials for financial services. No external customer signups. The review database and accounts must be disposable and access-controlled.
 
 ## 2. Initialize the database (once, deliberately)
 
-From a trusted machine with Node.js, the repository and the **isolated review database's direct URL** configured as `DIRECT_URL` in its process environment. If no pooler is used, set `DATABASE_URL` to the same direct URL:
+From a trusted machine with Node.js, the repository and the **isolated review database's direct URL** configured as `DATABASE_URL` in its process environment:
 
 ```sh
 npm ci
@@ -20,7 +20,7 @@ npm run db:seed-review
 
 The review seed inserts reference instrument and asset definitions only. It creates **no staff accounts, users, balances, orders, deposits, price records or sample trading history**. It uses existing static instrument definitions; the prices shown are subsequently obtained from providers. It is safe to rerun on the same isolated review database, but its upserts may update matching instrument definitions: never point it at a database with customer data without a reviewed migration plan. Only forex and Kraken-mapped crypto spot reference definitions are included. Other instrument categories may remain empty. Provider availability, rights and freshness must be verified; definitions do not imply a market is tradeable.
 
-**Do not run `npm run seed` against a hosted/review deployment.** The development seed includes known staff credentials and simulated settings; the script now refuses its full seed in production or on Vercel. It must never be used with real data. Create your own private review user through the registration page after deployment. That user is not an administrator. Registration still provisions a legacy paper account, so use `PAPER_STARTING_BALANCE=0` for the review; other legacy simulation functionality remains in the code. This variable is not a security or trading-disable switch.
+**Do not run `npm run seed` against a hosted/review deployment.** The development seed includes known staff credentials and simulated settings; the script now refuses its full seed in production or on Vercel. It must never be used with real data. Create your own private review user through the registration page after deployment. That user is not an administrator. Registration creates only a LIVE account. Historical paper records are preserved but are not exposed through account selection or processed by the worker. Trading and customer deposits are blocked for all accounts.
 
 ## 3. Import into Vercel
 
@@ -29,10 +29,8 @@ Import the GitHub repository as a new Next.js project; use the repository root. 
 | Variable | Value / purpose |
 | --- | --- |
 | `DATABASE_URL` | Server-side pooled connection URL for the isolated PostgreSQL database; never a local `127.0.0.1` URL. |
-| `DIRECT_URL` | Direct, non-pooled connection URL for Prisma migrations. For a review database without a pooler, this may be the same URL as `DATABASE_URL`. |
 | `SESSION_SECRET` | A unique cryptographically random secret, at least 32 characters; e.g. generate locally with `openssl rand -hex 32`. Do not share or commit it. |
 | `APP_URL` | The exact stable protected HTTPS origin for that environment, without a path; verification and reset emails use this origin. Do not copy a production URL into Preview. |
-| `PAPER_STARTING_BALANCE` | `0` for interface-only review, or `100000` to exercise the internal PAPER trading workflow with test funds. Applies only when a new PAPER account is created. |
 | `CRYPTO_DEPOSIT_ADDRESSES` | Leave unset or `{}`. Deposits remain unavailable. |
 | `COINGECKO_DEMO_API_KEY` | Optional, server-side only; review the provider's plan, usage limits and redistribution rights. |
 
