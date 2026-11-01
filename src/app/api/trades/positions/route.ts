@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db';
 import { fail, json } from '@/lib/http';
 import { requireUser } from '@/lib/auth';
 import { getAccountForUser } from '@/lib/accounts';
-import { revaluePositions } from '@/lib/risk';
+import { revaluePositions, runLiquidationEngine, runProtectiveExitEngine } from '@/lib/risk';
 import { d } from '@/lib/ledger';
 
 export const dynamic = 'force-dynamic';
@@ -14,7 +14,11 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined, { allowPaper: true });
     const status = url.searchParams.get('status') === 'closed' ? 'CLOSED' : 'OPEN';
-    if (status === 'OPEN') await revaluePositions(account.id);
+    if (status === 'OPEN' && account.type === 'PAPER') {
+      await revaluePositions(account.id);
+      await runProtectiveExitEngine(account.id);
+      await runLiquidationEngine(account.id);
+    }
     const positions = await prisma.position.findMany({ where: { accountId: account.id, status }, orderBy: { createdAt: 'desc' }, take: 200 });
     return json({
       account: { id: account.id, type: account.type },
