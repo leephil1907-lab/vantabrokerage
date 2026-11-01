@@ -22,7 +22,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const body = await parseBody(req, z.object({ takeProfit: z.coerce.number().positive().nullable().optional(), stopLoss: z.coerce.number().positive().nullable().optional() }));
     const { prisma } = await import('@/lib/db');
     const pos = await prisma.position.findUnique({ where: { id }, include: { account: true } });
-    if (!pos || pos.account.userId !== user.id || pos.account.type !== 'LIVE') return json({ error: { code: 'FORBIDDEN', message: 'Position not found.' } }, { status: 404 });
+    if (!pos || pos.account.userId !== user.id || pos.account.type === 'LIVE') return json({ error: { code: 'FORBIDDEN', message: 'Position not found.' } }, { status: 404 });
     const updated = await prisma.position.update({
       where: { id },
       data: {
