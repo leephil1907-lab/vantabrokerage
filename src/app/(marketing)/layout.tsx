@@ -7,6 +7,7 @@ import { SmoothScroll } from '@/components/motion/smooth-scroll';
 import { GoldCursor } from '@/components/motion/cursor';
 import { ChatWidget } from '@/components/support/chat-widget';
 import { AmbientFlow } from '@/components/motion/ambient-flow';
+import { BackToTop } from '@/components/motion/back-to-top';
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();
@@ -22,6 +23,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
       <SiteFooter />
       <MobileTabBar authenticated={!!user} />
       <ChatWidget />
+      <BackToTop />
     </div>
     </SmoothScroll>
   );

@@ -218,7 +218,7 @@ export function MaskLine({ children, className = '', delay = 0, as = 'span' }: {
   const reduce = useReducedMotion();
   const Comp = motion[as] as typeof motion.span;
   return (
-    <span className={`block overflow-hidden ${className}`} style={{ paddingBottom: '0.08em', marginBottom: '-0.08em' }}>
+    <span className={`block overflow-hidden ${className}`} style={{ paddingBottom: '0.14em', marginBottom: '-0.14em' }}>
       <Comp
         className="block will-change-transform"
         initial={reduce ? undefined : { y: '110%' }}

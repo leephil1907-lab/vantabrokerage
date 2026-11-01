@@ -44,6 +44,13 @@ body {
 
 ::selection { background: rgba(223, 192, 136, 0.30); color: #fff; }
 
+/* Meaningful click feedback: every interactive element acknowledges the press. */
+:where(button, a, summary, [role='button']):not(.no-press):active { transform: scale(0.975); }
+:where(button, a, [role='button']):not(.no-press) { transition-property: transform, background-color, border-color, color, opacity, box-shadow; transition-duration: .18s; transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Anchored sections clear the sticky nav when jumped to. */
+[id] { scroll-margin-top: 88px; }
+
 *:focus-visible {
   outline: 2px solid rgba(223, 192, 136, 0.65);
   outline-offset: 2px;

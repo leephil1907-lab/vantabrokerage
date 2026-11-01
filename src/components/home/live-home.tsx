@@ -249,7 +249,7 @@ export function LiveHome({ markets, authenticated = false }: { markets: M[]; aut
     <>
       <HeroCarousel><HeroTerminal markets={table} feed={cryptoFeed} /></HeroCarousel>
       <MarketShowcase authenticated={authenticated} />
-      <div className="shell pb-8"><MarketSessions /></div>
+      <div id="market-sessions" className="shell pb-8"><MarketSessions /></div>
       <CryptoPreview {...cryptoFeed} />
       <GoldBand />
 
