@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
 import { usePolling, Badge, StatusBadge, EmptyState, Skeleton, apiFetch, useToast, SectionHeader } from '@/components/ui';
-import { fmtMoney, fmtPct, fmtPrice, fmtSigned, fmtQty, priceDp, relTime, countdown } from '@/lib/format';
+import { fmtMoney, fmtPct, fmtPrice, fmtSigned, fmtQty, priceDp, relTime } from '@/lib/format';
 import { useAccount } from '@/components/terminal/account-bar';
 
 type Overview = {
@@ -22,29 +21,8 @@ type Overview = {
 
 export default function DashboardOverview() {
   const { accountId, select } = useAccount({ liveOnly: true });
-  const [now] = useState(() => Date.now());
-  const { data, error, loading, refresh } = usePolling<Overview>(accountId ? `/api/overview?accountId=${accountId}` : null, 12_000);
+  const { data, error, loading } = usePolling<Overview>(accountId ? `/api/overview?accountId=${accountId}` : null, 12_000);
   const { push } = useToast();
-
-  const closePosition = async (id: string, symbol: string) => {
-    try {
-      const res = await apiFetch<{ pnl: number; exitPrice: number }>(`/api/trades/positions/${id}`, { method: 'DELETE' });
-      push({ tone: res.pnl >= 0 ? 'success' : 'info', title: `${symbol} closed`, body: `Realised ${fmtSigned(res.pnl)} at ${fmtPrice(res.exitPrice, priceDp(symbol))}.` });
-      refresh();
-    } catch (e) {
-      push({ tone: 'error', title: 'Could not close position', body: (e as Error).message });
-    }
-  };
-
-  const cancelOrder = async (id: string) => {
-    try {
-      await apiFetch(`/api/trades/orders/${id}`, { method: 'DELETE' });
-      push({ tone: 'success', title: 'Order cancelled', body: 'Reserved funds released back to your available balance.' });
-      refresh();
-    } catch (e) {
-      push({ tone: 'error', title: 'Could not cancel order', body: (e as Error).message });
-    }
-  };
 
   return (
     <div className="space-y-5">
@@ -118,7 +96,7 @@ export default function DashboardOverview() {
                   <Link href="/dashboard/positions" className="text-[11.5px] text-lime hover:underline">All positions</Link>
                 </div>
                 {data.openPositions.length === 0 ? (
-                  <EmptyState title="No open positions" body="Your positions will appear here when live trading is available." action={<Link href="/dashboard/forex" className="btn-primary px-3 py-1.5 text-[12px]">Open terminal</Link>} />
+                  <EmptyState title="No open positions" body="Trading is unavailable. Existing records, if any, are retained for reference." />
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[640px]">
@@ -134,7 +112,7 @@ export default function DashboardOverview() {
                             <td className={`td text-right value-mono ${p.unrealizedPnl >= 0 ? 'text-emerald' : 'text-danger'}`}>{fmtSigned(p.unrealizedPnl)}</td>
                             <td className="td text-right value-mono text-muted">{p.liquidationPrice ? fmtPrice(p.liquidationPrice, priceDp(p.symbol)) : '—'}</td>
                             <td className="td text-right">
-                              <button onClick={() => closePosition(p.id, p.symbol)} className="rounded-md border border-white/10 px-2 py-1 text-[10.5px] font-medium text-muted transition hover:border-danger/40 hover:text-danger">Close</button>
+                              <span className="text-[10px] text-muted">Unavailable</span>
                             </td>
                           </tr>
                         ))}
@@ -147,11 +125,11 @@ export default function DashboardOverview() {
               {/* Orders */}
               <section className="panel overflow-hidden">
                 <div className="flex items-center justify-between border-b border-white/[0.07] px-4 py-3">
-                  <SectionHeader title="Open orders" subtitle="Resting limit & stop orders with reserved margin" />
+                  <SectionHeader title="Open orders" subtitle="Recorded orders; order changes are unavailable" />
                   <Link href="/dashboard/orders" className="text-[11.5px] text-lime hover:underline">All orders</Link>
                 </div>
                 {data.openOrders.length === 0 ? (
-                  <EmptyState title="No resting orders" body="Limit and stop orders appear here until they fill, expire or are cancelled." />
+                  <EmptyState title="No resting orders" body="No recorded open orders. New orders and cancellations are unavailable." />
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[560px]">
@@ -166,7 +144,7 @@ export default function DashboardOverview() {
                             <td className="td text-right value-mono">{o.price ? fmtPrice(o.price, priceDp(o.symbol)) : 'market'}</td>
                             <td className="td text-[11.5px] text-muted">{relTime(o.createdAt)}</td>
                             <td className="td text-right">
-                              <button onClick={() => cancelOrder(o.id)} className="rounded-md border border-white/10 px-2 py-1 text-[10.5px] font-medium text-muted transition hover:border-danger/40 hover:text-danger">Cancel</button>
+                              <span className="text-[10px] text-muted">Unavailable</span>
                             </td>
                           </tr>
                         ))}
@@ -179,17 +157,16 @@ export default function DashboardOverview() {
               {/* Short expiry */}
               {data.openBinary.length > 0 && (
                 <section className="panel p-4">
-                  <SectionHeader title="Active short-expiry contracts" subtitle="Settled server-side at expiry against a fresh quote" />
+                  <SectionHeader title="Historical short-expiry records" subtitle="Settlement is paused; these records are not processed by the current worker" />
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     {data.openBinary.map((t) => {
-                      const msLeft = new Date(t.expiresAt).getTime() - now;
                       return (
                         <div key={t.id} className="flex items-center justify-between rounded-xl border border-white/[0.07] bg-ink-900/70 px-3 py-2.5">
                           <div>
                             <p className="text-[12px] font-medium text-white">{t.symbol} <Badge tone={t.direction === 'CALL' ? 'green' : 'red'}>{t.direction}</Badge></p>
                             <p className="mt-1 text-[10.5px] text-muted">stake {fmtMoney(t.stake)} · entry {t.entryPrice} · <Badge tone="blue">{t.env}</Badge></p>
                           </div>
-                          <span className="value-mono text-[13px] font-semibold text-lime">{countdown(msLeft)}</span>
+                          <span className="text-[10px] text-muted">Settlement paused</span>
                         </div>
                       );
                     })}

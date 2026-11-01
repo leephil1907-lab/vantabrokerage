@@ -4,14 +4,14 @@ import { prisma } from '@/lib/db';
 import { clientIp, fail, json, parseBody, rateLimit } from '@/lib/http';
 import { hashToken } from '@/lib/auth';
 import { resetSchema } from '@/lib/validation';
+import { queueTemplateEmail } from '@/lib/email';
 import { AppError } from '@/lib/errors';
-import { notifyUserByEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
     await rateLimit(`reset:${clientIp(req)}`, 10, 3600);
     const body = await parseBody(req, resetSchema);
-    const record = await prisma.emailToken.findUnique({ where: { tokenHash: hashToken(body.token) } });
+    const record = await prisma.emailToken.findUnique({ where: { tokenHash: hashToken(body.token) }, include: { user: { include: { profile: true } } } });
     if (!record || record.type !== 'RESET_PASSWORD' || record.usedAt || record.expiresAt < new Date()) {
       throw new AppError('INVALID_TOKEN', 'This reset link is invalid or has expired.', 400);
     }
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       prisma.user.update({ where: { id: record.userId }, data: { passwordHash, failedAttempts: 0, lockedUntil: null } }),
       prisma.session.updateMany({ where: { userId: record.userId, revokedAt: null }, data: { revokedAt: new Date() } }),
     ]);
-    await notifyUserByEmail(record.userId, 'password_changed');
+    await queueTemplateEmail({ to: record.user.email, template: 'security_alert', variables: { firstName: record.user.profile?.firstName ?? undefined, event: 'Password changed', time: new Date().toISOString(), ipAddress: clientIp(req) } }).catch((error) => console.error('[password reset security email]', error));
     return json({ ok: true });
   } catch (err) {
     return fail(err);

@@ -11,9 +11,11 @@ const NAV = [
   { href: '/admin/kyc', label: 'Verification' },
   { href: '/admin/trading', label: 'Trading' },
   { href: '/admin/wallets', label: 'Wallet ops' },
+  { href: '/admin/deposit-addresses', label: 'Deposit addresses' },
   { href: '/admin/markets', label: 'Markets' },
   { href: '/admin/affiliates', label: 'Affiliates' },
   { href: '/admin/support', label: 'Support' },
+  { href: '/admin/email-templates', label: 'Email templates' },
   { href: '/admin/settings', label: 'Settings' },
   { href: '/admin/audit', label: 'Audit log' },
 ];

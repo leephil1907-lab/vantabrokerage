@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { MarketList, type MarketRow } from '@/components/market-selector';
-import { LiveTicket } from '@/components/terminal/live-ticket';
+import { OrderPanel } from '@/components/terminal/order-panel';
 import { useAccount } from '@/components/terminal/account-bar';
 import { TerminalWorkspace } from '@/components/terminal/workspace';
 import { ProChart } from '@/components/charts/pro-chart';
@@ -25,19 +25,19 @@ export type DeskKind = 'forex' | 'crypto' | 'futures';
 const CFG: Record<DeskKind, { title: string; sub: string; categories: string[]; defaultSymbol: string }> = {
   forex: {
     title: 'Forex & CFD desk',
-    sub: 'Explore forex markets and review the trading workspace. Prices are external references, not PRIMEVEST execution quotes.',
+    sub: 'Explore forex and CFD reference markets. Order execution is currently unavailable.',
     categories: ['FOREX', 'CFD'],
     defaultSymbol: 'EUR/USD',
   },
   crypto: {
     title: 'Crypto spot desk',
-    sub: 'Explore crypto markets and review the trading workspace. Prices are external references, not PRIMEVEST execution quotes.',
+    sub: 'Explore digital-asset reference markets. Order execution is currently unavailable.',
     categories: ['SPOT'],
     defaultSymbol: 'BTC/USDT',
   },
   futures: {
     title: 'Perpetual futures desk',
-    sub: 'Explore the futures workspace. Live execution and product availability have not been configured.',
+    sub: 'Review perpetual futures market information. Order execution is currently unavailable.',
     categories: ['FUTURES'],
     defaultSymbol: 'BTC/USDT-PERP',
   },
@@ -112,22 +112,6 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
     } catch (e) { push({ tone: 'error', title: 'Watchlist update failed', body: (e as Error).message }); }
   };
 
-  const closePosition = async (p: Position) => {
-    try {
-      const res = await apiFetch<{ pnl: number; exitPrice: number }>(`/api/trades/positions/${p.id}`, { method: 'DELETE' });
-      push({ tone: res.pnl >= 0 ? 'success' : 'info', title: `${p.symbol} closed`, body: `Exit ${fmtPrice(res.exitPrice, priceDp(p.symbol))} · realised ${fmtSigned(res.pnl)}` });
-      load(); reloadAccounts();
-    } catch (e) { push({ tone: 'error', title: 'Close failed', body: (e as Error).message }); }
-  };
-
-  const cancelOrder = async (id: string) => {
-    try {
-      await apiFetch(`/api/trades/orders/${id}`, { method: 'DELETE' });
-      load(); reloadAccounts();
-      push({ tone: 'success', title: 'Order cancelled', body: 'Reserved margin returned to available balance.' });
-    } catch (e) { push({ tone: 'error', title: 'Cancel failed', body: (e as Error).message }); }
-  };
-
   const deskPositions = positions.filter((p) => cfg.categories.includes(markets.find((m) => m.symbol === p.symbol)?.category ?? '') || positions.length <= 8);
 
   const left = (
@@ -158,7 +142,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
         />
         <div className="max-h-[220px] overflow-auto scroll-thin">
           {tab === 'positions' && (deskPositions.length === 0 ? (
-            <EmptyState title="No open positions" body="Your positions will appear here when live trading is available." />
+            <EmptyState title="No open positions" body="Trading is unavailable. Existing records, if any, are retained for reference." />
           ) : (
             <table className="w-full min-w-[780px]">
               <thead><tr><th className="th">Market</th><th className="th">Side</th><th className="th text-right">Qty</th><th className="th text-right">Entry</th><th className="th text-right">Mark</th><th className="th text-right">Margin</th><th className="th text-right">P/L</th><th className="th text-right">Liq.</th><th className="th" /></tr></thead>
@@ -175,14 +159,14 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
                     <td className="td text-right value-mono">{fmtMoney(p.initialMargin)}</td>
                     <td className={`td text-right value-mono ${p.unrealizedPnl >= 0 ? 'text-emerald' : 'text-danger'}`}>{fmtSigned(p.unrealizedPnl)}</td>
                     <td className="td text-right value-mono text-muted">{p.liquidationPrice ? fmtPrice(p.liquidationPrice, priceDp(p.symbol)) : '—'}</td>
-                    <td className="td text-right"><button onClick={() => closePosition(p)} className="rounded-md border border-white/10 px-2 py-1 text-[10.5px] text-muted transition-colors hover:border-danger/40 hover:text-danger">Close</button></td>
+                    <td className="td text-right"><span className="text-[10px] text-muted">Unavailable</span></td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ))}
           {tab === 'orders' && (orders.length === 0 ? (
-            <EmptyState title="No resting orders" body="Limit and stop orders remain here until filled, expired or cancelled." />
+            <EmptyState title="No resting orders" body="No recorded open orders. New orders and cancellations are unavailable." />
           ) : (
             <table className="w-full min-w-[620px]">
               <thead><tr><th className="th">Market</th><th className="th">Side</th><th className="th">Type</th><th className="th text-right">Qty</th><th className="th text-right">Price</th><th className="th">Placed</th><th className="th" /></tr></thead>
@@ -195,7 +179,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
                     <td className="td text-right value-mono">{fmtQty(o.qty, 4)}</td>
                     <td className="td text-right value-mono">{o.price ? fmtPrice(o.price, priceDp(o.symbol)) : 'market'}</td>
                     <td className="td text-[11.5px] text-muted">{relTime(o.createdAt)}</td>
-                    <td className="td text-right"><button onClick={() => cancelOrder(o.id)} className="rounded-md border border-white/10 px-2 py-1 text-[10.5px] text-muted transition-colors hover:border-danger/40 hover:text-danger">Cancel</button></td>
+                    <td className="td text-right"><span className="text-[10px] text-muted">Unavailable</span></td>
                   </tr>
                 ))}
               </tbody>
@@ -247,17 +231,17 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
               {quote?.stale && <span className="ml-1 text-[9px] text-amber-300">DELAYED</span>}
             </span>
           </div>
-          <LiveTicket symbol={symbol} />
+          <OrderPanel market={meta} accountId={accountId} accountType={active.type} available={active.available} quote={quote} onPlaced={() => { load(); reloadAccounts(); }} />
           <div className="mt-4 rounded-xl border border-white/[0.06] bg-ink-950/40">
             <div className="border-b border-white/[0.06] px-3 py-2"><p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">PRIMEVEST order book</p></div>
-            <div className="px-3 py-5 text-center"><div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-muted">≋</div><p className="mt-3 text-xs font-medium text-white">Order book unavailable</p><p className="mt-1 text-[11px] leading-relaxed text-muted">No internal matching engine is connected. No order depth is being displayed.</p></div>
+            <div className="px-3 py-5 text-center"><div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-muted">≋</div><p className="mt-3 text-xs font-medium text-white">Order book unavailable</p><p className="mt-1 text-[11px] leading-relaxed text-muted">No executable order book or external liquidity is connected. Trading is unavailable.</p></div>
           </div>
           <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40">
             <p className="border-b border-white/[0.06] px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Reference market statistics</p>
             <SessionStats symbol={symbol} quote={quote} />
           </div>
           <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40 p-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Recent trades</p><p className="mt-3 text-[11px] leading-relaxed text-muted">PRIMEVEST trade history will appear when matching is available.</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Recent trades</p><p className="mt-3 text-[11px] leading-relaxed text-muted">Recorded trade history, if any, is listed in the Fills tab. New execution is unavailable.</p>
           </div>
         </>
       ) : (
@@ -273,7 +257,7 @@ export function TerminalDesk({ kind }: { kind: DeskKind }) {
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-[.22em] text-lime">Trading / Workspace</p>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-[26px] font-semibold tracking-tight text-white">{cfg.title}</h1>
-            <Badge tone="amber">Live trading unavailable</Badge>
+            <Badge tone="amber">Trading unavailable</Badge>
           </div>
           <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-muted">{cfg.sub}</p>
         </div>

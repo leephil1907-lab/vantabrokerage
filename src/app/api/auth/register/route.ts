@@ -6,7 +6,7 @@ import { clientIp, fail, json, parseBody, rateLimit } from '@/lib/http';
 import { registerSchema } from '@/lib/validation';
 import { createSession, hashToken } from '@/lib/auth';
 import { ensureAccounts } from '@/lib/accounts';
-import { sendEventEmail, notifyUserByEmail, emailConfigured } from '@/lib/email';
+import { queueTemplateEmail, emailConfigured } from '@/lib/email';
 import { AppError } from '@/lib/errors';
 
 function makeReferralCode() {
@@ -61,9 +61,19 @@ export async function POST(req: NextRequest) {
     await prisma.emailToken.create({
       data: { userId: user.id, type: 'VERIFY_EMAIL', tokenHash: hashToken(token), expiresAt: new Date(Date.now() + 86400_000) },
     });
-    const delivery = await sendEventEmail(user.email, 'verify_email', { firstName: body.firstName, token })
-      .catch(() => ({ delivered: false as const }));
-    await notifyUserByEmail(user.id, 'welcome');
+    const link = `${process.env.APP_URL ?? 'http://localhost:3000'}/verify-email?token=${token}`;
+    const [welcomeDelivery, delivery] = await Promise.all([
+      queueTemplateEmail({
+        to: user.email,
+        template: 'welcome',
+        variables: { firstName: body.firstName, actionUrl: process.env.APP_URL ?? 'http://localhost:3000' },
+      }),
+      queueTemplateEmail({
+        to: user.email,
+        template: 'verify_email',
+        variables: { firstName: body.firstName, actionUrl: link },
+      }),
+    ]);
 
     await createSession(user.id, { ip, userAgent: req.headers.get('user-agent') ?? undefined });
 
@@ -72,6 +82,7 @@ export async function POST(req: NextRequest) {
       emailDelivery: {
         configured: emailConfigured(),
         delivered: delivery.delivered,
+        welcomeDelivered: welcomeDelivery.delivered,
       },
     }, { status: 201 });
   } catch (err) {

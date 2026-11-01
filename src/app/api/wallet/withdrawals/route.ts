@@ -9,7 +9,7 @@ import { getAccountForUser } from '@/lib/accounts';
 import { lockFunds, round, d } from '@/lib/ledger';
 import { AppError } from '@/lib/errors';
 import { kycGate } from '@/lib/kyc';
-import { notifyUserByEmail } from '@/lib/email';
+import { queueTemplateEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -93,7 +93,9 @@ export async function POST(req: NextRequest) {
       return created;
     });
 
-    await notifyUserByEmail(user.id, 'withdrawal_requested');
+    const profile = await prisma.profile.findUnique({ where: { userId: user.id }, select: { firstName: true } });
+    await queueTemplateEmail({ to: user.email, template: 'withdrawal_submitted', variables: { firstName: profile?.firstName ?? undefined, amount: amount.toFixed(8), asset: withdrawal.asset, network: withdrawal.network ?? undefined, reference: withdrawal.id } }).catch((error) => console.error('[withdrawal submission email]', error));
+
     return json({
       withdrawal: { id: withdrawal.id, status: withdrawal.status, amount, fee, netAmount: net, address: withdrawal.address, network: withdrawal.network },
       note: process.env.CUSTODY_PROVIDER ? 'Queued for authorisation and processing.' : 'Queued for finance desk review. Automated payout requires a configured custody provider.',

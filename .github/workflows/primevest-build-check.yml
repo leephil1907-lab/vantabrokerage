@@ -1,0 +1,41 @@
+name: PRIMEVEST build and type checks
+
+on:
+  push:
+    branches:
+      - feat/internal-paper-trading-db-hardening
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: postgresql://ci:ci@db.primevest.invalid:5432/primevest?sslmode=require
+      DIRECT_URL: postgresql://ci:ci@db.primevest.invalid:5432/primevest?sslmode=require
+      SESSION_SECRET: ci-only-placeholder-secret-not-used-for-authentication-000000000000
+      APP_URL: https://primevest-preview.invalid
+      PAPER_STARTING_BALANCE: "0"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Set up Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Generate Prisma client
+        run: npx prisma generate
+      - name: TypeScript check
+        run: npx tsc --noEmit
+      - name: Production Next.js build
+        run: npm run vercel-build

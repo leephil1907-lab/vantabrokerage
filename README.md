@@ -1,17 +1,21 @@
 # PRIMEVEST
 
-Next.js forex and crypto market website and account workspace.
+A multi-market account workspace for market information, account management and support.
 
-## Vercel review deployment
+## Current operating state
 
-See **[the protected Vercel review runbook](docs/VERCEL-REVIEW-DEPLOYMENT.md)** for the database, environment variables, market-only initialization and verification steps. The Vercel build validates configuration and generates Prisma Client; database migrations and review market setup are separate, deliberate steps.
+PRIMEVEST currently provides market discovery and provider-sourced reference prices. **Order execution is unavailable for every account type.** New registrations create one empty LIVE account; no PAPER account or simulated starting balance is provisioned. Historical PAPER accounts, balances and trading records are preserved in the database but are not exposed through normal account selection or processed by the current worker.
 
-This repository is **not ready for public real-money trading or deposits**. Live execution and customer deposit requests are disabled, and there is no internal matching engine or connected custody/payment system. Some legacy pages and APIs still provide simulated functionality. See [deployment readiness](docs/DEPLOYMENT-READINESS.md) and [market data notes](docs/CRYPTO-MARKET-DATA.md).
+Customer deposits and withdrawals are not available as payment or custody services. Do not send funds or cryptocurrency. No external broker, exchange execution venue or custody provider is connected.
+
+See [account transition and execution safeguards](docs/ACCOUNT-TRANSITION.md), [deployment readiness](docs/DEPLOYMENT-READINESS.md), [PostgreSQL operations](docs/INTERNAL-TRADING-AND-DATABASE.md), [market data notes](docs/CRYPTO-MARKET-DATA.md), and the [live-site assessment](docs/LIVE-SITE-ASSESSMENT.md).
 
 ## Transactional email
 
-See [branded email setup and preview](docs/TRANSACTIONAL-EMAIL.md). Delivery requires an independently configured email provider and verified sender.
+The application includes branded HTML and plain-text templates for account, security, funding, withdrawal, KYC, trade and support notifications. Configure a verified sender and provider as described in [transactional email setup](docs/TRANSACTIONAL-EMAIL.md). Provider acceptance is not proof of inbox delivery.
 
 ## Local development
 
-Use an isolated PostgreSQL database and configure `.env` from `.env.example`. The development seed contains bootstrap staff accounts and simulated configuration; do not run it on a hosted environment or a database containing real data. The test scripts create and modify data and must only run against a disposable database and server.
+Use an isolated PostgreSQL database and configure `.env` from `.env.example`. For managed PostgreSQL, use [`.env.database.example`](.env.database.example) as the reference for pooled runtime `DATABASE_URL` and direct migration `DIRECT_URL`. For local development, both may point to the same database.
+
+The development seed contains bootstrap staff accounts and simulated configuration; do not run it on a hosted environment or a database containing real data. Test scripts that create or modify records must only run against the disposable database explicitly required by each script.

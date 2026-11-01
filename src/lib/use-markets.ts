@@ -15,7 +15,7 @@ export function useMarkets(category?: string, symbols?: string[]) {
       const params = new URLSearchParams();
       if (category) params.set('category', category);
       if (symbols?.length) params.set('symbols', symbols.join(','));
-      const res = await fetch(`/api/markets?${params.toString()}`, { cache: 'no-store' });
+      const res = await fetch(`/api/markets/display?${params.toString()}`, { cache: 'no-store' });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error?.message ?? 'Market feed unavailable');
       attempts.current = 0;
