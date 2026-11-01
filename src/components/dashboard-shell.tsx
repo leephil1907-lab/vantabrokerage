@@ -17,7 +17,9 @@ const NAV: { group: string; items: { href: string; label: string; icon: string; 
     group: 'Trade',
     items: [
       { href: '/dashboard', label: 'Overview', icon: 'grid' },
-      { href: '/dashboard/trade', label: 'All-asset workspace', icon: 'chart' },
+      { href: '/dashboard/live-trading', label: 'Live Trading', icon: 'chart' },
+      { href: '/dashboard/demo-trading', label: 'Demo Trading', icon: 'activity' },
+      { href: '/dashboard/trade', label: 'All Markets', icon: 'globe' },
       { href: '/dashboard/forex', label: 'Forex & CFDs', icon: 'chart' },
       { href: '/dashboard/short-expiry', label: 'Short-Expiry', icon: 'clock' },
       { href: '/dashboard/crypto', label: 'Crypto Spot', icon: 'coins' },
@@ -241,7 +243,7 @@ export function DashboardShell({
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 5h12M2 11h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
             </button>
             <div className="hidden items-center gap-2 text-[12px] text-muted sm:flex">
-              <span className="text-white/50">Workspace</span><span className="text-white/20">/</span><span className="font-medium text-white">{activeItem?.label ?? 'Dashboard'}</span>
+              <span className="text-white/50">Trading</span><span className="text-white/20">/</span><span className="font-medium text-white">{activeItem?.label ?? 'Dashboard'}</span>
             </div>
             <div className="min-w-0 sm:hidden">
               <p className="truncate text-[13px] font-semibold text-white">{activeItem?.label ?? 'Dashboard'}</p>
