@@ -82,7 +82,7 @@ export function AccountSwitcher({
             onClick={() => onSelect(a.id)}
             className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition ${accountId === a.id ? 'bg-white/10 text-white' : 'text-muted hover:text-white'}`}
           >
-            {a.type}
+            {a.type === 'PAPER' ? 'Demo' : 'Live'}
           </button>
         ))}
       </div>
