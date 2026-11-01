@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { MarketList, type MarketRow } from '@/components/market-selector';
 import { LiveTicket } from '@/components/terminal/live-ticket';
 import { AccountSwitcher, useAccount } from '@/components/terminal/account-bar';
-import { TerminalWorkspace } from '@/components/terminal/workspace';
+import { Terminaltrading platform } from '@/components/terminal/trading platform';
 import { ProChart } from '@/components/charts/pro-chart';
 import { TradingViewPanel } from '@/components/terminal/tradingview-panel';
 import { VenueDepth } from '@/components/terminal/venue-depth';
@@ -29,19 +29,19 @@ const CFG: Record<DeskKind, { title: string; sub: string; categories: string[]; 
   all: { title:'Multi-asset trading', sub:'Explore configured forex, CFDs, crypto spot and futures alongside account positions and orders. Reference charts are not execution quotes.', categories:['FOREX','CFD','SPOT','FUTURES'], defaultSymbol:'BTC/USDT' },
   forex: {
     title: 'Forex & CFD desk',
-    sub: 'Explore forex markets and review the trading workspace. Prices are external references, not PRIMEVEST execution quotes.',
+    sub: 'Explore forex markets and review the trading trading platform. Prices are external references, not PRIMEVEST execution quotes.',
     categories: ['FOREX', 'CFD'],
     defaultSymbol: 'EUR/USD',
   },
   crypto: {
     title: 'Crypto spot desk',
-    sub: 'Explore crypto markets and review the trading workspace. Prices are external references, not PRIMEVEST execution quotes.',
+    sub: 'Explore crypto markets and review the trading trading platform. Prices are external references, not PRIMEVEST execution quotes.',
     categories: ['SPOT'],
     defaultSymbol: 'BTC/USDT',
   },
   futures: {
     title: 'Perpetual futures desk',
-    sub: 'Explore the futures workspace. Live execution and product availability have not been configured.',
+    sub: 'Explore the futures trading platform. Live execution and product availability have not been configured.',
     categories: ['FUTURES'],
     defaultSymbol: 'BTC/USDT-PERP',
   },
@@ -319,7 +319,7 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
       )}
 
       {kind === 'all' && <MarketSessions compact />}
-      <TerminalWorkspace storageKey={`desk:${kind}`} left={left} center={center} right={right} height={760} />
+      <Terminaltrading platform storageKey={`desk:${kind}`} left={left} center={center} right={right} height={760} />
     </div>
   );
 }
