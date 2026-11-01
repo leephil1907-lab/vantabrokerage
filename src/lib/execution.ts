@@ -195,7 +195,7 @@ async function settleFee(tx: any, walletId: string, fee: number, orderId: string
   await postLedger(tx, { type: 'TRADE_FEE', walletId, amount: fee, direction: 'DEBIT', description, reference: `fee:${orderId}` });
 }
 
-async function settleSpotBuy(tx: any, walletId: string, pair: TradingPair, qty: number, price: number, notional: number, fee: number, orderId: string) {
+async function settleSpotBuy(tx: any, walletId: string, pair: TradingPair, qty: number, price: number, notional: number, fee: number, orderId: string, fromLocked = false) {
   await postLedger(tx, {
     type: 'TRADE_PNL',
     walletId,
@@ -204,6 +204,7 @@ async function settleSpotBuy(tx: any, walletId: string, pair: TradingPair, qty: 
     description: `Bought ${qty} ${pair.baseAsset} @ ${price}`,
     reference: `spot-buy:${orderId}`,
     metadata: { symbol: pair.symbol, qty, price },
+    ...(fromLocked ? { from: 'locked' as const } : {}),
   });
   const current = await tx.holding.findUnique({ where: { walletId_asset: { walletId, asset: pair.baseAsset } } });
   await tx.holding.upsert({
@@ -424,14 +425,17 @@ export async function matchRestingOrders(symbol?: string) {
           await settleSpotSell(tx, wallet.id, pair, d(order.qty), fillPrice, notional, fee, order.id);
         } else if (!derivative && side === 'BUY') {
           const reserved = d(order.reserved);
-          await unlockFunds(tx, wallet.id, reserved);
-          await postLedger(tx, { type: 'TRADE_PNL', walletId: wallet.id, amount: round(notional + fee, 10), direction: 'DEBIT', description: `Bought ${order.qty} ${pair.baseAsset}`, reference: `fill:${order.id}` });
-          const h = await tx.holding.findUnique({ where: { walletId_asset: { walletId: wallet.id, asset: pair.baseAsset } } });
-          await tx.holding.upsert({
-            where: { walletId_asset: { walletId: wallet.id, asset: pair.baseAsset } },
-            create: { walletId: wallet.id, asset: pair.baseAsset, amount: String(d(order.qty)) },
-            update: { amount: money(d(h?.amount) + d(order.qty)) },
-          });
+          const needed = round(notional + fee, 10);
+          if (needed > reserved) {
+            try { await lockFunds(tx, wallet.id, round(needed - reserved, 10)); }
+            catch {
+              await tx.order.update({ where: { id: order.id }, data: { status: 'REJECTED', rejectReason: 'Insufficient balance at fill time' } });
+              return;
+            }
+          } else if (reserved > needed) {
+            await unlockFunds(tx, wallet.id, round(reserved - needed, 10));
+          }
+          await settleSpotBuy(tx, wallet.id, pair, d(order.qty), fillPrice, notional, fee, order.id, true);
         } else {
           const margin = round(notional / order.leverage, 10);
           const reserved = d(order.reserved);
