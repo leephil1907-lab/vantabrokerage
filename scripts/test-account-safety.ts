@@ -31,12 +31,14 @@ async function main() {
   const order = await prisma.order.create({ data: { accountId: paper.id, pairId: pair.id, symbol: pair.symbol, category: pair.category, side: 'BUY', type: 'LIMIT', qty: '1', price: '0.00001', reserved: '100' } });
   const binary = await prisma.binaryTrade.create({ data: { accountId: paper.id, pairId: binaryPair.id, symbol: binaryPair.symbol, direction: 'CALL', stake: '5', payoutRate: '0.85', entryPrice: '100', expiresAt: new Date(Date.now()-60000), entryQuoteTs: new Date(), priceFeed: 'fixture', env: 'PAPER' } });
   const accountList = await request('/api/accounts');
-  assert.deepEqual(accountList.body.accounts.map((a: { id: string }) => a.id), [live.id]);
+  assert.deepEqual(accountList.body.accounts.map((a: { id: string }) => a.id).sort(), [live.id, paper.id].sort());
   const overview = await request('/api/overview');
   assert.equal(overview.status, 200);
-  assert.equal(overview.body.accounts.length, 1);
+  assert.equal(overview.body.accounts.length, 2);
   assert.equal(overview.body.activeAccount.id, live.id);
-  assert.equal((await request(`/api/overview?accountId=${paper.id}`)).status, 404, 'explicit historical account does not silently fall back');
+  const paperOverview = await request(`/api/overview?accountId=${paper.id}`);
+  assert.equal(paperOverview.status, 200, 'explicit practice account is available in the workspace');
+  assert.equal(paperOverview.body.activeAccount.id, paper.id);
   assert.equal((await request(`/api/binary/trades?accountId=${paper.id}`)).status, 404);
   const countsBefore = { orders: await prisma.order.count(), executions: await prisma.execution.count(), binaries: await prisma.binaryTrade.count(), deposits: await prisma.deposit.count() };
   for (const account of [live]) {
