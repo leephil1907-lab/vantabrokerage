@@ -390,7 +390,7 @@ export async function matchRestingOrders(symbol?: string) {
       const pair = await prisma.tradingPair.findUnique({ where: { id: order.pairId } });
       if (!pair) continue;
       const quote = await getQuote(order.pairId, 2000);
-      if (order.account.type === 'LIVE') continue;
+      if (order.account.type !== 'PAPER' || quote.stale || Date.now() - new Date(quote.fetchedAt).getTime() > 15_000) continue;
       const side = order.side;
       const price = d(order.price);
       const q = side === 'BUY' ? quote.ask : quote.bid;
