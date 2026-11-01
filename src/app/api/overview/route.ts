@@ -13,10 +13,10 @@ export async function GET(req: NextRequest) {
     const user = await requireUser();
     await ensureAccounts(user.id);
     const url = new URL(req.url);
-    const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined);
+    const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined, { allowPaper: true });
 
     const [accounts, positions, orders, entries, watch, notifCount, dbUser, binaryOpen] = await Promise.all([
-      prisma.account.findMany({ where: { userId: user.id, type: 'LIVE' }, include: { wallet: true } }),
+      prisma.account.findMany({ where: { userId: user.id, type: { in: ['LIVE', 'PAPER'] } }, include: { wallet: true } }),
       prisma.position.findMany({ where: { accountId: account.id, status: 'OPEN' }, orderBy: { createdAt: 'desc' }, take: 20 }),
       prisma.order.findMany({ where: { accountId: account.id, status: 'OPEN' }, orderBy: { createdAt: 'desc' }, take: 20 }),
       prisma.ledgerEntry.findMany({ where: { wallet: { accountId: account.id } }, include: { transaction: true }, orderBy: { createdAt: 'desc' }, take: 10 }),
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
       })),
       markets: markets.slice(0, 14),
       unreadNotifications: notifCount,
-      executionMode: 'unavailable',
+      executionMode: account.type === 'PAPER' ? 'paper' : 'unavailable',
     }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (err) {
     return fail(err);
