@@ -111,3 +111,14 @@ An optional hybrid route can be considered later, after the internal execution l
 - A read-only query found no `public._prisma_migrations` table in the production database. The live schema exists, but migration history is not currently verifiable through Prisma's migration ledger. Do not run `prisma migrate deploy`, `prisma migrate reset`, or a schema push against production until the existing schema has been reconciled with version-controlled migration SQL and a safe baseline strategy is reviewed.
 - No production data, schema, credentials or connection strings were modified or exposed during this verification.
 - Vercel's configured database environment keys are scoped to Production; Preview does not currently have an isolated database configuration. Configure a separate Neon preview branch and preview-only secrets before relying on Preview deployments for migration or end-to-end testing.
+
+
+## Mobile authentication UX update — 1 November 2026
+
+- Updated `src/app/(auth)/auth.css` without changing authentication APIs, server routes, session handling, validation rules, or database behavior.
+- The mobile login and registration views now retain a compact cinematic brand-image panel instead of hiding the entire visual identity below 900px.
+- Refined mobile header spacing, form width, typography, touch targets, password visibility control, consent checkbox sizing, registration field stacking, and safe-area bottom spacing.
+- Kept the form vertically scrollable on small devices; long registration forms are not constrained to a fixed-height viewport.
+- Preserved both light and dark themes and reduced-motion preferences.
+- Verified after pulling the branch update into an isolated sandbox: `npm run test:auth` passes, including mobile/desktop layouts, signup, validation, password visibility, email verification, sign-in, two-factor, password reset, safe redirects and single-use reset tokens.
+- `npm run vercel-build` passes after the update (Next.js 15.5.28; 51 routes generated). This is a production build verification only, not a claim that the UI is a static website or that real trading is enabled.
