@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await requireUser();
     const url = new URL(req.url);
-    const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined);
+    const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined, { allowPaper: true });
     await revaluePositions(account.id);
     const wallet = await prisma.wallet.findUnique({ where: { accountId: account.id }, include: { holdings: true } });
     const positions = await prisma.position.findMany({ where: { accountId: account.id, status: 'OPEN' } });
