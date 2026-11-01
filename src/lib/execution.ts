@@ -62,10 +62,10 @@ export async function loadAccount(userId: string, accountId: string) {
   return account;
 }
 
-function assertLiveAllowed(_account: Account) {
-  // No real execution venue or matching engine has been integrated. Never create
-  // simulated fills or real orders while this safeguard is in place.
-  throw new AppError('LIVE_EXECUTION_UNAVAILABLE', 'Order execution is currently unavailable.', 409);
+function assertLiveAllowed(account: Account) {
+  // Paper execution is isolated to virtual accounts. Live accounts remain hard-blocked
+  // until a funded counterparty, executable liquidity and settlement controls exist.
+  if (account.type === 'LIVE') throw new AppError('LIVE_EXECUTION_UNAVAILABLE', 'Live trading is not enabled on this account.', 409);
 }
 
 export async function placeOrder(input: PlaceOrderInput) {
@@ -80,6 +80,7 @@ export async function placeOrder(input: PlaceOrderInput) {
   const leverage = Math.max(1, Math.min(Number(input.leverage ?? 1), pair.maxLeverage, account.leverage));
   const derivative = isDerivative(pair);
   const quote = await getQuote(pair.id, 3000);
+  if (quote.stale || Date.now() - new Date(quote.fetchedAt).getTime() > 15_000) throw new AppError('MARKET_DATA_STALE', 'A fresh reference quote is required for practice execution. Try again when market data is available.', 503);
   const isMarket = input.type === 'MARKET';
 
 
@@ -150,7 +151,7 @@ export async function placeOrder(input: PlaceOrderInput) {
 
     // ── Immediate execution at the server-side quoted price ──
     await tx.execution.create({
-      data: { orderId: order.id, qty: String(qty), price: String(round(fillPrice, 8)), fee: money(fee), venue: 'vanta-internal', quoteTs: new Date(quote.fetchedAt) },
+      data: { orderId: order.id, qty: String(qty), price: String(round(fillPrice, 8)), fee: money(fee), venue: 'paper-simulation', quoteTs: new Date(quote.fetchedAt) },
     });
 
     let positionId: string | null = null;
@@ -186,7 +187,7 @@ export async function placeOrder(input: PlaceOrderInput) {
     return { order: filled, filled: true, position: positionId };
   });
 
-  return { ...result, quote, pair: { symbol: pair.symbol, category: pair.category } };
+  return { ...result, quote, accountType: account.type, executionMode: 'paper' as const, pair: { symbol: pair.symbol, category: pair.category } };
 }
 
 async function settleFee(tx: any, walletId: string, fee: number, orderId: string, description: string) {
