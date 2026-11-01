@@ -51,11 +51,15 @@ async function main() {
     update: { bid: '1.09990000', ask: '1.10010000', last: '1.10000000', source: 'isolated-test-fixture', fetchedAt: now },
   });
 
-  const blockedLive = await request('/api/trades/orders', 'POST', {
+  // Policy since dealing unblock: LIVE orders are accepted but execute as
+  // internal (simulated) dealing with provenance — real custody stays blocked
+  // (deposits disabled, virtual capital labelled; covered by test-account-safety).
+  const liveInternal = await request('/api/trades/orders', 'POST', {
     accountId: liveId, symbol: pair.symbol, side: 'BUY', type: 'MARKET', qty: 100, leverage: 1,
   });
-  assert.equal(blockedLive.status, 409);
-  assert.equal(blockedLive.body.error.code, 'LIVE_EXECUTION_UNAVAILABLE');
+  assert.equal(liveInternal.status, 201);
+  assert.equal(liveInternal.body.accountType, 'LIVE');
+  assert.equal(liveInternal.body.executionMode, 'internal');
 
   const market = await request('/api/trades/orders', 'POST', {
     accountId: paperId, symbol: pair.symbol, side: 'BUY', type: 'MARKET', qty: 1000, leverage: 10,
@@ -144,7 +148,7 @@ async function main() {
   assert.ok(capital);
   assert.equal(capital.entries.length, 2);
   assert.equal(capital.entries[0].amount.toString(), capital.entries[1].amount.toString());
-  console.log('PASS: isolated paper account provisioning, virtual capital, live-account block, market fills, limit matching, persisted executions, position netting, TP/SL updates, cancellation, close and balanced ledger.');
+  console.log('PASS: isolated paper account provisioning, virtual capital, internal live dealing (simulated, labelled), market fills, limit matching, persisted executions, position netting, TP/SL updates, cancellation, close and balanced ledger.');
 }
 
 main().catch(err => { console.error(err); process.exitCode = 1; }).finally(() => prisma.$disconnect());

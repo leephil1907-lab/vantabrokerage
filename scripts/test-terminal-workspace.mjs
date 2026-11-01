@@ -22,23 +22,23 @@ page.on('pageerror', error => errors.push(error.message));
 
 try {
   await page.goto(`${base}/dashboard/trade?symbol=EUR%2FUSD`, { waitUntil: 'domcontentloaded' });
-  await page.locator('p:visible').filter({ hasText: 'Order ticket' }).first().waitFor({ timeout: 20000 });
-  await page.getByRole('button', { name: 'Start practice account' }).click();
-  await page.locator('span:visible').filter({ hasText: 'Paper · simulated' }).first().waitFor({ timeout: 10000 });
+  await page.getByRole('button', { name: 'Open Demo Account' }).first().waitFor({ timeout: 20000 });
+  await page.getByRole('button', { name: 'Open Demo Account' }).first().click();
+  await page.locator('span:visible').filter({ hasText: 'Demo · simulated' }).first().waitFor({ timeout: 10000 });
   await page.locator('label:visible').filter({ hasText: 'Quantity' }).locator('input').fill('100');
-  await page.locator('button:visible').filter({ hasText: /Place practice buy order/i }).click();
-  await page.getByRole('status').filter({ hasText: 'Practice order filled' }).waitFor({ timeout: 15000 });
-  await page.getByText('Practice session', { exact: true }).last().waitFor();
+  await page.locator('button:visible').filter({ hasText: /Place demo buy order/i }).click();
+  await page.getByRole('status').filter({ hasText: 'Demo order filled' }).waitFor({ timeout: 15000 });
+  await page.getByText('Demo Trading', { exact: true }).last().waitFor();
   const mobileWidth = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth }));
   assert.ok(mobileWidth.document <= mobileWidth.viewport + 4, `mobile page overflows horizontally: ${JSON.stringify(mobileWidth)}`);
 
   await page.setViewportSize({ width: 1440, height: 960 });
-  await page.locator('p:visible').filter({ hasText: 'Order ticket' }).first().waitFor();
-  await page.locator('span:visible').filter({ hasText: 'Paper · simulated' }).first().waitFor();
+  await page.locator('p:visible').filter({ hasText: 'Place Trade' }).first().waitFor();
+  await page.locator('span:visible').filter({ hasText: 'Demo · simulated' }).first().waitFor();
   const desktopWidth = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth }));
   assert.ok(desktopWidth.document <= desktopWidth.viewport + 4, `desktop page overflows horizontally: ${JSON.stringify(desktopWidth)}`);
   assert.deepEqual(errors, [], `browser runtime errors: ${errors.join('; ')}`);
-  console.log('PASS: authenticated terminal renders on mobile and desktop; practice account can be opened from the UI; order ticket submits a persisted practice order; no browser runtime errors or horizontal page overflow.');
+  console.log('PASS: authenticated terminal renders on mobile and desktop; demo account can be opened from the UI; order ticket submits a persisted demo order; no browser runtime errors or horizontal page overflow.');
 } finally {
   await browser.close();
 }
