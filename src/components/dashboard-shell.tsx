@@ -162,7 +162,8 @@ export function DashboardShell({
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex h-16 items-center justify-between border-b border-white/[0.07] px-4">
+        <div className="relative flex h-16 items-center justify-between border-b border-white/[0.07] px-4">
+          <span aria-hidden className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-gold/50 via-gold/10 to-transparent" />
           <Logo />
           <button className="rounded-md p-1.5 text-muted lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu">
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
@@ -178,11 +179,12 @@ export function DashboardShell({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`relative mb-0.5 flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[12.5px] font-medium transition-colors ${
-                      active ? 'text-lime' : 'text-muted hover:bg-white/[0.04] hover:text-white'
+                    className={`relative mb-0.5 flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[12.5px] font-medium transition-all duration-200 ease-premium ${
+                      active ? 'text-lime' : 'text-muted hover:translate-x-0.5 hover:bg-white/[0.04] hover:text-white'
                     }`}
                   >
                     {active && <MotionIndicator layoutId="sidebar-active" className="absolute inset-0 -z-10 rounded-lg bg-lime/10" />}
+                    {active && <MotionIndicator layoutId="sidebar-rail" className="absolute -left-2 top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-full bg-lime shadow-[0_0_10px_rgba(223,192,136,0.55)]" />}
                     <Icon name={item.icon} className={`h-[15px] w-[15px] ${active ? 'text-lime' : ''}`} />
                     {item.label}
                     {item.href === '/dashboard/notifications' && unread > 0 && (

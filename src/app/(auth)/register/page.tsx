@@ -1,5 +1,6 @@
 'use client';
 
+import { MaskLine } from '@/components/motion/primitives';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
@@ -32,7 +33,7 @@ function RegisterForm() {
 
   return <div>
     <p className="auth-form-kicker">Start your journey</p>
-    <h1 className="auth-title">Create your account.</h1>
+    <h1 className="auth-title"><MaskLine>Create your account.</MaskLine></h1>
     <p className="auth-subtitle">A considered space for your account and the markets you follow.</p>
     <form onSubmit={submit} className="auth-form">
       <div className="auth-row">

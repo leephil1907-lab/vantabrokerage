@@ -1,5 +1,6 @@
 'use client';
 
+import { MaskLine } from '@/components/motion/primitives';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
@@ -19,7 +20,7 @@ function Verify() {
     return () => { active = false; };
   }, [token]);
   return <div>
-    <p className="auth-form-kicker">Account security</p><h1 className="auth-title">Email verification.</h1>
+    <p className="auth-form-kicker">Account security</p><h1 className="auth-title"><MaskLine>Email verification.</MaskLine></h1>
     <div className="auth-form" aria-live="polite">
       {state === 'working' && <p className="auth-subtitle">Verifying your address…</p>}
       {state === 'ok' && <div role="status" className="rounded-xl border border-emerald/25 bg-emerald/10 p-4 text-sm leading-relaxed text-white/80">Your email address is verified.</div>}

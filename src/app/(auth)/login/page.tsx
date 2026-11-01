@@ -1,5 +1,6 @@
 'use client';
 
+import { MaskLine } from '@/components/motion/primitives';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
@@ -42,7 +43,7 @@ function LoginForm() {
 
   return <div>
     <p className="auth-form-kicker">Your PRIMEVEST account</p>
-    <h1 className="auth-title">Welcome back.</h1>
+    <h1 className="auth-title"><MaskLine>Welcome back.</MaskLine></h1>
     <p className="auth-subtitle">Sign in to access your account and market workspace.</p>
     <form onSubmit={submit} className="auth-form">
       <AuthField id="login-email" label="Email address" required type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} placeholder="you@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />

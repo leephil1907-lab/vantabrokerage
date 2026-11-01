@@ -28,7 +28,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
   );
 }
 
-/** Thin lime bar under the header that animates on each route change. */
+/** Thin champagne-gold bar under the header that animates on each route change. */
 export function RouteProgress() {
   const pathname = usePathname();
   const [key, setKey] = useState(0);
@@ -37,7 +37,7 @@ export function RouteProgress() {
     <div className="route-progress pointer-events-none fixed inset-x-0 top-0 z-[100] h-[2px]">
       <motion.div
         key={key}
-        className="h-full bg-gradient-to-r from-lime via-emerald to-lime"
+        className="h-full bg-gradient-to-r from-gold/50 via-gold to-gold/50"
         initial={{ width: '0%', opacity: 1 }}
         animate={{ width: '100%', opacity: [1, 1, 0] }}
         transition={{ duration: 0.7, ease: EASE }}

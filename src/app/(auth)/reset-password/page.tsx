@@ -1,5 +1,6 @@
 'use client';
 
+import { MaskLine } from '@/components/motion/primitives';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
@@ -24,7 +25,7 @@ function ResetForm() {
     finally { setBusy(false); }
   };
   return <div>
-    <p className="auth-form-kicker">Account security</p><h1 className="auth-title">Choose a new password.</h1>
+    <p className="auth-form-kicker">Account security</p><h1 className="auth-title"><MaskLine>Choose a new password.</MaskLine></h1>
     <p className="auth-subtitle">Keep your account secure with a password you don’t use elsewhere.</p>
     {!token ? <div className="auth-form"><AuthError message="This reset link is missing its token. Please request a new link." /><Link href="/forgot-password" className="auth-submit">Request a new link ↗</Link></div>
       : done ? <div className="auth-form"><div role="status" className="rounded-xl border border-emerald/25 bg-emerald/10 p-4 text-sm leading-relaxed text-white/80">Your password has been updated. Existing sessions have been signed out.</div><Link href="/login" className="auth-submit">Continue to sign in ↗</Link></div>

@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { Logo } from '@/components/brand';
 import { ToastProvider } from '@/components/ui';
 import { PageTransition } from '@/components/motion/page-transition';
+import { MaskLine } from '@/components/motion/primitives';
+import { ShaderHero } from '@/components/three/shader-hero';
 import { ThemeToggle } from '@/components/theme-toggle';
 import './auth.css';
 
@@ -16,10 +18,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="auth-grid">
           <aside className="auth-story" aria-label="About PRIMEVEST">
             <div className="auth-story-image" />
+            <ShaderHero className="opacity-70" />
             <div className="auth-story-overlay" />
             <div className="auth-story-content">
               <div><p className="auth-story-eyebrow"><span /> THE PRIMEVEST EXPERIENCE</p>
-                <h2>A clearer view.<br /><em>A better perspective.</em></h2>
+                <h2><MaskLine>A clearer view.</MaskLine><MaskLine delay={0.1}><em>A better perspective.</em></MaskLine></h2>
                 <p className="auth-story-description">A considered space to follow global markets and manage your account with confidence.</p>
               </div>
               <div className="auth-story-bottom">

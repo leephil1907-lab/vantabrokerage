@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Spotlight } from '@/components/motion/primitives';
 import { useMemo, useState } from 'react';
 import { usePolling, Badge, EmptyState, Skeleton, apiFetch, useToast } from '@/components/ui';
 import { fmtMoney, fmtPct, fmtPrice, fmtSigned, fmtQty, priceDp, relTime } from '@/lib/format';
@@ -27,14 +28,17 @@ const DONUT_COLORS = ['#dfc088', '#2ee6a8', '#60a5fa', '#ffb020', '#ff5b6e', '#a
 
 function StatCard({ label, value, sub, tone, icon }: { label: string; value: string; sub?: React.ReactNode; tone?: 'up' | 'down' | 'neutral'; icon: React.ReactNode }) {
   return (
-    <div className="panel relative overflow-hidden p-4 sm:p-5">
+    <Spotlight className="h-full rounded-2xl">
+    <div className="panel relative h-full overflow-hidden p-4 transition-all duration-300 ease-premium hover:-translate-y-0.5 hover:border-gold/25 sm:p-5">
+      <span aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/45 to-transparent" />
       <div className="flex items-start justify-between gap-3">
         <p className="text-[10px] font-semibold uppercase tracking-[.18em] text-muted">{label}</p>
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-lime">{icon}</span>
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-gold/25 bg-gold/[0.07] text-lime">{icon}</span>
       </div>
       <p className={`mt-2 font-mono text-[22px] font-semibold leading-none tracking-tight sm:text-[26px] ${tone === 'up' ? 'text-emerald' : tone === 'down' ? 'text-danger' : 'text-white'}`}>{value}</p>
       {sub && <div className="mt-2 text-[11px] text-muted">{sub}</div>}
     </div>
+    </Spotlight>
   );
 }
 
