@@ -10,6 +10,7 @@ export type EmailTemplateKey =
   | 'withdrawal_approved'
   | 'withdrawal_rejected'
   | 'withdrawal_completed'
+  | 'kyc_submitted'
   | 'kyc_approved'
   | 'kyc_rejected'
   | 'trade_executed'
@@ -38,6 +39,7 @@ const CATALOG: Record<EmailTemplateKey, { subject: string; preheader: string; he
   withdrawal_approved: { subject: 'Your PRIMEVEST withdrawal was approved', preheader: 'Your withdrawal passed review.', heading: 'Withdrawal approved', intro: 'Your withdrawal request has been approved and is awaiting payout processing.', footer: 'Approval does not mean the blockchain transfer is complete.' },
   withdrawal_rejected: { subject: 'Update on your PRIMEVEST withdrawal', preheader: 'Your withdrawal request was not approved.', heading: 'Withdrawal not approved', intro: 'Your withdrawal request was not approved. Any funds reserved for this request have been handled according to the displayed account status.', footer: 'Contact support if you need clarification.' },
   withdrawal_completed: { subject: 'Your PRIMEVEST withdrawal is complete', preheader: 'Your withdrawal has been marked complete.', heading: 'Withdrawal completed', intro: 'Your withdrawal has been marked complete. The transaction reference is included below when available.', footer: 'Keep your transaction reference for your records.' },
+  kyc_submitted: { subject: 'Your PRIMEVEST identity check was received', preheader: 'Your identity documents are awaiting review.', heading: 'Verification submitted', intro: 'Your identity verification details have been submitted and are awaiting review. Submission does not mean approval.', footer: 'You can check your verification status in your account. Never send identity documents by email.' },
   kyc_approved: { subject: 'Your PRIMEVEST identity check is approved', preheader: 'Your identity verification is complete.', heading: 'Identity verified', intro: 'Your identity verification has been approved. Your account will reflect the permissions associated with your verification level.', footer: 'Keep your account details up to date.' },
   kyc_rejected: { subject: 'Update on your PRIMEVEST identity check', preheader: 'Your identity verification needs attention.', heading: 'Verification needs attention', intro: 'We could not approve your identity verification. Review the reason below and follow the instructions in your account to resubmit if available.', footer: 'Contact support if you need help with the verification process.' },
   trade_executed: { subject: 'PRIMEVEST trade execution update', preheader: 'A trade on your account was executed.', heading: 'Trade executed', intro: 'A trade on your PRIMEVEST account has been executed. Review the execution details below.', footer: 'Trading involves risk. Review your positions and account activity regularly.' },

@@ -11,6 +11,7 @@ export function LiveMarketTable({ category, limit = 30 }: { category?: string; l
   const { markets, error, loading } = useMarkets(category);
   if (error) return <div className="panel p-5 text-[12px] text-danger">Live market feed unavailable: {error}</div>;
   if (loading && !markets.length) return <div className="panel space-y-2 p-4">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="skeleton h-8 w-full" />)}</div>;
+  if (!markets.length) return <div className="panel p-5 text-[12px] text-muted">No market instruments are currently available.</div>;
   return (
     <div className="overflow-hidden rounded-2xl border border-white/[0.07]">
       <table className="w-full">
@@ -45,7 +46,7 @@ export function LiveMarketTable({ category, limit = 30 }: { category?: string; l
       </table>
       <div className="flex items-center justify-between border-t border-white/[0.07] px-4 py-2.5 text-[10.5px] text-muted">
         <span>{markets.length} instruments · quotes refreshed every 15s · server-side provider fetch</span>
-        <Link href="/register" className="text-lime hover:underline">Trade these markets →</Link>
+        <Link href="/register" className="text-lime hover:underline">Explore markets →</Link>
       </div>
     </div>
   );

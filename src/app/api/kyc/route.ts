@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { fail, json, parseBody } from '@/lib/http';
 import { requireUser } from '@/lib/auth';
 import { AppError } from '@/lib/errors';
+import { notifyUserByEmail } from '@/lib/email';
 
 const schema = z.object({
   fullName: z.string().trim().min(3).max(120),
@@ -53,6 +54,7 @@ export async function POST(req: NextRequest) {
       },
     });
     await prisma.notification.create({ data: { userId: user.id, type: 'ACCOUNT', title: 'Verification submitted', body: 'Your identity documents are queued for compliance review.' } });
+    await notifyUserByEmail(user.id, 'identity_submitted');
     return json({ kyc: { status: record.status, submittedAt: record.submittedAt?.toISOString() ?? null } }, { status: 201 });
   } catch (err) {
     return fail(err);

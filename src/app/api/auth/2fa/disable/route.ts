@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db';
 import { fail, json, parseBody } from '@/lib/http';
 import { requireUser } from '@/lib/auth';
 import { AppError } from '@/lib/errors';
+import { notifyUserByEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,6 +18,7 @@ export async function POST(req: NextRequest) {
     if (!user.twoFactorSecret || !verifyToken(user.twoFactorSecret, code)) throw new AppError('INVALID_CODE', 'That code is not valid.', 400);
     await prisma.user.update({ where: { id: user.id }, data: { twoFactorEnabled: false, twoFactorSecret: null } });
     await prisma.notification.create({ data: { userId: user.id, type: 'SECURITY', title: 'Two-factor authentication disabled', body: 'Two-factor authentication was removed from your account.' } });
+    if (user.twoFactorEnabled) await notifyUserByEmail(auth.id, 'two_factor_disabled');
     return json({ ok: true });
   } catch (err) {
     return fail(err);

@@ -76,3 +76,31 @@ export async function queueTemplateEmail(input: {
     template: input.template,
   });
 }
+
+
+/** Best-effort security and verification notices. Email failure never reverses the account action. */
+export async function notifyUserByEmail(
+  userId: string,
+  event: 'two_factor_enabled' | 'two_factor_disabled' | 'identity_submitted' | 'password_changed',
+) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, profile: { select: { firstName: true } } },
+    });
+    if (!user) return;
+    const labels = {
+      two_factor_enabled: 'Two-factor authentication was enabled on your account.',
+      two_factor_disabled: 'Two-factor authentication was disabled on your account.',
+      identity_submitted: 'Your identity verification submission was received and is awaiting review.',
+      password_changed: 'Your account password was changed.',
+    } as const;
+    await queueTemplateEmail({
+      to: user.email,
+      template: event === 'identity_submitted' ? 'kyc_submitted' : 'security_alert',
+      variables: { firstName: user.profile?.firstName ?? undefined, event: labels[event] },
+    });
+  } catch {
+    console.error(`[email] Could not create ${event} notification.`);
+  }
+}

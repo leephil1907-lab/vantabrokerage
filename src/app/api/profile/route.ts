@@ -6,6 +6,7 @@ import { fail, json, parseBody } from '@/lib/http';
 import { requireUser } from '@/lib/auth';
 import { AppError } from '@/lib/errors';
 import { passwordSchema } from '@/lib/validation';
+import { notifyUserByEmail } from '@/lib/email';
 
 const profileSchema = z.object({
   firstName: z.string().trim().max(60).optional(),
@@ -62,6 +63,7 @@ export async function PUT(req: NextRequest) {
     await prisma.user.update({ where: { id: user.id }, data: { passwordHash: await bcrypt.hash(body.newPassword, 12) } });
     await prisma.session.updateMany({ where: { userId: user.id, id: { not: user.sessionId }, revokedAt: null }, data: { revokedAt: new Date() } });
     await prisma.notification.create({ data: { userId: user.id, type: 'SECURITY', title: 'Password changed', body: 'Your password was updated and other sessions were signed out.' } });
+    await notifyUserByEmail(user.id, 'password_changed');
     return json({ ok: true });
   } catch (err) {
     return fail(err);

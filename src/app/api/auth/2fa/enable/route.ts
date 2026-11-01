@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { fail, json, parseBody } from '@/lib/http';
 import { requireUser } from '@/lib/auth';
 import { AppError } from '@/lib/errors';
+import { notifyUserByEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,6 +16,7 @@ export async function POST(req: NextRequest) {
     if (!verifyToken(user.twoFactorSecret, code)) throw new AppError('INVALID_CODE', 'That code is not valid. Check your authenticator app.', 400);
     await prisma.user.update({ where: { id: user.id }, data: { twoFactorEnabled: true } });
     await prisma.notification.create({ data: { userId: user.id, type: 'SECURITY', title: 'Two-factor authentication enabled', body: 'Your account is now protected with an authenticator app.' } });
+    if (!user.twoFactorEnabled) await notifyUserByEmail(auth.id, 'two_factor_enabled');
     return json({ ok: true });
   } catch (err) {
     return fail(err);
