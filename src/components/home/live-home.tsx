@@ -312,7 +312,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
             >
               {[
                 { v: table.length, suffix: '', label: 'Configured instruments' },
-                { v: 5, suffix: '', label: 'Terminals' },
+                { v: 6, suffix: '', label: 'Market desks' },
                 { v: 0, suffix: '', label: 'Live execution venues' },
               ].map((s) => (
                 <div key={s.label}>
@@ -440,7 +440,7 @@ export function LiveHome({ markets }: { markets: M[] }) {
         <div className="shell py-16 sm:py-20">
           <Reveal>
             <p className="eyebrow">Trading instruments</p>
-            <h2 className="display mt-2 text-[26px] sm:text-[30px]">Five terminals, one account</h2>
+            <h2 className="display mt-2 text-[26px] sm:text-[30px]">Six trading desks, one account</h2>
             <p className="mt-2.5 max-w-xl text-[13.5px] leading-relaxed text-muted">
               Each desk has its own execution semantics — margin and liquidation for derivatives, reserved balance for spot,
               server-timestamped settlement for short-expiry.

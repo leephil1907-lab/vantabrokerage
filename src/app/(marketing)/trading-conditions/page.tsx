@@ -10,7 +10,7 @@ const pct = (v: unknown) => `${(Number(v) * 100).toFixed(3).replace(/0+$/, '').r
 export default async function TradingConditionsPage() {
   const pairs = await prisma.tradingPair.findMany({ where: { enabled: true }, orderBy: [{ category: 'asc' }, { symbol: 'asc' }] });
   const groups = pairs.reduce<Record<string, typeof pairs>>((acc, p) => { (acc[p.category] ||= []).push(p); return acc; }, {});
-  const maxLev = Math.max(...pairs.map((p) => p.maxLeverage));
+  const maxLev = pairs.length ? Math.max(...pairs.map((p) => p.maxLeverage)) : null;
 
   return (
     <>
@@ -21,7 +21,7 @@ export default async function TradingConditionsPage() {
         breadcrumbs={[{ label: 'Trading conditions' }]}
         aside={<StatBand items={[
           { k: String(pairs.length), label: 'Enabled instruments', sub: 'live from database' },
-          { k: `${maxLev}×`, label: 'Highest leverage', sub: 'per-instrument caps' },
+          { k: maxLev == null ? '—' : `${maxLev}×`, label: 'Highest leverage', sub: 'per-instrument caps' },
           { k: String(Object.keys(groups).length), label: 'Market groups', sub: Object.keys(groups).join(' · ').toLowerCase() },
           { k: 'audited', label: 'Config changes', sub: 'actor + timestamp' },
         ]} />}
@@ -29,7 +29,9 @@ export default async function TradingConditionsPage() {
 
       <Section eyebrow="Instrument table" title="All enabled markets" body="Taker and maker fees are charged on notional. Payout applies to short-expiry contracts only.">
         <div className="space-y-8">
-          {Object.entries(groups).map(([category, list]) => (
+          {!pairs.length ? (
+            <div className="panel p-5 text-[12px] leading-relaxed text-muted">No trading instruments are currently enabled. Market conditions will appear here when the platform&apos;s instrument configuration is available.</div>
+          ) : Object.entries(groups).map(([category, list]) => (
             <div key={category}>
               <div className="mb-2.5 flex items-center gap-2">
                 <h3 className="text-[13px] font-semibold uppercase tracking-[0.12em] text-white">{category}</h3>
@@ -99,7 +101,7 @@ export default async function TradingConditionsPage() {
             <Callout tone="warn" title="Leverage increases risk">
               Higher leverage reduces the price move needed to liquidate a position. Caps below are maximums, not recommendations.
             </Callout>
-            <Callout tone="ok" title="Values are live">
+            <Callout tone="ok" title="Configuration is database-driven">
               This page queries the database on every request. If an administrator changes leverage or fees, the table reflects it immediately
               and the change is audit-logged.
             </Callout>
