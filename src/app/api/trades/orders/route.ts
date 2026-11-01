@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { fail, json, parseBody, rateLimit } from '@/lib/http';
 import { requireUser } from '@/lib/auth';
-import { placeOrder } from '@/lib/execution';
+import { matchRestingOrders, placeOrder } from '@/lib/execution';
 import { getAccountForUser } from '@/lib/accounts';
 import { serializeOrder } from '@/lib/serialize';
 
@@ -45,6 +45,8 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const account = await getAccountForUser(user.id, url.searchParams.get('accountId') ?? undefined, { allowPaper: true });
     const status = url.searchParams.get('status');
+    // Keep the interactive practice session responsive even where a separate worker process is not configured.
+    if (account.type === 'PAPER') await matchRestingOrders();
     const orders = await prisma.order.findMany({
       where: { accountId: account.id, ...(status === 'open' ? { status: 'OPEN' } : status === 'history' ? { status: { not: 'OPEN' } } : {}) },
       orderBy: { createdAt: 'desc' },
