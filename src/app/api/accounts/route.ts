@@ -8,7 +8,8 @@ export async function POST() {
   try {
     const user = await requireUser();
     const account = await createPaperAccount(user.id);
-    return json({ account: { id: account.id, type: account.type, currency: account.currency, available: Number(account.wallet?.available ?? 0), locked: Number(account.wallet?.locked ?? 0) } }, { status: 201 });
+    const wallet = await prisma.wallet.findUnique({ where: { accountId: account.id } });
+    return json({ account: { id: account.id, type: account.type, currency: account.currency, available: d(wallet?.available), locked: d(wallet?.locked) } }, { status: 201 });
   } catch (err) { return fail(err); }
 }
 
