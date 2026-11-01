@@ -3,20 +3,17 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { AccountSwitcher, useAccount } from '@/components/terminal/account-bar';
-import { Badge, EmptyState, apiFetch, useToast } from '@/components/ui';
-import { fmtMoney, fmtSigned, relTime } from '@/lib/format';
+import { Badge, EmptyState, apiFetch } from '@/components/ui';
+import { fmtMoney, relTime } from '@/lib/format';
 
 type Entry = { id: string; direction: string; amount: number; balanceAfter: number; type: string; description: string | null; createdAt: string };
 type TxPayload = { available: number; locked: number; entries: Entry[] };
 type Portfolio = { holdings: { asset: string; amount: number; price: number; valueUsd: number }[] };
 
 export default function WalletPage() {
-  const { accounts, accountId, select, active, liveEnabled, reloadAccounts } = useAccount();
+  const { accounts, accountId, select, active, liveEnabled } = useAccount();
   const [tx, setTx] = useState<TxPayload | null>(null);
   const [holdings, setHoldings] = useState<Portfolio['holdings']>([]);
-  const [transfer, setTransfer] = useState({ to: '', amount: '' });
-  const [busy, setBusy] = useState(false);
-  const { push } = useToast();
 
   const load = useCallback(async () => {
     if (!accountId) return;
@@ -29,33 +26,13 @@ export default function WalletPage() {
   }, [accountId]);
 
   useEffect(() => { load(); }, [load]);
-  useEffect(() => {
-    const eligible = accounts.filter((a) => a.id !== accountId && a.type === active?.type);
-    setTransfer((t) => eligible.some((a) => a.id === t.to) ? t : { ...t, to: eligible[0]?.id ?? '' });
-  }, [accounts, accountId, active?.type]);
-
-  const doTransfer = async () => {
-    setBusy(true);
-    try {
-      const res = await apiFetch<{ amount: number; reference: string }>('/api/wallet/transfer', {
-        method: 'POST',
-        body: JSON.stringify({ fromAccountId: accountId, toAccountId: transfer.to, amount: Number(transfer.amount) }),
-      });
-      push({ tone: 'success', title: 'Transfer complete', body: `${fmtMoney(res.amount)} moved between accounts · ref ${res.reference}` });
-      setTransfer((t) => ({ ...t, amount: '' }));
-      load(); reloadAccounts();
-    } catch (e) { push({ tone: 'error', title: 'Transfer failed', body: (e as Error).message }); }
-    finally { setBusy(false); }
-  };
-
-  const target = accounts.find((a) => a.id === transfer.to);
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-white">Wallet</h1>
-          <p className="mt-0.5 text-[12px] text-muted">One ledger across every terminal. Balances are derived from double-entry transactions.</p>
+          <p className="mt-0.5 text-[12px] text-muted">Your account balance and recorded activity in one place.</p>
         </div>
         <AccountSwitcher accounts={accounts} accountId={accountId} onSelect={select} active={active} liveEnabled={liveEnabled} />
       </div>
@@ -69,7 +46,7 @@ export default function WalletPage() {
         <div className="panel p-4">
           <p className="label">Locked</p>
           <p className="value-mono mt-1.5 text-[22px] font-semibold text-white">{fmtMoney(tx?.locked ?? active?.locked ?? 0)}</p>
-          <p className="mt-0.5 text-[10.5px] text-muted">margin + pending withdrawals</p>
+          <p className="mt-0.5 text-[10.5px] text-muted">reserved balance and pending account activity</p>
         </div>
         <div className="panel p-4">
           <p className="label">Crypto holdings</p>
@@ -104,28 +81,8 @@ export default function WalletPage() {
 
         <div className="space-y-4">
           <section className="panel p-4">
-            <p className="text-[13px] font-semibold text-white">Move funds between accounts</p>
-            <p className="mt-1 text-[11.5px] leading-relaxed text-muted">Transfers can only be made between eligible accounts of the same type.</p>
-            <div className="mt-3 space-y-2.5">
-              <label className="block">
-                <span className="label">From</span>
-                <input readOnly value={active ? `${active.type} · ${fmtMoney(active.available)}` : ''} className="field mt-1.5 opacity-70" />
-              </label>
-              <label className="block">
-                <span className="label">To</span>
-                <select disabled={!accounts.some((a) => a.id !== accountId && a.type === active?.type)} value={transfer.to} onChange={(e) => setTransfer((t) => ({ ...t, to: e.target.value }))} className="field mt-1.5">
-                  <option value="">No eligible destination</option>
-                  {accounts.filter((a) => a.id !== accountId && a.type === active?.type).map((a) => <option key={a.id} value={a.id}>{a.type} account</option>)}
-                </select>
-              </label>
-              <label className="block">
-                <span className="label">Amount</span>
-                <input value={transfer.amount} onChange={(e) => setTransfer((t) => ({ ...t, amount: e.target.value }))} inputMode="decimal" placeholder="0.00" className="field mt-1.5" />
-              </label>
-              <button onClick={doTransfer} disabled={busy || !transfer.to || !Number(transfer.amount)} className="btn-primary w-full py-2 text-[12.5px]">
-                {busy ? 'Transferring…' : `Transfer to ${target?.type ?? ''}`}
-              </button>
-            </div>
+            <p className="text-[13px] font-semibold text-white">Transfers unavailable</p>
+            <p className="mt-2 text-[11.5px] leading-relaxed text-muted">Only one customer account is active. Internal account transfers are not enabled.</p>
           </section>
 
           <section className="panel p-4">
