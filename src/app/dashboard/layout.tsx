@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { DashboardShell } from '@/components/dashboard-shell';
+import { ChatWidget } from '@/components/support/chat-widget';
 import { ToastProvider } from '@/components/ui';
 
 export const dynamic = 'force-dynamic';
@@ -22,6 +23,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         }}
       >
         {children}
+      <ChatWidget />
       </DashboardShell>
     </ToastProvider>
   );

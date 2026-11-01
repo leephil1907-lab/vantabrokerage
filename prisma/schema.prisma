@@ -902,3 +902,38 @@ model PriceAlert {
   @@index([userId])
   @@index([triggered, symbol])
 }
+
+enum ChatStatus {
+  OPEN
+  CLOSED
+}
+
+enum ChatSender {
+  VISITOR
+  AGENT
+  BOT
+}
+
+model ChatSession {
+  id           String        @id @default(cuid())
+  visitorToken String        @unique
+  displayName  String?
+  contact      String?
+  status       ChatStatus    @default(OPEN)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  messages     ChatMessage[]
+
+  @@index([status, updatedAt])
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId String
+  sender    ChatSender
+  body      String
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId, createdAt])
+}

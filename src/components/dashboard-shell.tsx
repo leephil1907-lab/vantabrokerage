@@ -92,6 +92,7 @@ function Icon({ name, className = 'h-4 w-4' }: { name: string; className?: strin
     help: <><circle cx="8.5" cy="8.5" r="6" /><path d="M6.6 6.4a1.9 1.9 0 1 1 2.8 1.7c-.6.3-.9.8-.9 1.4v.3" /><circle cx="8.5" cy="12" r="0.7" fill="currentColor" /></>,
     admin: <><path d="M8.5 2 14 4v4.2c0 3.3-2.3 5.9-5.5 6.8-3.2-.9-5.5-3.5-5.5-6.8V4z" /><path d="M6 8.5h5M8.5 6v5" /></>,
     bolt: <><path d="M9.6 1.8 3.4 9.6h3.6L6.6 15.2 13.4 7h-3.8z" /></>,
+  chat: <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />,
   };
   return (
     <svg viewBox="0 0 17 17" className={className} fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
@@ -210,6 +211,16 @@ export function DashboardShell({
                 <Icon name="admin" className="h-[15px] w-[15px]" />
                 Admin console
                 <span className="ml-auto rounded bg-lime/15 px-1.5 py-0.5 text-[9px] font-bold text-lime">{user.role === 'SUPERADMIN' ? 'ROOT' : user.role}</span>
+              </Link>
+              <Link
+                href="/admin/chat"
+                className={`mt-0.5 flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[12.5px] font-medium transition-all duration-200 ease-premium ${
+                  pathname.startsWith('/admin/chat') ? 'bg-lime/10 text-lime' : 'text-muted hover:translate-x-0.5 hover:bg-white/[0.04] hover:text-white'
+                }`}
+              >
+                <Icon name="chat" className="h-[15px] w-[15px]" />
+                Live chat
+                <span className="ml-auto flex items-center gap-1 text-[9px] font-bold text-emerald"><span className="h-1.5 w-1.5 rounded-full bg-emerald" />SUPPORT</span>
               </Link>
             </div>
           )}

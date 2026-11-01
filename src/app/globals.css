@@ -190,6 +190,16 @@ html[data-theme='light'] :is(.panel,.shadow-panel) { box-shadow:0 12px 30px -18p
 .story-hero { --ink-950: 12 10 8; --ink-900: 20 17 13; --ink-850: 28 23 18; --theme-white: 255 255 255; --muted-rgb: 176 166 152; position:relative; isolation:isolate; overflow:hidden; color:#faf8f5; min-height:610px; background:#0d0b08; }
 .story-hero-image { position:absolute; inset:0; z-index:-3; background-position:center; background-size:cover; }
 .story-hero-overlay { position:absolute; inset:0; z-index:-2; background:linear-gradient(90deg,rgba(10,8,6,.94) 0%,rgba(13,11,8,.82) 38%,rgba(13,11,8,.46) 68%,rgba(12,10,7,.35) 100%),linear-gradient(0deg,rgba(11,9,6,.55),transparent 30%); }
+/* Site-wide ambient motion flow: slow champagne aurora behind marketing pages. */
+.ambient-blob { position:absolute; border-radius:50%; filter:blur(110px); opacity:.16; will-change:transform; }
+.ambient-blob-a { width:52vw; height:52vw; left:-14vw; top:-18vh; background:radial-gradient(circle, rgba(223,192,136,.55), transparent 65%); animation:ambientA 46s ease-in-out infinite alternate; }
+.ambient-blob-b { width:44vw; height:44vw; right:-12vw; top:22vh; background:radial-gradient(circle, rgba(184,146,74,.5), transparent 65%); animation:ambientB 58s ease-in-out infinite alternate; }
+.ambient-blob-c { width:60vw; height:60vw; left:18vw; bottom:-30vh; background:radial-gradient(circle, rgba(122,97,52,.42), transparent 68%); animation:ambientC 64s ease-in-out infinite alternate; }
+@keyframes ambientA { to { transform:translate3d(9vw, 7vh, 0) scale(1.12); } }
+@keyframes ambientB { to { transform:translate3d(-8vw, -6vh, 0) scale(1.08); } }
+@keyframes ambientC { to { transform:translate3d(6vw, -8vh, 0) scale(1.15); } }
+@media (prefers-reduced-motion: reduce) { .ambient-blob { animation:none !important; } }
+
 /* CSS stand-in for the GLSL gradient mesh (reduced motion / no WebGL / save-data). */
 .shader-fallback { position:absolute; inset:0; overflow:hidden; background:#0d0b08; }
 .shader-fallback::before, .shader-fallback::after { content:''; position:absolute; width:70%; aspect-ratio:1; border-radius:50%; filter:blur(90px); opacity:.34; }
@@ -199,7 +209,17 @@ html[data-theme='light'] :is(.panel,.shadow-panel) { box-shadow:0 12px 30px -18p
 @keyframes shaderDrift2 { to { transform:translate3d(11%, -9%, 0) scale(1.12); } }
 
 .story-hero-3d { position:absolute; inset:0; z-index:-1; display:none; opacity:.55; mask-image:linear-gradient(90deg,transparent 34%,rgba(0,0,0,.85) 78%); -webkit-mask-image:linear-gradient(90deg,transparent 34%,rgba(0,0,0,.85) 78%); pointer-events:none; }
-@media(min-width:1024px) { /* CSS stand-in for the GLSL gradient mesh (reduced motion / no WebGL / save-data). */
+@media(min-width:1024px) { /* Site-wide ambient motion flow: slow champagne aurora behind marketing pages. */
+.ambient-blob { position:absolute; border-radius:50%; filter:blur(110px); opacity:.16; will-change:transform; }
+.ambient-blob-a { width:52vw; height:52vw; left:-14vw; top:-18vh; background:radial-gradient(circle, rgba(223,192,136,.55), transparent 65%); animation:ambientA 46s ease-in-out infinite alternate; }
+.ambient-blob-b { width:44vw; height:44vw; right:-12vw; top:22vh; background:radial-gradient(circle, rgba(184,146,74,.5), transparent 65%); animation:ambientB 58s ease-in-out infinite alternate; }
+.ambient-blob-c { width:60vw; height:60vw; left:18vw; bottom:-30vh; background:radial-gradient(circle, rgba(122,97,52,.42), transparent 68%); animation:ambientC 64s ease-in-out infinite alternate; }
+@keyframes ambientA { to { transform:translate3d(9vw, 7vh, 0) scale(1.12); } }
+@keyframes ambientB { to { transform:translate3d(-8vw, -6vh, 0) scale(1.08); } }
+@keyframes ambientC { to { transform:translate3d(6vw, -8vh, 0) scale(1.15); } }
+@media (prefers-reduced-motion: reduce) { .ambient-blob { animation:none !important; } }
+
+/* CSS stand-in for the GLSL gradient mesh (reduced motion / no WebGL / save-data). */
 .shader-fallback { position:absolute; inset:0; overflow:hidden; background:#0d0b08; }
 .shader-fallback::before, .shader-fallback::after { content:''; position:absolute; width:70%; aspect-ratio:1; border-radius:50%; filter:blur(90px); opacity:.34; }
 .shader-fallback::before { background:radial-gradient(circle, rgba(207,169,95,.5), transparent 65%); top:-32%; right:-12%; animation:shaderDrift1 24s ease-in-out infinite alternate; }

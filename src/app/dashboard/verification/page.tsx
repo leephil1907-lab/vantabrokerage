@@ -1,5 +1,7 @@
 'use client';
 
+import { Select } from '@/components/ui/select';
+import { COUNTRIES } from '@/lib/countries';
 import { useEffect, useState } from 'react';
 import { Badge, StatusBadge, apiFetch, useToast } from '@/components/ui';
 
@@ -83,7 +85,7 @@ export default function VerificationPage() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block"><span className="label">Document number</span><input value={form.documentNumber} onChange={(e) => setForm({ ...form, documentNumber: e.target.value })} disabled={!!locked} className="field mt-1.5" /></label>
-              <label className="block"><span className="label">Issuing country</span><input value={form.documentCountry} onChange={(e) => setForm({ ...form, documentCountry: e.target.value })} disabled={!!locked} className="field mt-1.5" placeholder="e.g. Nigeria" /></label>
+              <Select label="Issuing country" value={form.documentCountry} onChange={(v) => setForm({ ...form, documentCountry: v })} disabled={!!locked} options={COUNTRIES.map((c) => ({ value: c, label: c }))} placeholder="Select issuing country…" />
             </div>
             <label className="block"><span className="label">Residential address</span><input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} disabled={!!locked} className="field mt-1.5" /></label>
 

@@ -11,7 +11,18 @@ export default function AdminMarkets() {
   const [providers, setProviders] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState('');
   const [editing, setEditing] = useState<Market | null>(null);
+  const [seeding, setSeeding] = useState(false);
   const { push } = useToast();
+
+  const seed = async () => {
+    setSeeding(true);
+    try {
+      const body = await apiFetch<{ message: string }>('/api/admin/markets/seed', { method: 'POST', body: '{}' });
+      push({ tone: 'success', title: 'Reference markets populated', body: body.message });
+      load();
+    } catch (e) { push({ tone: 'error', title: 'Seed failed', body: (e as Error).message }); }
+    finally { setSeeding(false); }
+  };
 
   const load = useCallback(() => {
     apiFetch<{ markets: Market[]; providers: Record<string, string> }>('/api/admin/markets')
@@ -43,6 +54,9 @@ export default function AdminMarkets() {
         </div>
         <div className="flex gap-2">
           <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter symbol or category" className="field-sm w-52" />
+          <button onClick={() => void seed()} disabled={seeding} className="btn-ghost px-3 py-2 text-[11.5px] disabled:opacity-50" title="Upsert the reference instrument catalogue (markets only — never accounts)">
+            {seeding ? 'Populating…' : 'Populate reference markets'}
+          </button>
         </div>
       </div>
 

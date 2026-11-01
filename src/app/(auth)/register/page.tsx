@@ -1,5 +1,7 @@
 'use client';
 
+import { Select } from '@/components/ui/select';
+import { COUNTRIES } from '@/lib/countries';
 import { MaskLine } from '@/components/motion/primitives';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -42,7 +44,7 @@ function RegisterForm() {
       </div>
       <AuthField id="register-email" label="Email address" required maxLength={254} type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} placeholder="you@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
       <PasswordField id="register-password" label="Create password" required minLength={10} maxLength={128} autoComplete="new-password" placeholder="Create a password" hint="At least 10 characters, including a letter and a number." aria-describedby="register-password-hint" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-      <AuthField id="country" label="Country of residence" required minLength={2} maxLength={60} autoComplete="country-name" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
+      <Select id="register-country" label="Country of residence" value={form.country} onChange={(v) => setForm({ ...form, country: v })} options={COUNTRIES.map((c) => ({ value: c, label: c }))} placeholder="Select country…" />
       <details className="auth-options" open={referralOpen || undefined}>
         <summary>Additional details <span className="auth-label-note">(optional)</span></summary>
         <div className="auth-options-content">
