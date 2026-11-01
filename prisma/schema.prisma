@@ -191,6 +191,11 @@ enum TicketPriority {
   URGENT
 }
 
+enum AlertDirection {
+  ABOVE
+  BELOW
+}
+
 enum NotificationType {
   SYSTEM
   ACCOUNT
@@ -252,6 +257,7 @@ model User {
 
   @@index([status])
   @@index([referredById])
+  alerts          PriceAlert[]
 }
 
 model Profile {
@@ -880,4 +886,19 @@ model EmailOutbox {
   sentAt    DateTime?
 
   @@index([status, createdAt])
+}
+
+model PriceAlert {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  symbol      String
+  direction   AlertDirection
+  threshold   Decimal        @db.Decimal(24, 10)
+  triggered   Boolean        @default(false)
+  triggeredAt DateTime?
+  createdAt   DateTime       @default(now())
+
+  @@index([userId])
+  @@index([triggered, symbol])
 }

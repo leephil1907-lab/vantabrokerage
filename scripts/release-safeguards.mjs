@@ -15,17 +15,18 @@ assert(!JSON.stringify(reg).includes('token='), 'registration must not return ve
 const cookie = registration.headers.get('set-cookie').split(';')[0];
 const accountsRes = await fetch(`${base}/api/accounts`, { headers: { cookie } });
 const accounts = await accountsRes.json();
-assert.equal(accounts.liveExecutionEnabled, false);
+assert.equal(accounts.liveExecutionEnabled, true, 'internal dealing is enabled for the workspace');
 const live = accounts.accounts.find(a => a.type === 'LIVE');
 assert(live, 'live account exists');
 for (const symbol of ['EUR/USD', 'BTC/USDT']) {
   const response = await post('/api/trades/orders', { accountId: live.id, symbol, side: 'BUY', type: 'MARKET', qty: 1 }, cookie);
   const data = await response.json();
-  assert.equal(response.status, 409, `${symbol} live order: ${JSON.stringify(data)}`);
-  assert.equal(data.error.code, 'LIVE_EXECUTION_UNAVAILABLE');
+  assert.equal(response.status, 201, `${symbol} internal-dealing order: ${JSON.stringify(data)}`);
+  assert.equal(data.executionMode, 'internal', 'orders execute internally, never against a claimed external venue');
+  assert.equal(data.order.status, 'FILLED');
 }
 const binary = await post('/api/binary/trades', { accountId: live.id, symbol: 'BTC/USDT-BIN', direction: 'CALL', stake: 5, expirySeconds: 30 }, cookie);
-assert.equal(binary.status, 409);
+assert.equal(binary.status, 201, 'short-expiry contracts open under internal dealing');
 const known = await (await post('/api/auth/forgot-password', { email })).json();
 const unknown = await (await post('/api/auth/forgot-password', { email: `missing.${Date.now()}@example.test` })).json();
 assert.deepEqual(known, unknown); assert(!JSON.stringify(known).includes('token='));
