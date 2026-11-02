@@ -44,6 +44,24 @@ export function CurrencyFlag({ code, size = 20 }: { code: string; size?: number 
   );
 }
 
+/** ISO-3166 country flag from locally hosted assets, typographic fallback. */
+export function CountryFlag({ code, size = 20 }: { code: string; size?: number }) {
+  const c = code.toLowerCase();
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`/flags/${c}.png`}
+      alt={`${code} flag`}
+      width={size}
+      height={size}
+      decoding="async"
+      onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }}
+      className="rounded-full object-cover ring-1 ring-white/15"
+      style={{ width: size, height: size }}
+    />
+  );
+}
+
 /** Official crypto brand mark — SVG from Simple Icons or CoinGecko metadata image. */
 export function CryptoMark({ asset, size = 20 }: { asset: string; size?: number }) {
   const key = asset.toLowerCase();

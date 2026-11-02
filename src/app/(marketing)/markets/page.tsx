@@ -7,6 +7,8 @@ import { CryptoDiscovery } from '@/components/crypto-discovery';
 import { MarketMovers } from '@/components/markets/market-movers';
 import { NewsFeed } from '@/components/markets/news-feed';
 import { CTASection } from '@/components/marketing-ui';
+import { MarketHeatmap } from '@/components/markets/market-heatmap';
+import { EarningsRadar } from '@/components/markets/earnings-radar';
 import { HeroScene } from '@/components/three/hero-scene';
 
 export const metadata = { title: 'Markets' };
@@ -49,6 +51,11 @@ export default function MarketsPage() {
           <LiveMarketTable category="FOREX" limit={12} />
         </div>
       </section>
+      <section className="shell pt-14 sm:pt-16">
+        <div className="mb-6"><p className="eyebrow">Market map</p><h2 className="display mt-2 text-[26px] sm:text-[32px]"><MaskLine>Every instrument, one glance</MaskLine></h2><p className="mt-2 text-[13px] text-muted">A live heatmap of all listed markets, coloured by their 24-hour move.</p></div>
+        <MarketHeatmap />
+      </section>
+      <section className="shell pt-14 sm:pt-16"><EarningsRadar /></section>
       <CTASection title="Find your rhythm in the markets" body="Explore live prices and market information in your account workspace." primary={{ href: '/register', label: 'Create account' }} secondary={{ href: '/trading-conditions', label: 'Trading conditions' }} />
     </>
   );

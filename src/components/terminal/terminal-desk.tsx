@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { MarketList, type MarketRow } from '@/components/market-selector';
 import { LiveTicket } from '@/components/terminal/live-ticket';
+import { RecentFills, SignalLens } from '@/components/terminal/signal-lens';
 import { AccountSwitcher, useAccount } from '@/components/terminal/account-bar';
 import { TerminalWorkspace } from '@/components/terminal/workspace';
 import { ProChart } from '@/components/charts/pro-chart';
@@ -274,18 +275,13 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
             </span>
           </div>
           <LiveTicket symbol={symbol} accountId={accountId} accountType={active.type} available={active.available} onSubmitted={() => { void load(); void reloadAccounts(); }} />
-          <div className="mt-4 rounded-xl border border-white/[0.06] bg-ink-950/40">
-            <div className="border-b border-white/[0.06] px-3 py-2"><p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">PRIMEVEST order book</p></div>
-            <div className="px-3 py-5 text-center"><div className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 text-muted">≋</div><p className="mt-3 text-xs font-medium text-white">Order book unavailable</p><p className="mt-1 text-[11px] leading-relaxed text-muted">No internal matching engine is connected. No order depth is being displayed.</p></div>
-          </div>
+          <div className="mt-4"><SignalLens symbol={symbol} /></div>
           <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40">
             <p className="border-b border-white/[0.06] px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Reference market statistics</p>
             <SessionStats symbol={symbol} quote={quote} />
           </div>
           <SymbolNews symbol={symbol} />
-          <div className="mt-3 rounded-xl border border-white/[0.06] bg-ink-950/40 p-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted">Recent trades</p><p className="mt-3 text-[11px] leading-relaxed text-muted">PRIMEVEST trade history will appear when matching is available.</p>
-          </div>
+          <RecentFills accountId={accountId} />
         </>
       ) : (
         <p className="p-4 text-[12px] leading-relaxed text-muted">{kind === 'all' && !marketsLoading && !tradable.length ? 'No instruments are configured for this selection yet.' : 'Select a configured market to view the order ticket.'}</p>

@@ -17,6 +17,7 @@ Last updated: 2026-11-02 (commit af8a816 + fintech retune).
 - ✅ SEO metadata, theme-color, icon.svg; footer risk warning retained as the single standing disclaimer
 - ✅ Search privacy (pre-launch): robots.txt Disallow /, site-wide noindex/nofollow/noarchive/nosnippet metadata and X-Robots-Tag header — dashboards, APIs and pages stay out of search indexes. FLIP to an allow-list at public launch
 - ✅ Photographic page heroes (real market imagery per desk, Ken Burns motion, locked light-on-dark contrast in both themes) with local glyph fallbacks when remote coin icons fail
+- ✅ Research-tooling transplant (Fincept/Vibe-Trading concepts, natively reimplemented in TS): null-safe indicator engine (RSI/EMA/MACD/Bollinger/ATR/VWAP + Sharpe/profit-factor/max-DD), terminal Signal Lens panel, live market heatmap, Finnhub earnings radar, dashboard Performance card with realized equity curve; stale "order book unavailable / no matching engine" placeholders replaced with real Signal Lens + Recent executions
 - ✅ Compact professional footer: invite line, link columns, risk block, bottom bar (giant wordmark retired)
 
 ## 3 · Market data

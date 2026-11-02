@@ -7,6 +7,7 @@ import { usePolling, Badge, EmptyState, Skeleton, apiFetch, useToast } from '@/c
 import { AssetMark } from '@/components/asset-mark';
 import { fmtMoney, fmtPct, fmtPrice, fmtSigned, fmtQty, priceDp, relTime, friendlyLedgerDescription } from '@/lib/format';
 import { useAccount } from '@/components/terminal/account-bar';
+import { PerformanceCard } from '@/components/dashboard/performance-card';
 
 type EquityPoint = { day: string; balance: number };
 type Overview = {
@@ -283,6 +284,8 @@ export default function DashboardOverview() {
               <p className="mt-3 text-[10px] leading-relaxed text-white/40">Demo trading capital for risk-free practice.</p>
             </div>
           </section>
+
+          <PerformanceCard accountId={accountId} />
 
           {/* Diversification */}
           <section className="panel p-4 sm:p-5">

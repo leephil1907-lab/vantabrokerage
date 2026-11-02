@@ -60,3 +60,29 @@ export async function companyProfile(symbol: string) {
 export async function quote(symbol: string) {
   return get<{ c?: number; d?: number; dp?: number; h?: number; l?: number; o?: number; pc?: number }>('/quote', { symbol });
 }
+
+export type EarningsEvent = { symbol: string; date: string; hour: string; quarter: number; year: number; epsEstimate: number | null; revenueEstimate: number | null };
+let earnCache: { at: number; events: EarningsEvent[] } | null = null;
+
+/** Forward earnings calendar (Finnhub free tier). Empty when unavailable — never synthetic. */
+export async function earningsCalendar(daysAhead = 5): Promise<EarningsEvent[]> {
+  if (!finnhubConfigured()) return [];
+  if (earnCache && Date.now() - earnCache.at < 10 * 60_000) return earnCache.events;
+  const from = new Date(); from.setUTCHours(0, 0, 0, 0);
+  const to = new Date(from.getTime() + daysAhead * 86_400_000);
+  const fmtD = (d: Date) => d.toISOString().slice(0, 10);
+  const url = `https://finnhub.io/api/v1/calendar/earnings?from=${fmtD(from)}&to=${fmtD(to)}&token=${process.env.FINNHUB_API_KEY}`;
+  const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(10_000) }).catch(() => null);
+  if (!res || !res.ok) return earnCache?.events ?? [];
+  const payload = await res.json().catch(() => null) as { earningsCalendar?: unknown } | null;
+  if (!payload || !Array.isArray(payload.earningsCalendar)) return earnCache?.events ?? [];
+  const events = payload.earningsCalendar.flatMap((row: unknown) => {
+    if (typeof row !== 'object' || row === null) return [];
+    const r = row as Record<string, unknown>;
+    if (typeof r.symbol !== 'string' || typeof r.date !== 'string') return [];
+    const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+    return [{ symbol: r.symbol, date: r.date, hour: typeof r.hour === 'string' ? r.hour : '', quarter: typeof r.quarter === 'number' ? r.quarter : 0, year: typeof r.year === 'number' ? r.year : 0, epsEstimate: num(r.epsEstimate), revenueEstimate: num(r.revenueEstimate) }];
+  }).sort((a, b) => a.date.localeCompare(b.date) || a.symbol.localeCompare(b.symbol)).slice(0, 30) as EarningsEvent[];
+  earnCache = { at: Date.now(), events };
+  return events;
+}
