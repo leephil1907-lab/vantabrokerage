@@ -109,22 +109,60 @@ const INDEX_GLYPH: Record<string, string> = {
 };
 
 /** Instrument icon for indices and commodities — consistent geometry, instrument-specific. */
+const METAL_MARK: Record<string, { fill: string; edge: string }> = {
+  XAU: { fill: '#F0B429', edge: '#8a6a1f' },
+  XAG: { fill: '#C7CED9', edge: '#6b7686' },
+};
+const ENERGY_MARK: Record<string, { color: string; d: string }> = {
+  NATGAS: { color: '#38bdf8', d: 'M10 2.6c2.5 2.9 4.6 5.2 4.6 8a4.6 4.6 0 0 1-9.2 0c0-1.5.6-2.8 1.5-4.1.3 1 .9 1.8 1.7 2.3-.2-2.2.3-4.3 1.4-6.2Z' },
+  WTIUSD: { color: '#c08428', d: 'M10 2.8c3 3.6 5 6.3 5 9a5 5 0 0 1-10 0c0-2.7 2-5.4 5-9Z' },
+};
+const INDEX_CODE: Record<string, { code: string; color: string }> = {
+  US30: { code: 'DOW', color: '#3b82f6' },
+  NAS100: { code: 'NDX', color: '#8b5cf6' },
+  SPX500: { code: 'SPX', color: '#22c55e' },
+  GER40: { code: 'DAX', color: '#f59e0b' },
+  UK100: { code: 'FTSE', color: '#ec4899' },
+};
+
+/** Precise, non-colliding badge for metals, energy and index instruments. */
 export function InstrumentMark({ asset, size = 20, className = '' }: { asset: string; size?: number; className?: string }) {
-  const key = asset.toUpperCase();
-  const color = ASSET_COLORS[key] ?? '#8a97a6';
-  const path = INDEX_GLYPH[key];
-  return (
-    <span
-      className="inline-flex shrink-0 items-center justify-center rounded-lg"
-      style={{ width: size, height: size, background: `${color}1f`, border: `1px solid ${color}4d` }}
-    >
-      {path ? (
-        <svg viewBox="0 0 20 20" width={size * 0.68} height={size * 0.68} fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          <path d={path} />
+  const raw = asset.toUpperCase();
+  const key = raw.startsWith('XAU') ? 'XAU' : raw.startsWith('XAG') ? 'XAG' : raw === 'NG' ? 'NATGAS' : raw === 'WTI' ? 'WTIUSD' : raw;
+  const metal = METAL_MARK[key];
+  const energy = ENERGY_MARK[key];
+  const index = INDEX_CODE[key];
+  if (metal) {
+    return (
+      <span className={`inline-flex shrink-0 items-center justify-center ${className}`} style={{ width: size, height: size }} aria-label={key}>
+        <svg viewBox="0 0 20 20" width={size} height={size}>
+          <path d="M4.2 8.4h7.2l1.6 3.2H2.6Z" fill={metal.fill} stroke={metal.edge} strokeWidth=".7" />
+          <path d="M6.6 4.6h7.2l1.6 3.2H5Z" fill={metal.fill} opacity=".82" stroke={metal.edge} strokeWidth=".7" />
+          <path d="M5.4 12.2h7.2l1.6 3.2H3.8Z" fill={metal.fill} opacity=".62" stroke={metal.edge} strokeWidth=".7" />
         </svg>
-      ) : (
-        <span style={{ color, fontSize: size * 0.4, fontWeight: 700 }}>{key.slice(0, 2)}</span>
-      )}
+      </span>
+    );
+  }
+  if (energy) {
+    return (
+      <span className={`inline-flex shrink-0 items-center justify-center rounded-full ${className}`} style={{ width: size, height: size, background: `${energy.color}1c`, border: `1px solid ${energy.color}55` }} aria-label={key}>
+        <svg viewBox="0 0 20 20" width={size * 0.72} height={size * 0.72}>
+          <path d={energy.d} fill={energy.color} />
+        </svg>
+      </span>
+    );
+  }
+  if (index) {
+    return (
+      <span className={`inline-flex shrink-0 items-center justify-center rounded-full font-mono font-bold ${className}`} style={{ width: size, height: size, background: `${index.color}1a`, border: `1.4px solid ${index.color}80`, color: index.color, fontSize: Math.max(6, size * 0.3) }} aria-label={key}>
+        {index.code}
+      </span>
+    );
+  }
+  const color = ASSET_COLORS[raw] ?? ASSET_COLORS[key] ?? '#8a97a6';
+  return (
+    <span className={`inline-flex shrink-0 items-center justify-center rounded-lg font-mono font-bold ${className}`} style={{ width: size, height: size, background: `${color}1f`, border: `1px solid ${color}4d`, color, fontSize: size * 0.38 }} aria-label={key}>
+      {raw.slice(0, 2)}
     </span>
   );
 }

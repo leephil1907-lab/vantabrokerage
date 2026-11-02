@@ -16,7 +16,7 @@ export function LiveMarketTable({ category, limit = 30 }: { category?: string; l
     <div className="overflow-hidden rounded-2xl border border-white/[0.07]">
       <table className="w-full">
         <thead className="bg-white/[0.02]">
-          <tr><th className="th">Instrument</th><th className="th hidden sm:table-cell">Type</th><th className="th text-right">Last</th><th className="th hidden text-right sm:table-cell">Bid</th><th className="th hidden text-right sm:table-cell">Ask</th><th className="th text-right">24h</th><th className="th hidden text-right md:table-cell">Source</th></tr>
+          <tr><th className="th">Instrument</th><th className="th hidden sm:table-cell">Type</th><th className="th text-right">Last</th><th className="th hidden text-right sm:table-cell">Bid</th><th className="th hidden text-right sm:table-cell">Ask</th><th className="th text-right">24h</th></tr>
         </thead>
         <tbody>
           {markets.slice(0, limit).map((m) => {
@@ -38,14 +38,14 @@ export function LiveMarketTable({ category, limit = 30 }: { category?: string; l
                 <td className="td hidden text-right value-mono text-muted sm:table-cell">{fmtPrice(m.bid, dp)}</td>
                 <td className="td hidden text-right value-mono text-muted sm:table-cell">{fmtPrice(m.ask, dp)}</td>
                 <td className={`td text-right value-mono ${up ? 'text-emerald' : 'text-danger'}`}>{fmtPct(m.change24h)}</td>
-                <td className="td hidden text-right text-[10.5px] uppercase tracking-wide text-muted md:table-cell">{m.source ?? (m.stale ? 'stale' : '—')}</td>
+                
               </tr>
             );
           })}
         </tbody>
       </table>
       <div className="flex items-center justify-between border-t border-white/[0.07] px-4 py-2.5 text-[10.5px] text-muted">
-        <span>{markets.length} instruments · quotes refreshed every 15s · server-side provider fetch</span>
+        <span>{markets.length} instruments · quotes refreshed every 15s · server-side fetch</span>
         <Link href="/register" className="text-lime hover:underline">Explore markets →</Link>
       </div>
     </div>

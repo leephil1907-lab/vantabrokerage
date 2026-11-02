@@ -264,7 +264,7 @@ export default function DashboardOverview() {
         {/* Right column */}
         <div className="space-y-4">
           {/* Wallet card */}
-          <section className="theme-island-dark relative overflow-hidden rounded-2xl border border-lime/25 bg-gradient-to-br from-[#151a20] via-[#10141a] to-[#0b0e12] p-5 shadow-panel">
+          <section className="theme-island-dark relative overflow-hidden rounded-2xl border border-lime/25 bg-gradient-to-br from-[#141a28] via-[#0f141f] to-[#0a0e16] p-5 shadow-panel">
             <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-lime/15 blur-3xl" />
             <div className="relative">
               <div className="flex items-center justify-between">

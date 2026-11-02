@@ -54,7 +54,7 @@ export function PageHero({
       {image && (
         <>
           <div aria-hidden="true" className="hero-photo absolute inset-0" style={{ backgroundImage: `url('${image}')` }} />
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(9,11,14,0.55) 0%, rgba(9,11,14,0.38) 45%, rgba(9,11,14,0.22) 100%)' }} />
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(8,11,18,0.55) 0%, rgba(8,11,18,0.38) 45%, rgba(8,11,18,0.22) 100%)' }} />
         </>
       )}
       <div className="pointer-events-none absolute inset-0 grid-lines opacity-40" />

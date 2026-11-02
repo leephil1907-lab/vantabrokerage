@@ -12,11 +12,11 @@ const config: Config = {
         // compatibility, but every value is now champagne gold. `gold` is the semantic alias.
         lime: { DEFAULT: '#dfc088', 400: '#ecd4a2', 500: '#cfa95f', 600: '#b8924a' },
         gold: { DEFAULT: '#dfc088', 300: '#ecd4a2', 400: '#dfc088', 500: '#cfa95f', 600: '#b8924a' },
-        emerald: { DEFAULT: '#2ee6a8', 500: '#2ee6a8' },
-        danger: '#ff5b6e',
+        emerald: { DEFAULT: '#0ECB81', 500: '#0ECB81' },
+        danger: '#F6465D',
         siren: '#ffb020',
         muted: 'rgb(var(--muted-rgb) / <alpha-value>)',
-        sky: { DEFAULT: '#60a5fa', 400: '#60a5fa', 300: '#93c5fd' },
+        sky: { DEFAULT: '#5EA0EF', 400: '#5EA0EF', 300: '#8FC1FF' },
       },
       transitionTimingFunction: {
         premium: 'cubic-bezier(0.22, 1, 0.36, 1)',
