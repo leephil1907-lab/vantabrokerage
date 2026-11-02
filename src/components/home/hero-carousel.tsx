@@ -28,7 +28,7 @@ export function HeroCarousel({ children }: { children: ReactNode }) {
 
   const slide = SLIDES[index];
 
-  return <section className="story-hero" aria-roledescription="carousel" aria-label="The PRIMEVEST story">
+  return <section className="theme-island-dark story-hero" aria-roledescription="carousel" aria-label="The PRIMEVEST story">
     <AnimatePresence initial={false}>
       <motion.div
         aria-hidden="true"

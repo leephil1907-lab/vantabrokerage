@@ -43,7 +43,7 @@ export function Reveal({
       className={className}
       initial={reduce ? undefined : { opacity: 0, y }}
       whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
+      viewport={{ once: true, margin: '-40px', amount: 0.1 }}
       transition={{ duration: 0.6, ease: EASE, delay }}
     >
       {children}
@@ -56,7 +56,7 @@ export function Stagger({ children, className = '', delay = 0, gap = 0.07 }: { c
   const reduce = useReducedMotion();
   if (reduce) return <div className={className}>{children}</div>;
   return (
-    <motion.div className={className} variants={staggerParent(gap, delay)} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-60px' }}>
+    <motion.div className={className} variants={staggerParent(gap, delay)} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-40px', amount: 0.1 }}>
       {children}
     </motion.div>
   );
@@ -223,7 +223,7 @@ export function MaskLine({ children, className = '', delay = 0, as = 'span' }: {
         className="block will-change-transform"
         initial={reduce ? undefined : { y: '110%' }}
         whileInView={reduce ? undefined : { y: '0%' }}
-        viewport={{ once: true, margin: '-40px' }}
+        viewport={{ once: true, margin: '-30px', amount: 0.1 }}
         transition={{ duration: 0.85, ease: EASE, delay }}
       >
         {children}

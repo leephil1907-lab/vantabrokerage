@@ -15,6 +15,9 @@ Last updated: 2026-11-02 (commit af8a816 + fintech retune).
 - ✅ Markets, forex, crypto, short-expiry, accounts, about, help, trading-conditions, legal set (terms/privacy/AML/cookies/risk-disclosure)
 - ✅ Global market screener (TradingView scanner) + Finnhub news + company-profile drawer
 - ✅ SEO metadata, theme-color, icon.svg; footer risk warning retained as the single standing disclaimer
+- ✅ Search privacy (pre-launch): robots.txt Disallow /, site-wide noindex/nofollow/noarchive/nosnippet metadata and X-Robots-Tag header — dashboards, APIs and pages stay out of search indexes. FLIP to an allow-list at public launch
+- ✅ Photographic page heroes (real market imagery per desk, Ken Burns motion, locked light-on-dark contrast in both themes) with local glyph fallbacks when remote coin icons fail
+- ✅ Compact professional footer: invite line, link columns, risk block, bottom bar (giant wordmark retired)
 
 ## 3 · Market data
 - ✅ 44 reference instruments (forex/CFD/crypto), live quotes with TTL refresh that works serverless (verified 44/44 priced on Vercel)
@@ -70,6 +73,7 @@ Last updated: 2026-11-02 (commit af8a816 + fintech retune).
 - ✅ GitHub main + live-standard in sync; Vercel auto-deploys main; Neon prod migrated + seeded
 - ✅ Sandbox preview mirrors prod behaviour
 - ⬜ Custom domain (DNS + SSL on Vercel) — next planned phase
+- ⬜ Launch switch: flip robots/meta to indexable + submit sitemap once public
 - ⬜ Transactional email provider (SMTP/Resend) for verification & notification deliverability
 - ⬜ Lighthouse/perf budget pass & OG image asset
 - ⬜ Status/monitoring + error tracking (Sentry-class) for prod

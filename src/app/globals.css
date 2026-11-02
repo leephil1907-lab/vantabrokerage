@@ -48,6 +48,14 @@ body {
 :where(button, a, summary, [role='button']):not(.no-press):active { transform: scale(0.975); }
 :where(button, a, [role='button']):not(.no-press) { transition-property: transform, background-color, border-color, color, opacity, box-shadow; transition-duration: .18s; transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
 
+.hero-photo {
+  background-size: cover; background-position: center 40%;
+  opacity: .5; mix-blend-mode: luminosity;
+  animation: ken-burns 26s ease-in-out infinite alternate;
+}
+@keyframes ken-burns { from { transform: scale(1) translate3d(0,0,0); } to { transform: scale(1.09) translate3d(0,-1.5%,0); } }
+@media (prefers-reduced-motion: reduce) { .hero-photo { animation: none; } }
+
 .session-mark { display:inline-flex; margin-right:2px; filter:saturate(1.05); }
 
 /* Live motion-flow ticker: seamless marquee, pauses on interaction,

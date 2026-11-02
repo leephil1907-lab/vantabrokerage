@@ -1,5 +1,6 @@
 'use client';
 import { Select } from '@/components/ui/select';
+import { CryptoMark } from '@/components/asset-mark';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -27,7 +28,7 @@ function CoinIcon({ asset }: { asset: CryptoDiscoveryAsset }) {
     // CoinGecko-hosted original asset icons; the backend restricts the image host.
     // eslint-disable-next-line @next/next/no-img-element
     <img src={asset.image} onError={() => setFailed(true)} loading="lazy" alt="" width={30} height={30} className="h-[30px] w-[30px] shrink-0 rounded-full object-contain" />
-  ) : <span aria-hidden="true" className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-[10px] font-semibold text-white/70">{asset.symbol.slice(0, 2)}</span>;
+  ) : <CryptoMark asset={asset.symbol.toUpperCase()} size={30} />;
 }
 
 export function CryptoDiscovery({ compactLayout = false }: { compactLayout?: boolean }) {

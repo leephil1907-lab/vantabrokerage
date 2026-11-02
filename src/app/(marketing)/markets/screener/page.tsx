@@ -10,7 +10,7 @@ export const metadata = { title: 'Global market screener · PRIMEVEST' };
 
 export default function ScreenerPage() {
   return <>
-    <section className="relative overflow-hidden border-b border-white/[0.07]">
+    <section className="theme-island-dark relative overflow-hidden border-b border-white/[0.07]">
       <ShaderHero />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-ink-950/60 to-transparent" />
       <div className="shell relative pt-10 sm:pt-14">

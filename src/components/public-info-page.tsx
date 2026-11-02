@@ -12,9 +12,17 @@ type InfoPage = {
   notice?: { title: string; body: string };
 };
 
+const HERO_IMAGES: Record<string, string> = {
+  FOREX: '/images/hero-dealing.jpg',
+  SPOT: '/images/hero-markets.webp',
+  CFD: '/images/hero-workspace.webp',
+  FUTURES: '/images/hero-markets.webp',
+  BINARY: '/images/hero-perspective.webp',
+};
+
 export function PublicInfoPage({ eyebrow, title, body, features, market, notice }: InfoPage) {
   return <>
-    <PageHero eyebrow={eyebrow} title={title} body={body} breadcrumbs={[{ label: title }]}>
+    <PageHero eyebrow={eyebrow} title={title} body={body} breadcrumbs={[{ label: title }]} image={market ? HERO_IMAGES[market] : '/images/hero-workspace.webp'}>
       <div className="flex flex-wrap gap-3"><Link href="/markets" className="btn-primary px-5 py-2.5">Explore markets</Link><Link href="/register" className="btn-ghost px-5 py-2.5">Create account</Link></div>
     </PageHero>
     <Section eyebrow="PRIMEVEST" title="A clearer view" body="Explore the details and make informed decisions."><FeatureGrid items={features} /></Section>

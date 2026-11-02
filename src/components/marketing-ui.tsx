@@ -36,6 +36,7 @@ export function PageHero({
   aside,
   symbol,
   badge,
+  image,
 }: {
   eyebrow: string;
   title: string;
@@ -45,12 +46,19 @@ export function PageHero({
   aside?: ReactNode;
   symbol?: string;
   badge?: string;
+  image?: string;
 }) {
   return (
-    <section className="relative overflow-hidden border-b border-white/[0.07]">
+    <section className="theme-island-dark relative overflow-hidden border-b border-white/[0.07]">
       <ShaderHero />
+      {image && (
+        <>
+          <div aria-hidden="true" className="hero-photo absolute inset-0" style={{ backgroundImage: `url('${image}')` }} />
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(9,11,14,0.55) 0%, rgba(9,11,14,0.38) 45%, rgba(9,11,14,0.22) 100%)' }} />
+        </>
+      )}
       <div className="pointer-events-none absolute inset-0 grid-lines opacity-40" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink-950/70 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[var(--bg)] to-transparent" />
       <div className={`shell relative grid gap-8 pb-12 pt-8 lg:pt-10 ${aside ? 'lg:grid-cols-[1.15fr_0.85fr] lg:items-end' : ''}`}>
         <div>
           {breadcrumbs && <div className="mb-5"><Breadcrumbs items={breadcrumbs} /></div>}

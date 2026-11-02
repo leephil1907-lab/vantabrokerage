@@ -90,7 +90,7 @@ function CrashedChart() {
 
 export function NotFoundScene() {
   return (
-    <section className="relative flex min-h-[calc(100dvh-64px)] items-center overflow-hidden">
+    <section className="theme-island-dark relative flex min-h-[calc(100dvh-64px)] items-center overflow-hidden">
       <ShaderHero />
       <div className="pointer-events-none absolute inset-0 grid-lines opacity-40" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-ink-950/80 to-transparent" />

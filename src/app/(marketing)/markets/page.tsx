@@ -22,7 +22,7 @@ const DESKS = [
 export default function MarketsPage() {
   return (
     <>
-      <section className="relative overflow-hidden border-b border-white/[0.07] bg-ink-950">
+      <section className="theme-island-dark relative overflow-hidden border-b border-white/[0.07] bg-ink-950">
         <ShaderHero />
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink-950/85 via-ink-950/55 to-transparent" />
         <div className="shell relative grid min-h-[390px] items-center gap-4 py-14 sm:py-20 lg:grid-cols-[1fr_0.75fr]">
