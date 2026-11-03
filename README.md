@@ -1,25 +1,24 @@
 # PRIMEVEST
 
-Next.js 15 multi-asset brokerage interface with PostgreSQL persistence, Prisma, and a separate market/practice-trading worker.
+A modern multi-asset trading platform built with Next.js, PostgreSQL and Prisma.
 
-## Render deployment
+## Deployment
 
-The primary deployment configuration is [Render Blueprint](render.yaml). See the [Render deployment runbook](docs/RENDER-DEPLOYMENT.md) for the service layout, first deployment steps, health verification and required email setup.
+PRIMEVEST is configured for Render. Use the [Render Blueprint](render.yaml) to deploy the web application, background worker and PostgreSQL database.
 
-The Blueprint provisions the web application, background worker and a private PostgreSQL database in Frankfurt. It uses Render's internal database connection, runs committed Prisma migrations before the web service starts, seeds reference market metadata only, and exposes a database-aware health endpoint at `/api/health`.
+See [Render deployment](docs/RENDER-DEPLOYMENT.md) for setup instructions.
 
-## Current operating limits
+## Development
 
-This repository is **not ready for public real-money trading or customer deposits**. LIVE execution is hard-blocked; customer deposit requests are disabled; there is no live broker/exchange adapter, internal matching engine, custody provider or payment integration. Some PAPER/demo functionality and provider-sourced market references are available. See [deployment readiness](docs/DEPLOYMENT-READINESS.md) and [market data notes](docs/CRYPTO-MARKET-DATA.md).
+Install dependencies and start the local development server:
 
-## Transactional email
+```bash
+npm install
+npm run dev
+```
 
-See [branded email setup and preview](docs/TRANSACTIONAL-EMAIL.md). Delivery requires an independently configured email provider and verified sender.
+Configure your environment variables using `.env.example`.
 
-## Legacy Vercel review notes
+## Email
 
-The previous protected Vercel review runbook remains available at [docs/VERCEL-REVIEW-DEPLOYMENT.md](docs/VERCEL-REVIEW-DEPLOYMENT.md). Render is the prepared primary hosting target.
-
-## Local development
-
-Use an isolated PostgreSQL database and configure `.env` from `.env.example`. The development seed contains bootstrap staff accounts and simulated configuration; do not run it on a hosted environment or a database containing real data. The test scripts create and modify data and must only run against a disposable database and server.
+Configure a verified email provider for account verification and password-reset messages. See [Transactional Email](docs/TRANSACTIONAL-EMAIL.md).
