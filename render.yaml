@@ -58,6 +58,13 @@ services:
         value: paper
       - key: MARKET_DATA_MODE
         value: live
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: APP_URL
+        fromService:
+          type: web
+          name: primevest-web
+          envVarKey: RENDER_EXTERNAL_URL
 
 databases:
   - name: Primevest
