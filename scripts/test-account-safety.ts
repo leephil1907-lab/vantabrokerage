@@ -72,9 +72,20 @@ async function main() {
   const cancel = await request(`/api/trades/orders/${order.id}`, 'DELETE');
   assert.equal(cancel.status, 200, JSON.stringify(cancel.body));
   assert.equal(cancel.body.order.status, 'CANCELLED');
-  const deposit = await request('/api/wallet/deposits', 'POST', { accountId: live.id, asset: 'BTC', amount: 1 });
-  assert.equal(deposit.status, 503);
-  assert.equal(deposit.body.error.code, 'DEPOSITS_UNAVAILABLE');
+  // Deposits: submission-only. Manual finance review; nothing auto-credits.
+  const liveWalletBefore = await prisma.wallet.findUniqueOrThrow({ where: { accountId: live.id } });
+  const txHash = `0x${'a'.repeat(62)}`;
+  const deposit = await request('/api/wallet/deposits', 'POST', { accountId: live.id, asset: 'BTC', network: 'Bitcoin', amountUsd: 250, txHash });
+  assert.equal(deposit.status, 201, JSON.stringify(deposit.body));
+  assert.equal(deposit.body.deposit.status, 'PENDING', 'submitted deposits await finance review');
+  const dup = await request('/api/wallet/deposits', 'POST', { accountId: live.id, asset: 'BTC', network: 'Bitcoin', amountUsd: 250, txHash });
+  assert.equal(dup.status, 409, 'a tx hash can only be submitted once');
+  const badNetwork = await request('/api/wallet/deposits', 'POST', { accountId: live.id, asset: 'BTC', network: 'Solana', amountUsd: 10, txHash: `0x${'b'.repeat(62)}` });
+  assert.equal(badNetwork.status, 400, 'unsupported asset/network pairs are rejected');
+  const noHash = await request('/api/wallet/deposits', 'POST', { accountId: live.id, asset: 'BTC', network: 'Bitcoin', amountUsd: 10 });
+  assert.ok(noHash.status === 400 || noHash.status === 422, 'a transaction hash is mandatory');
+  const liveWalletAfter = await prisma.wallet.findUniqueOrThrow({ where: { accountId: live.id } });
+  assert.equal(Number(liveWalletAfter.available), Number(liveWalletBefore.available), 'submitted deposits never credit funds before finance review');
 
   await request('/api/binary/trades'); // no settlement-on-read
   const worker = spawn('npx', ['tsx', 'src/worker/index.ts'], { env: process.env, stdio: 'ignore', detached: true });
@@ -93,6 +104,6 @@ async function main() {
   assert.equal(Number(afterWallet.available), expectedAvailable, `settlement payout matches result ${afterBinary.result}`);
   const jobs = await prisma.jobRun.findMany({ where: { status: 'FAILED' }, select: { name: true } });
   assert.deepEqual(jobs, [], `worker jobs must not fail: ${JSON.stringify(jobs)}`);
-  console.log('PASS: internal dealing fills with provenance; resting orders, short-expiry and worker settlement live; virtual capital labelled; transfers segregated; deposits blocked; ledger-consistent.');
+  console.log('PASS: internal dealing fills with provenance; resting orders, short-expiry and worker settlement live; virtual capital labelled; transfers segregated; deposits manual-review with zero auto-credit; ledger-consistent.');
 }
 main().catch(err => { console.error(err); process.exitCode = 1; }).finally(() => prisma.$disconnect());

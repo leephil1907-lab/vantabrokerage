@@ -76,7 +76,9 @@ Last updated: 2026-11-02 (commit af8a816 + fintech retune).
 ## 12 · Deployment
 - ✅ GitHub main + live-standard in sync; Vercel auto-deploys main; Neon prod migrated + seeded
 - ✅ Sandbox preview mirrors prod behaviour
-- ⬜ Custom domain (DNS + SSL on Vercel) — next planned phase
+- ✅ Manual crypto deposit desk wired end-to-end (imported backend aa23a64 + new UI): configured receive addresses per asset/network, copy-to-clipboard, tx-hash submission → PENDING for finance review, zero auto-credit (suite-asserted); honest 'opening soon' state when no addresses configured
+- ✅ Render blueprint imported & reviewed (render.yaml: web + worker + Postgres, health check, graceful worker drain, review-only seed guard) — coexists with the live Vercel deployment; pick one primary before launch
+- ⬜ Custom domain (DNS + SSL) — next planned phase
 - ⬜ Launch switch: flip robots/meta to indexable + submit sitemap once public
 - ⬜ Transactional email provider (SMTP/Resend) for verification & notification deliverability
 - ⬜ Lighthouse/perf budget pass & OG image asset
