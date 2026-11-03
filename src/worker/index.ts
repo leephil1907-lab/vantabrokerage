@@ -72,9 +72,19 @@ async function tick() {
 async function main() {
   console.log('[worker] PRIMEVEST market and practice-trading worker starting…');
   let running = true;
+  let inFlightTick: Promise<void> | null = null;
+
   const shutdown = async (signal: string) => {
-    console.log(`[worker] received ${signal}, shutting down`);
+    if (!running) return;
+    console.log(`[worker] received ${signal}; draining the current tick before shutdown`);
     running = false;
+    if (inFlightTick) {
+      try {
+        await inFlightTick;
+      } catch (err) {
+        console.error('[worker] in-flight tick failed during shutdown', err);
+      }
+    }
     await prisma.$disconnect();
     process.exit(0);
   };
@@ -83,9 +93,11 @@ async function main() {
 
   while (running) {
     const started = Date.now();
-    await tick();
+    inFlightTick = tick();
+    await inFlightTick;
+    inFlightTick = null;
     const elapsed = Date.now() - started;
-    await new Promise((r) => setTimeout(r, Math.max(1000, 5000 - elapsed)));
+    if (running) await new Promise((r) => setTimeout(r, Math.max(1000, 5000 - elapsed)));
   }
 }
 

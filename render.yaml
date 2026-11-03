@@ -1,0 +1,69 @@
+# PRIMEVEST Render Blueprint
+# Deploys the full Next.js application, its continuous worker, and an isolated Postgres DB.
+# All order execution remains PAPER-only; customer deposits and LIVE execution remain disabled.
+
+services:
+  - type: web
+    name: primevest-web
+    runtime: node
+    plan: standard
+    region: frankfurt
+    branch: main
+    autoDeployTrigger: commit
+    buildCommand: npm ci && npm run build
+    preDeployCommand: npx prisma migrate deploy && npm run db:seed-review
+    startCommand: npm start
+    healthCheckPath: /api/health
+    numInstances: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: primevest-postgres
+          property: connectionString
+      - key: APP_URL
+        fromService:
+          type: web
+          name: primevest-web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: EXECUTION_MODE
+        value: paper
+      - key: MARKET_DATA_MODE
+        value: live
+      - key: CRYPTO_DEPOSIT_ADDRESSES
+        value: "{}"
+
+  - type: worker
+    name: primevest-worker
+    runtime: node
+    plan: starter
+    region: frankfurt
+    branch: main
+    autoDeployTrigger: commit
+    buildCommand: npm ci && npx prisma generate
+    startCommand: node scripts/wait-for-database.mjs && npm run worker
+    maxShutdownDelaySeconds: 120
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: primevest-postgres
+          property: connectionString
+      - key: EXECUTION_MODE
+        value: paper
+      - key: MARKET_DATA_MODE
+        value: live
+
+databases:
+  - name: primevest-postgres
+    databaseName: primevest
+    user: primevest_app
+    plan: basic-1gb
+    region: frankfurt
+    ipAllowList: []

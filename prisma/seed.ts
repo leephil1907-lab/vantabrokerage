@@ -14,6 +14,13 @@ async function main() {
   console.log(reviewMarketsOnly ? 'Seeding reference market definitions for review…' : 'Seeding markets…');
   const markets = await seedMarkets(prisma, { includeSimulated: !reviewMarketsOnly });
 
+  // The review/deployment seed is strictly instrument metadata only.
+  // Return before any staff account creation or bootstrap credentials are used.
+  if (reviewMarketsOnly) {
+    console.log(`Reference market seed complete. Markets: ${markets}. No staff accounts were created.`);
+    return;
+  }
+
   // System configuration + accounts
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },

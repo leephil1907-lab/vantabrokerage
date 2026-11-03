@@ -1,16 +1,24 @@
 # PRIMEVEST
 
-Next.js forex and crypto market website and account workspace.
+Next.js 15 multi-asset brokerage interface with PostgreSQL persistence, Prisma, and a separate market/practice-trading worker.
 
-## Vercel review deployment
+## Render deployment
 
-See **[the protected Vercel review runbook](docs/VERCEL-REVIEW-DEPLOYMENT.md)** for the database, environment variables, market-only initialization and verification steps. The Vercel build validates configuration and generates Prisma Client; database migrations and review market setup are separate, deliberate steps.
+The primary deployment configuration is [Render Blueprint](render.yaml). See the [Render deployment runbook](docs/RENDER-DEPLOYMENT.md) for the service layout, first deployment steps, health verification and required email setup.
 
-This repository is **not ready for public real-money trading or deposits**. Live execution and customer deposit requests are disabled, and there is no internal matching engine or connected custody/payment system. Some legacy pages and APIs still provide simulated functionality. See [deployment readiness](docs/DEPLOYMENT-READINESS.md) and [market data notes](docs/CRYPTO-MARKET-DATA.md).
+The Blueprint provisions the web application, background worker and a private PostgreSQL database in Frankfurt. It uses Render's internal database connection, runs committed Prisma migrations before the web service starts, seeds reference market metadata only, and exposes a database-aware health endpoint at `/api/health`.
+
+## Current operating limits
+
+This repository is **not ready for public real-money trading or customer deposits**. LIVE execution is hard-blocked; customer deposit requests are disabled; there is no live broker/exchange adapter, internal matching engine, custody provider or payment integration. Some PAPER/demo functionality and provider-sourced market references are available. See [deployment readiness](docs/DEPLOYMENT-READINESS.md) and [market data notes](docs/CRYPTO-MARKET-DATA.md).
 
 ## Transactional email
 
 See [branded email setup and preview](docs/TRANSACTIONAL-EMAIL.md). Delivery requires an independently configured email provider and verified sender.
+
+## Legacy Vercel review notes
+
+The previous protected Vercel review runbook remains available at [docs/VERCEL-REVIEW-DEPLOYMENT.md](docs/VERCEL-REVIEW-DEPLOYMENT.md). Render is the prepared primary hosting target.
 
 ## Local development
 
