@@ -18,8 +18,8 @@ const depositAddresses = {
 
 async function main() {
   const reviewMarketsOnly = process.argv.includes('--review-markets-only');
-  if (!reviewMarketsOnly && (process.env.NODE_ENV === 'production' || process.env.VERCEL === '1')) {
-    throw new Error('The development seed creates default staff accounts and is not allowed in production or Vercel. Use the market-only review seed on an isolated review database.'); 
+  if (!reviewMarketsOnly && process.env.NODE_ENV === 'production') {
+    throw new Error('The development seed creates default staff accounts and is not allowed in production. Use the review seed for deployment.'); 
   }
   console.log(reviewMarketsOnly ? 'Seeding reference market definitions and funding configuration…' : 'Seeding markets…');
   const markets = await seedMarkets(prisma, { includeSimulated: !reviewMarketsOnly });

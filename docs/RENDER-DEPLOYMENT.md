@@ -1,48 +1,53 @@
 # PRIMEVEST — Render deployment
 
-This repository is prepared for a Render Blueprint deployment from the GitHub `main` branch.
+PRIMEVEST is deployed from the GitHub main branch on Render. Vercel is not part of the deployment path.
+
+## Existing infrastructure
+
+The Render workspace already contains this PostgreSQL resource:
+
+- **Resource:** Primevest
+- **Database:** primevest_postgres
+- **Database user:** primevest_postgres_user
+- **Region:** Frankfurt
+- **Plan:** Basic 1 GB
+- **Status:** Available
+- **Dashboard:** https://dashboard.render.com/d/dpg-dbl5n4t9fdbs739k8ckg-a
+
+The Blueprint references this existing database by its exact Render resource name and database/user identifiers. Review the Blueprint resource summary carefully before applying it; do not create a second database.
 
 ## Services
 
-The root `render.yaml` defines:
+The root render.yaml defines:
+- **primevest-web** — Next.js web application, Frankfurt, Standard instance.
+- **primevest-worker** — persistent Node background worker, Frankfurt, Starter instance.
+- **Primevest** — the existing PostgreSQL database above.
 
-- **primevest-web** — Next.js 15 web service, Frankfurt region, standard instance, one instance initially.
-- **primevest-worker** — separate Node background worker for market refresh, paper-order processing, price alerts and risk jobs.
-- **primevest-postgres** — isolated Render PostgreSQL database in Frankfurt. Public inbound database access is blocked; the web and worker connect over Render's private network.
+The web service and worker use the database's private connection string over Render's private network. Public database access remains disabled. A Render Pro workspace is separate from compute plans and does not make paid instances or databases free. Review the resource and billing summary before applying the Blueprint.
 
-The initial instance plans are deliberately conservative. A Render Pro workspace is separate from the compute plan and does not make paid service instances or databases free. Review the Blueprint's resource and billing summary before applying it. Scale the web service, worker and database after checking actual traffic, CPU, memory, latency and database connection metrics.
+## Deployment steps
 
-## First deployment
-
-1. Open the Render Blueprint creation page for this repository:
-   `https://dashboard.render.com/blueprint/new?repo=https://github.com/leephil1907-lab/vantabrokerage`
-2. Connect the GitHub repository if Render requests access.
-3. Review the three resources and their selected plans before applying.
-4. Apply the Blueprint. Render generates `SESSION_SECRET`, wires the private PostgreSQL connection into both services, and supplies the web service's external URL as `APP_URL`.
-5. The web service runs `prisma migrate deploy` and the safe reference-market seed before starting. The worker waits until the migrated `JobRun` and `TradingPair` tables are available before starting.
-6. Configure transactional email separately using the provider documented in [TRANSACTIONAL-EMAIL.md](TRANSACTIONAL-EMAIL.md). Without a configured provider and verified sender, account verification and password-reset email delivery will not work.
-7. Verify the web service's `/api/health` endpoint returns HTTP 200 with `{"status":"ok","database":"connected"}`. A 503 indicates the app cannot query its database; inspect Render runtime logs before opening the site to users.
+1. Open the Render Blueprint page: https://dashboard.render.com/blueprint/new?repo=https://github.com/leephil1907-lab/vantabrokerage
+2. Connect the GitHub repository if requested.
+3. Confirm Render is reusing the existing Primevest database. If the dashboard proposes a new database, stop and reconcile the Blueprint rather than applying a duplicate.
+4. Review the web and worker plans and estimated charges.
+5. Apply the Blueprint to create the web service and background worker.
+6. Render builds the main branch. The web service runs Prisma migrations and the safe reference-market/funding configuration seed before starting. The worker waits for migrated database tables before starting.
+7. Configure transactional email in Render Environment settings. See TRANSACTIONAL-EMAIL.md.
+8. Verify /api/health returns HTTP 200 with {"status":"ok","database":"connected"}. A 503 means the app cannot query its database; inspect Render logs before opening the site to users.
 
 ## Runtime configuration
 
-The Blueprint sets:
+The Blueprint supplies DATABASE_URL from the existing private Render PostgreSQL connection string, a generated SESSION_SECRET, APP_URL from the web service's Render external URL, EXECUTION_MODE=paper and MARKET_DATA_MODE=live.
 
-- `DATABASE_URL` from the private Render Postgres connection string.
-- `SESSION_SECRET` as a Render-generated secret.
-- `APP_URL` from the web service's Render external URL.
-- `EXECUTION_MODE=paper` and `MARKET_DATA_MODE=live`.
-- `CRYPTO_DEPOSIT_ADDRESSES={}`.
+The database seed initializes the shared deposit-address book once. Admin edits are preserved on later deploys. Do not put database passwords, session secrets, API keys or other credentials in Git. Add optional provider secrets in Render Environment settings.
 
-Do not add database passwords, session secrets, API keys or other credentials to this file or Git. Add optional provider secrets in the Render Dashboard's Environment page.
+## Product boundaries
 
-## Important safety and product boundaries
-
-This is a private staging/demo deployment foundation, not authorization to handle customer funds:
-
+- Crypto deposit requests are recorded as pending manual finance review. A submitted transaction hash is not proof of payment; finance must independently verify asset, network, destination, amount and finality before approving and crediting.
 - LIVE order execution remains blocked. There is no live broker/exchange adapter or internal matching engine.
-- Customer deposit requests remain disabled; no custody, payment or on-chain deposit verification is connected.
-- The worker processes the repository's PAPER/demo flows only.
 - Market prices are provider-sourced reference data; modeled spreads/depth are not an executable exchange order book.
-- Legal, compliance, security, custody, accounting and live-dealing work remains before any real-money launch.
+- The worker processes configured background jobs. It does not create live exchange execution or independently verify deposits.
+- Complete security, compliance, custody, accounting and operational reviews before handling customer funds at scale.
 
-Do not run the full development seed on Render. The `db:seed-review` mode seeds instrument metadata only; it exits before creating default staff accounts or credentials.
+Do not run the full development seed on Render. The db:seed-review mode seeds reference markets and the initial funding address book only; it exits before creating default staff accounts or credentials.

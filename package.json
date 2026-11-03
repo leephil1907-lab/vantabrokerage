@@ -12,7 +12,6 @@
     "worker": "tsx src/worker/index.ts",
     "test": "tsx scripts/test-account-safety.ts",
     "dev:once": "next dev -p 3000 -H 0.0.0.0",
-    "vercel-build": "node scripts/check-vercel-env.mjs && prisma generate && next build",
     "db:seed-review": "tsx prisma/seed.ts --review-markets-only",
     "test:auth": "tsx scripts/test-auth-experience.ts",
     "test:paper": "tsx scripts/test-paper-trading.ts",

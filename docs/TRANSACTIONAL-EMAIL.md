@@ -1,6 +1,6 @@
 # PRIMEVEST transactional email
 
-The shared renderer in `src/lib/email-templates.ts` provides branded HTML and plain-text versions for welcome, email verification (including resend), password reset, password change/reset confirmation, two-factor enabled/disabled, identity verification submitted/approved/rejected, and withdrawal requested/rejected/marked completed. The relevant existing event handlers send them only after the corresponding event occurs. KYC approval and withdrawal status messages do not promise access to live trading or prove settlement. Customer deposits and live execution remain disabled.
+The shared renderer in `src/lib/email-templates.ts` provides branded HTML and plain-text versions for welcome, email verification (including resend), password reset, password change/reset confirmation, two-factor enabled/disabled, identity verification submitted/approved/rejected, and withdrawal requested/rejected/marked completed. The relevant existing event handlers send them only after the corresponding event occurs. KYC approval and withdrawal status messages do not promise access to live trading or prove settlement. Customer crypto deposits remain subject to manual finance review; live order execution remains disabled.
 
 Open `docs/email-preview.html` to review all 12 templates. Its name and links are nonfunctional design placeholders, and it sends no messages. Rebuild it with `npx tsx scripts/create-email-preview.ts` after template changes. If the PNG logo changes, also run `node scripts/update-email-logo.mjs` to update the inline attachment, then rebuild the preview. The preview embeds the logo as a data URL so it works in an offline file viewer.
 
@@ -17,4 +17,4 @@ Open `docs/email-preview.html` to review all 12 templates. Its name and links ar
 
 `ALLOW_DISPOSABLE_EMAIL_TEST=1 npx tsx scripts/test-email-templates.ts` exercises the renderer and mocked Resend/webhook payloads. It creates then removes test outbox records: **only run with an isolated disposable database**. The full end-to-end suite also creates accounts and financial fixtures and must never target customer data. A mock-provider test is not a real delivery test.
 
-The templates are transactional, not marketing emails. Domain ownership and sender name remain subject to PRIMEVEST brand and legal clearance. See `docs/VERCEL-REVIEW-DEPLOYMENT.md` for deployment prerequisites.
+The templates are transactional, not marketing emails. Domain ownership and sender name remain subject to PRIMEVEST brand and legal clearance. See `docs/RENDER-DEPLOYMENT.md` for deployment prerequisites.
