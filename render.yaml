@@ -6,7 +6,8 @@ services:
   - type: web
     name: primevest-web
     runtime: node
-    plan: standard
+    plan: pro
+    pullRequestPreviewsEnabled: true
     region: frankfurt
     branch: main
     autoDeployTrigger: commit
@@ -39,7 +40,7 @@ services:
   - type: worker
     name: primevest-worker
     runtime: node
-    plan: starter
+    plan: standard
     region: frankfurt
     branch: main
     autoDeployTrigger: commit
@@ -62,6 +63,6 @@ databases:
   - name: Primevest
     databaseName: primevest_postgres
     user: primevest_postgres_user
-    plan: basic-1gb
+    plan: pro-4gb
     region: frankfurt
     ipAllowList: []
