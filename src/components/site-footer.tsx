@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowUpRight } from '@/components/ui/arrow-up-right';
 import { Logo } from './brand';
 import { Magnetic } from '@/components/motion/primitives';
 import { FooterLiveStrip } from '@/components/footer-live-strip';
@@ -51,7 +52,7 @@ export function SiteFooter() {
             <p className="mt-1 text-[12.5px] text-muted">Markets, perspective and your account — together in one place.</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Magnetic strength={0.2}><Link href="/markets" className="btn-primary px-4 py-2.5 text-[12.5px]">Explore markets <span aria-hidden="true">↗</span></Link></Magnetic>
+            <Magnetic strength={0.2}><Link href="/markets" className="btn-primary px-4 py-2.5 text-[12.5px]">Explore markets <ArrowUpRight /></Link></Magnetic>
             <Link href="/register" className="btn-ghost px-4 py-2.5 text-[12.5px]">Create an account</Link>
           </div>
         </div>

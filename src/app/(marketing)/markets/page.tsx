@@ -32,7 +32,6 @@ export default function MarketsPage() {
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink-950/88 via-ink-950/62 to-ink-950/25" />
         <div className="shell relative grid min-h-[390px] items-center gap-4 py-14 sm:py-20 lg:grid-cols-[1fr_0.75fr]">
           <div className="relative z-10">
-            <Reveal><p className="eyebrow">Market intelligence</p></Reveal>
             <h1 className="display mt-4 max-w-2xl text-[40px] leading-[1.05] sm:text-[56px]"><MaskLine delay={0.05} immediate>The markets move.</MaskLine><MaskLine delay={0.14} immediate><span className="text-lime">Stay ready.</span></MaskLine></h1>
             <Reveal delay={0.1}><p className="mt-5 max-w-xl text-[14px] leading-7 text-muted">Explore global currencies and digital assets in one considered workspace. Follow provider-sourced prices and discover crypto markets.</p></Reveal>
             <Reveal delay={0.15}><div className="mt-7 flex flex-wrap gap-3"><Magnetic strength={0.25}><a href="#crypto-discovery-heading" className="btn-primary px-5 py-3">Explore crypto markets <span aria-hidden>↗</span></a></Magnetic><Magnetic strength={0.25}><Link href="/dashboard/forex" className="btn-ghost px-5 py-3">Open forex desk</Link></Magnetic></div></Reveal>
@@ -42,7 +41,7 @@ export default function MarketsPage() {
         </div>
       </section>
       <section className="shell pt-14 sm:pt-16">
-        <Reveal><p className="eyebrow">One platform · multiple markets</p><h2 className="display mt-2 text-[26px] sm:text-[32px]">Find your market</h2><p className="mt-2 text-[13px] text-muted">Move between global currencies, crypto and more.</p></Reveal>
+        <Reveal><h2 className="display mt-2 text-[26px] sm:text-[32px]">Find your market</h2><p className="mt-2 text-[13px] text-muted">Move between global currencies, crypto and more.</p></Reveal>
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{DESKS.map((desk, i) => <Reveal key={desk.title} delay={i * 0.045}><Link href={desk.href} className="group flex h-full flex-col rounded-2xl border border-white/[0.07] bg-ink-850/70 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-lime/25 hover:bg-ink-800/80"><div className="flex items-center justify-between"><AssetMark symbol={desk.symbol} size={32}/><span className="chip">{desk.tag}</span></div><h3 className="mt-5 text-[15px] font-semibold text-white">{desk.title}</h3><p className="mt-2 flex-1 text-[12.5px] leading-6 text-muted">{desk.body}</p><span className="mt-5 text-[12px] font-medium text-lime">Explore <span aria-hidden>↗</span></span></Link></Reveal>)}</div>
       </section>
       <section className="shell pt-14 sm:pt-16"><MarketMovers /></section>
@@ -50,12 +49,12 @@ export default function MarketsPage() {
       <CryptoDiscovery />
       <section className="border-y border-white/[0.07] bg-ink-900/30">
         <div className="shell py-16">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Currencies</p><h2 className="display mt-2 text-[26px] sm:text-[32px]">Forex at a glance</h2><p className="mt-2 text-[13px] text-muted">Live quotes from third-party market data providers.</p></div><Link href="/trading/forex" className="btn-ghost px-4 py-2 text-[12px]">Explore forex →</Link></div>
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><h2 className="display mt-2 text-[26px] sm:text-[32px]">Forex at a glance</h2><p className="mt-2 text-[13px] text-muted">Live quotes from third-party market data providers.</p></div><Link href="/trading/forex" className="btn-ghost px-4 py-2 text-[12px]">Explore forex →</Link></div>
           <LiveMarketTable category="FOREX" limit={12} />
         </div>
       </section>
       <section className="shell pt-14 sm:pt-16">
-        <div className="mb-6"><p className="eyebrow">Market map</p><h2 className="display mt-2 text-[26px] sm:text-[32px]"><MaskLine>Every instrument, one glance</MaskLine></h2><p className="mt-2 text-[13px] text-muted">A live heatmap of all listed markets, coloured by their 24-hour move.</p></div>
+        <div className="mb-6"><h2 className="display mt-2 text-[26px] sm:text-[32px]"><MaskLine>Every instrument, one glance</MaskLine></h2><p className="mt-2 text-[13px] text-muted">A live heatmap of all listed markets, coloured by their 24-hour move.</p></div>
         <MarketHeatmap />
       </section>
       <section className="shell pt-14 sm:pt-16"><EarningsRadar /></section>

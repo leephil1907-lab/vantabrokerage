@@ -25,3 +25,4 @@ next-env.d.ts
 # Logs
 npm-debug.log*
 *.log
+.agents/

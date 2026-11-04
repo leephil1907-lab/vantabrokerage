@@ -2,6 +2,7 @@
 
 import { Select } from '@/components/ui/select';
 import Link from 'next/link';
+import { ArrowUpRight } from '@/components/ui/arrow-up-right';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AssetMark } from '@/components/asset-mark';
 import { useAccount } from '@/components/terminal/account-bar';
@@ -91,7 +92,7 @@ export default function DepositsPage() {
     <div className="mx-auto max-w-[1440px] space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div><p className="text-[10px] font-semibold uppercase tracking-[.22em] text-lime">Your assets / Funding</p><h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Deposit funds</h1><p className="mt-2 text-sm text-muted">A clear view of your funding activity, all in one place.</p></div>
-        <Link href="/dashboard/transactions" className="btn-ghost px-4 py-2.5 text-xs">View transactions <span aria-hidden="true">↗</span></Link>
+        <Link href="/dashboard/transactions" className="btn-ghost px-4 py-2.5 text-xs">View transactions <ArrowUpRight /></Link>
       </div>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,.65fr)]">
         <section className="panel">

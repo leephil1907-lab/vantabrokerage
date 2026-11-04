@@ -2,6 +2,7 @@
 
 import { MaskLine } from '@/components/motion/primitives';
 import Link from 'next/link';
+import { ArrowUpRight } from '@/components/ui/arrow-up-right';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { apiFetch } from '@/components/ui';
@@ -32,7 +33,7 @@ function ResetForm() {
       : <form onSubmit={submit} className="auth-form">
         <PasswordField id="new-password" label="New password" required minLength={10} maxLength={128} autoComplete="new-password" hint="At least 10 characters, including a letter and a number." aria-describedby="new-password-hint" value={password} onChange={(e) => setPassword(e.target.value)} />
         <PasswordField id="confirm-password" label="Confirm password" required minLength={10} maxLength={128} autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
-        <AuthError message={error} /><button disabled={busy} className="auth-submit">{busy ? 'Updating…' : <>Update password <span aria-hidden="true">↗</span></>}</button>
+        <AuthError message={error} /><button disabled={busy} className="auth-submit">{busy ? 'Updating…' : <>Update password <ArrowUpRight /></>}</button>
       </form>}
     <p className="auth-switch"><Link href="/login">Back to sign in ↗</Link></p>
   </div>;

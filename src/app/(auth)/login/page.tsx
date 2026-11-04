@@ -2,6 +2,7 @@
 
 import { MaskLine } from '@/components/motion/primitives';
 import Link from 'next/link';
+import { ArrowUpRight } from '@/components/ui/arrow-up-right';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { apiFetch, useToast } from '@/components/ui';
@@ -50,9 +51,9 @@ function LoginForm() {
       <PasswordField id="login-password" label="Password" required autoComplete="current-password" placeholder="Enter your password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} trailing={<Link href="/forgot-password" className="auth-inline-link text-xs">Forgot password?</Link>} />
       {needs2fa && <AuthField id="login-totp" label="Authenticator code" hint="Enter the 6-digit code from your authenticator app." value={form.totp} onChange={(e) => setForm({ ...form, totp: e.target.value.replace(/\D/g, '').slice(0, 6) })} required minLength={6} maxLength={6} inputMode="numeric" autoComplete="one-time-code" placeholder="000000" />}
       <AuthError message={error} />
-      <button type="submit" disabled={busy} className="auth-submit">{busy ? 'Signing in…' : <>Sign in <span aria-hidden="true">↗</span></>}</button>
+      <button type="submit" disabled={busy} className="auth-submit">{busy ? 'Signing in…' : <>Sign in <ArrowUpRight /></>}</button>
     </form>
-    <p className="auth-switch">New to PRIMEVEST? <Link href="/register">Create an account <span aria-hidden="true">↗</span></Link></p>
+    <p className="auth-switch">New to PRIMEVEST? <Link href="/register">Create an account <ArrowUpRight /></Link></p>
   </div>;
 }
 

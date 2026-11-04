@@ -53,7 +53,6 @@ export function FilePreview() {
 
   return (
     <section className="shell py-14">
-      <p className="text-[11px] uppercase tracking-[0.2em] text-muted">File handling</p>
       <h1 className="font-display mt-2 text-3xl md:text-4xl">File preview</h1>
       <p className="mt-3 max-w-2xl text-sm text-muted">
         PRIMEVEST can open <code>.csv</code> and <code>.json</code> files directly from your operating system

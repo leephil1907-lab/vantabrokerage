@@ -257,7 +257,6 @@ export function LiveHome({ markets, authenticated = false }: { markets: M[]; aut
       <section className="shell py-16 sm:py-20">
         <Reveal className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="eyebrow">Market overview</p>
             <h2 className="display mt-2 text-[26px] sm:text-[30px]"><MaskLine>The markets at a glance</MaskLine></h2>
             <p className="mt-2.5 max-w-xl text-[13.5px] leading-relaxed text-muted">
               Follow forex, commodity and digital-asset quotes, with provider and freshness details alongside each market.
@@ -328,7 +327,6 @@ export function LiveHome({ markets, authenticated = false }: { markets: M[]; aut
       <section className="relative border-y border-white/[0.07] bg-ink-900/30">
         <div className="shell py-16 sm:py-20">
           <Reveal>
-            <p className="eyebrow">Market categories</p>
             <h2 className="display mt-2 text-[26px] sm:text-[30px]"><MaskLine>Explore markets in one place</MaskLine></h2>
             <p className="mt-2.5 max-w-xl text-[13.5px] leading-relaxed text-muted">
               Discover currencies, digital assets and information about global markets.
@@ -359,7 +357,6 @@ export function LiveHome({ markets, authenticated = false }: { markets: M[]; aut
       {/* ── 3 STEPS ──────────────────────────────────────────────────────── */}
       <section className="shell py-16 sm:py-20">
         <Reveal className="text-center">
-          <p className="eyebrow justify-center">Getting started</p>
           <h2 className="display mt-2 text-[26px] sm:text-[32px]"><MaskLine>Three steps to get started</MaskLine></h2>
           <p className="mx-auto mt-2.5 max-w-lg text-[13.5px] leading-relaxed text-muted">
             Create an account and explore your market workspace in a few simple steps.
@@ -389,7 +386,6 @@ export function LiveHome({ markets, authenticated = false }: { markets: M[]; aut
       <section className="border-y border-white/[0.07] bg-ink-900/40">
         <div className="shell grid gap-10 py-16 sm:py-20 lg:grid-cols-[0.85fr_1.15fr]">
           <Reveal>
-            <p className="eyebrow">Why PRIMEVEST</p>
             <h2 className="display mt-2 text-[26px] sm:text-[30px]"><MaskLine>A closer look at the platform</MaskLine></h2>
             <p className="mt-3 text-[13.5px] leading-relaxed text-muted">
               Follow the markets, manage your account and find the information you need in a focused workspace.
@@ -431,7 +427,6 @@ export function LiveHome({ markets, authenticated = false }: { markets: M[]; aut
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       <section className="shell max-w-4xl py-16 sm:py-20">
         <Reveal>
-          <p className="eyebrow">Frequently asked</p>
           <h2 className="display mt-2 text-[26px] sm:text-[30px]"><MaskLine>Straight answers</MaskLine></h2>
         </Reveal>
         <div className="mt-6 divide-y divide-white/[0.07] overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-850/50">

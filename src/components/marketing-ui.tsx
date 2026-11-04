@@ -62,14 +62,13 @@ export function PageHero({
       <div className={`shell relative grid gap-8 pb-12 pt-8 lg:pt-10 ${aside ? 'lg:grid-cols-[1.15fr_0.85fr] lg:items-end' : ''}`}>
         <div>
           {breadcrumbs && <div className="mb-5"><Breadcrumbs items={breadcrumbs} /></div>}
-          <Reveal>
-            <p className="eyebrow flex items-center gap-2">
-              {symbol ? <AssetMark symbol={symbol} size={18} /> : <span className="story-dot" />}
-              {eyebrow}
-              {badge && <span className="chip ml-1 normal-case tracking-normal">{badge}</span>}
+          <h1 className="display max-w-2xl text-[30px] leading-[1.08] sm:text-[40px]"><MaskLine delay={0.05} immediate>{title}</MaskLine></h1>
+          {(symbol || badge) && (
+            <p className="mt-3 flex items-center gap-2 text-[11px] text-muted">
+              {symbol && <AssetMark symbol={symbol} size={18} />}
+              {badge && <span className="chip normal-case tracking-normal">{badge}</span>}
             </p>
-          </Reveal>
-          <h1 className="display mt-3 max-w-2xl text-[30px] leading-[1.08] sm:text-[40px]"><MaskLine delay={0.05} immediate>{title}</MaskLine></h1>
+          )}
           <Reveal delay={0.08}>
             <p className="mt-4 max-w-xl text-[13.5px] leading-relaxed text-muted">{body}</p>
           </Reveal>
@@ -120,8 +119,7 @@ export function Section({
       {(title || eyebrow) && (
         <Reveal className={`flex flex-wrap items-end justify-between gap-4 ${children ? 'mb-6' : ''}`}>
           <div>
-            {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-            {title && <h2 className={`display ${eyebrow ? 'mt-2' : ''} text-[22px] sm:text-[27px]`}><MaskLine>{title}</MaskLine></h2>}
+            {title && <h2 className="display text-[22px] sm:text-[27px]"><MaskLine>{title}</MaskLine></h2>}
             {body && <p className="mt-2.5 max-w-2xl text-[13px] leading-relaxed text-muted">{body}</p>}
           </div>
           {aside}

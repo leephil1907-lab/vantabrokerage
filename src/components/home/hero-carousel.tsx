@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { ArrowUpRight } from '@/components/ui/arrow-up-right';
 import { PrimevestGlyph } from '@/components/brand';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
@@ -45,7 +46,6 @@ export function HeroCarousel({ children }: { children: ReactNode }) {
     <div className="story-hero-3d" aria-hidden="true"><HeroScene /></div>
     <div className="story-hero-inner">
       <div className="story-hero-copy">
-        <div className="story-eyebrow"><span className="story-dot" /> PRIMEVEST <span className="story-eyebrow-divider" /> {slide.kicker}</div>
         <div aria-live="off" aria-atomic="true">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -61,7 +61,7 @@ export function HeroCarousel({ children }: { children: ReactNode }) {
           </AnimatePresence>
         </div>
         <div className="story-actions">
-          <Magnetic strength={0.25}><Link href="/markets" className="btn-primary story-button">Explore markets <span aria-hidden="true">↗</span></Link></Magnetic>
+          <Magnetic strength={0.25}><Link href="/markets" className="btn-primary story-button">Explore markets <ArrowUpRight /></Link></Magnetic>
           <a href="#live-charts" className="story-secondary">View live charts <span aria-hidden="true">→</span></a>
         </div>
       </div>

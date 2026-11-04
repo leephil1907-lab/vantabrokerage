@@ -19,7 +19,6 @@ export async function EarningsRadar() {
     <div>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="eyebrow">Macro radar</p>
           <h2 className="display mt-2 text-[26px] sm:text-[32px]">Earnings radar</h2>
           <p className="mt-2 text-[13px] text-muted">Listed companies reporting this week, with consensus EPS and revenue where published — equity results move indices and sentiment.</p>
         </div>

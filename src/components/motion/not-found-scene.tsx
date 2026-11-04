@@ -97,12 +97,12 @@ export function NotFoundScene() {
 
       <div className="shell relative grid items-center gap-10 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
         <div>
-          <p className="eyebrow"><span className="story-dot" /> Error 404 · position not found</p>
           <h1 className="display mt-4 text-[64px] leading-[0.95] sm:text-[92px]">
             <MaskLine>Off the</MaskLine>
             <MaskLine delay={0.1}><em className="text-gold">charts.</em></MaskLine>
           </h1>
-          <p className="mt-5 max-w-md text-[13.5px] leading-relaxed text-muted">
+          <p className="mt-4 text-[10.5px] uppercase tracking-[0.16em] text-muted">Error 404 · position not found</p>
+          <p className="mt-3 max-w-md text-[13.5px] leading-relaxed text-muted">
             This page never listed, delisted, or moved beyond our coverage. The markets, however,
             are exactly where you left them — and support is one click away.
           </p>

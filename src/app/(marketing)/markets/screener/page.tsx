@@ -14,7 +14,6 @@ export default function ScreenerPage() {
       <ShaderHero />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-ink-950/60 to-transparent" />
       <div className="shell relative pt-10 sm:pt-14">
-      <p className="eyebrow"><span className="story-dot" /> Research tools</p>
       <h1 className="display mt-2 text-[30px] sm:text-[38px]"><MaskLine>Global market screener</MaskLine></h1>
       <p className="mt-3 max-w-2xl text-[13.5px] leading-relaxed text-muted">
         Scan thousands of listed stocks, crypto pairs, currencies and CFDs by momentum, activity, size and

@@ -4,6 +4,7 @@ import { Select } from '@/components/ui/select';
 import { COUNTRIES } from '@/lib/countries';
 import { MaskLine } from '@/components/motion/primitives';
 import Link from 'next/link';
+import { ArrowUpRight } from '@/components/ui/arrow-up-right';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { apiFetch, useToast } from '@/components/ui';
@@ -54,9 +55,9 @@ function RegisterForm() {
       </details>
       <label className="auth-consent"><input type="checkbox" required checked={form.acceptTerms} onChange={(e) => setForm({ ...form, acceptTerms: e.target.checked })} /><span>I agree to the <Link href="/legal/terms">terms</Link>, <Link href="/legal/privacy">privacy policy</Link> and <Link href="/legal/risk-disclosure">risk disclosure</Link>.</span></label>
       <AuthError message={error} />
-      <button type="submit" disabled={busy} className="auth-submit">{busy ? 'Creating account…' : <>Create account <span aria-hidden="true">↗</span></>}</button>
+      <button type="submit" disabled={busy} className="auth-submit">{busy ? 'Creating account…' : <>Create account <ArrowUpRight /></>}</button>
     </form>
-    <p className="auth-switch">Already have an account? <Link href="/login">Sign in <span aria-hidden="true">↗</span></Link></p>
+    <p className="auth-switch">Already have an account? <Link href="/login">Sign in <ArrowUpRight /></Link></p>
   </div>;
 }
 

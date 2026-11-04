@@ -2,6 +2,7 @@
 
 import { MaskLine } from '@/components/motion/primitives';
 import Link from 'next/link';
+import { ArrowUpRight } from '@/components/ui/arrow-up-right';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { apiFetch } from '@/components/ui';
@@ -25,7 +26,7 @@ function Verify() {
       {state === 'working' && <p className="auth-subtitle">Verifying your address…</p>}
       {state === 'ok' && <div role="status" className="rounded-xl border border-emerald/25 bg-emerald/10 p-4 text-sm leading-relaxed text-white/80">Your email address is verified.</div>}
       {state === 'error' && <AuthError message={message} />}
-      <Link href="/dashboard" className="auth-submit">Go to dashboard <span aria-hidden="true">↗</span></Link>
+      <Link href="/dashboard" className="auth-submit">Go to dashboard <ArrowUpRight /></Link>
     </div>
     <p className="auth-switch"><Link href="/login">Back to sign in ↗</Link></p>
   </div>;
