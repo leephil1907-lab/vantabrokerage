@@ -12,7 +12,7 @@ services:
     branch: main
     autoDeployTrigger: commit
     buildCommand: npm ci && npm run build
-    preDeployCommand: npx prisma migrate deploy && npm run db:seed-review
+    preDeployCommand: npx prisma migrate deploy && npm run db:seed-review && STAFF_BOOTSTRAP=one-time-2026-11 node scripts/bootstrap-staff.mjs
     startCommand: npm start
     healthCheckPath: /api/health
     numInstances: 1
