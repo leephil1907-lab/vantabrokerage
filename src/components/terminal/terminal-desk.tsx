@@ -59,6 +59,21 @@ export function TerminalDesk({ kind, mode = 'all' }: { kind: DeskKind; mode?: 'a
   const search = useSearchParams();
   const requested = search.get('symbol');
   const [symbol, setSymbol] = useState(requested ?? cfg.defaultSymbol);
+
+  // Deep links (share target, protocol handler, ticker) may carry a name or a
+  // loosely-formatted symbol; resolve it against the loaded market universe.
+  useEffect(() => {
+    if (!requested || markets.length === 0) return;
+    if (markets.some((m) => m.symbol === requested)) return;
+    const norm = (v: string) => v.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const target = norm(requested);
+    if (!target) return;
+    const hit =
+      markets.find((m) => norm(m.symbol) === target) ??
+      markets.find((m) => target.length >= 3 && norm(m.symbol).startsWith(target)) ??
+      markets.find((m) => norm(m.displayName).includes(target.slice(0, 6)));
+    if (hit) setSymbol(hit.symbol);
+  }, [requested, markets]);
   const [quote, setQuote] = useState<Quote | null>(null);
   const requestSeq = useRef(0);
   const [positions, setPositions] = useState<Position[]>([]);

@@ -367,3 +367,8 @@ html[data-theme='light'] :is(.panel,.shadow-panel) { box-shadow:0 12px 30px -18p
 .footer-link { transition: color .2s ease, transform .2s ease; display: inline-flex; align-items: center; gap: .35rem; }
 .footer-link:hover { transform: translateX(3px); }
 @media (prefers-reduced-motion: reduce) { .ghost-track, .gold-hairline { animation: none; } }
+
+/* Installed desktop PWA with window controls overlay: keep content clear of the caption buttons */
+@media (display-mode: window-controls-overlay) {
+  header .shell { max-width: none; padding-left: calc(env(titlebar-area-x, 0px) + 24px); padding-right: calc(100vw - env(titlebar-area-width, 100vw) - env(titlebar-area-x, 0px) + 24px); }
+}

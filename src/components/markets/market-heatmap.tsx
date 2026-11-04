@@ -42,7 +42,7 @@ export function MarketHeatmap() {
                 return (
                   <Link
                     key={r.symbol}
-                    href={`/terminal?symbol=${encodeURIComponent(r.symbol)}`}
+                    href={`/dashboard/trade?symbol=${encodeURIComponent(r.symbol)}`}
                     className={`group relative flex flex-col justify-between overflow-hidden rounded-lg border border-white/[0.06] p-2.5 transition-transform duration-200 hover:scale-[1.03] ${big ? 'min-h-[92px]' : 'min-h-[76px]'}`}
                     style={{ background: tileColor(chg) }}
                   >

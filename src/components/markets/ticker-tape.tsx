@@ -22,7 +22,7 @@ export function TickerTape() {
       <div className="ticker-marquee overflow-hidden py-2.5">
         <div className="ticker-track flex w-max items-center gap-6 px-4">
           {loop.map((r, i) => (
-            <Link key={`${r.symbol}-${i}`} href={`/terminal?symbol=${encodeURIComponent(r.symbol)}`} className="flex shrink-0 items-center gap-2 rounded-md px-1 py-0.5 transition hover:bg-white/[0.06]">
+            <Link key={`${r.symbol}-${i}`} href={`/dashboard/trade?symbol=${encodeURIComponent(r.symbol)}`} className="flex shrink-0 items-center gap-2 rounded-md px-1 py-0.5 transition hover:bg-white/[0.06]">
               <AssetMark symbol={r.symbol} size={16} />
               <span className="font-mono text-[11px] font-semibold tracking-tight text-[#eef1f6]">{r.symbol}</span>
               <span className="font-mono text-[11px] text-[#eef1f6]/70">{price(r.last)}</span>

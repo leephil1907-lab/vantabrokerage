@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
   const base = process.env.APP_URL ?? 'https://primevest-web.onrender.com';
   if (process.env.PUBLIC_INDEXABLE === 'true') {
     return {
-      rules: [{ userAgent: '*', allow: '/', disallow: ['/api/', '/admin', '/dashboard', '/terminal', '/wallet'] }],
+      rules: [{ userAgent: '*', allow: '/', disallow: ['/api/', '/admin', '/dashboard', '/wallet'] }],
       sitemap: `${base}/sitemap.xml`,
     };
   }
