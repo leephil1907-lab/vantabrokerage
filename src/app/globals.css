@@ -357,3 +357,13 @@ html[data-theme='light'] :is(.panel,.shadow-panel) { box-shadow:0 12px 30px -18p
 @media(min-width:900px) { .sessions-grid { grid-template-columns:repeat(5,minmax(0,1fr)); } }
 
 @media(max-width:750px) { .market-sessions {padding:18px}.sessions-grid {grid-template-columns:repeat(2,minmax(0,1fr))}.session-card {padding:11px}.session-time {font-size:18px}.session-card-top {align-items:start;flex-direction:column}.session-card-top span {text-align:left} }
+
+/* ── Footer signature motion ─────────────────────────────────────────── */
+.gold-hairline { background: linear-gradient(90deg, transparent 0%, rgba(223,192,136,0.75) 50%, transparent 100%); background-size: 200% 100%; animation: hairline-sweep 7s ease-in-out infinite; }
+@keyframes hairline-sweep { 0% { background-position: 120% 0; } 50% { background-position: -20% 0; } 100% { background-position: 120% 0; } }
+.ghost-track { animation: ghost-x 90s linear infinite; }
+.ghost-track span { color: transparent; -webkit-text-stroke: 1px rgba(223,192,136,0.13); }
+@keyframes ghost-x { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.footer-link { transition: color .2s ease, transform .2s ease; display: inline-flex; align-items: center; gap: .35rem; }
+.footer-link:hover { transform: translateX(3px); }
+@media (prefers-reduced-motion: reduce) { .ghost-track, .gold-hairline { animation: none; } }

@@ -1,93 +1,82 @@
-# PRIMEVEST — Project Completion Checklist
+# PRIMEVEST — Website Completion Checklist & Inventory
 
-Living status document. ✅ done & verified · 🟡 done with caveats · ⬜ open item.
-Last updated: 2026-11-02 (commit af8a816 + fintech retune).
+Living inventory of everything on the website, its status, and what remains.
+Updated 4 Nov 2026 · deployment target: **Render** (`primevest-web.onrender.com`, blueprint `render.yaml`) · Vercel retired.
 
-## 1 · Brand & design system
-- ✅ Obsidian + champagne-gold identity; logo mark, favicon and UI tokens aligned (no green remnants)
-- ✅ Exchange-grade fintech retune: cool neutral chassis (OKX-class), gold reserved for brand/actions, emerald/red strictly for market direction
-- ✅ Dark + light themes; dark islands (wallet card) keep legible contrast in light mode
-- ✅ Motion layer: Lenis smooth scroll, reveals, line masks, marquees, magnetic CTAs, page transitions — all with prefers-reduced-motion fallbacks
-- ✅ Cinematic 404 inside the full site shell; press feedback on every clickable; back-to-top glide
+Legend: ✅ shipped & verified · 🟡 partial / conditional · ⬜ open
 
-## 2 · Marketing website
-- ✅ Home (hero carousel + 3D globe + shader mesh + live showcase + sessions + crypto discovery + gold band + footer wordmark motion)
-- ✅ Markets, forex, crypto, short-expiry, accounts, about, help, trading-conditions, legal set (terms/privacy/AML/cookies/risk-disclosure)
-- ✅ Global market screener (TradingView scanner) + Finnhub news + company-profile drawer
-- ✅ SEO metadata, theme-color, icon.svg; footer risk warning retained as the single standing disclaimer
-- ✅ Search privacy (pre-launch): robots.txt Disallow /, site-wide noindex/nofollow/noarchive/nosnippet metadata and X-Robots-Tag header — dashboards, APIs and pages stay out of search indexes. FLIP to an allow-list at public launch
-- ✅ Photographic page heroes (real market imagery per desk, Ken Burns motion, locked light-on-dark contrast in both themes) with local glyph fallbacks when remote coin icons fail
-- ✅ Research-tooling transplant (Fincept/Vibe-Trading concepts, natively reimplemented in TS): null-safe indicator engine (RSI/EMA/MACD/Bollinger/ATR/VWAP + Sharpe/profit-factor/max-DD), terminal Signal Lens panel, live market heatmap, Finnhub earnings radar, dashboard Performance card with realized equity curve; stale "order book unavailable / no matching engine" placeholders replaced with real Signal Lens + Recent executions
-- ✅ Public live ticker tape with brand marks/flags under the nav on home + markets (theme-proof dark chassis, pauses on hover); replaced the old token-coloured, icon-less, below-the-fold tape
-- ✅ /markets hero now carries real market photography with mount-animated headline (no more blank hero in light theme); all hero titles animate on mount, immune to scroll-capture and IO edge cases
-- ✅ Zero "not available / key required / coming soon" copy on public surfaces: news falls back to an auto-generated leaders/laggards market brief; APIs no longer leak key-meta messages; neutral reconnecting states elsewhere; bank tab retired until rails exist
-- ✅ Precise asset branding everywhere: official coin marks for every listed crypto, stacked currency flags for FX, gold/silver bullion stacks, crude droplet + gas flame for energy, colour-coded coded rings for indices (DOW/NDX/SPX/DAX/FTSE) — no two instruments share a glyph
-- ✅ Provider 'Source' column removed from instrument lists (client asked; internal provenance retained server-side)
-- ✅ Palette v3 — modern exchange fintech: blue-graphite midnight chassis (#0a0e16 / #0f141f / #141a28), porcelain-cool light theme, exchange-standard direction colours (#0ECB81 up / #F6465D down), champagne gold reserved for brand + primary actions
-- ✅ Compact professional footer: invite line, link columns, risk block, bottom bar (giant wordmark retired)
+---
 
-## 3 · Market data
-- ✅ 44 reference instruments (forex/CFD/crypto), live quotes with TTL refresh that works serverless (verified 44/44 priced on Vercel)
-- ✅ Trading sessions clock with regional flags + crypto mark; venue depth (Kraken book); movers + auto brief
-- ✅ Price alerts (worker-evaluated), watchlists, candles endpoint
-- 🟡 Quote freshness depends on third-party providers; delayed chips shown when stale
+## 1. Brand & shell
+- ✅ Obsidian & champagne-gold identity; serif display + refined sans + Plex mono
+- ✅ Exchange-grade palette v3: blue-graphite dark chassis, porcelain light theme, #0ECB81/#F6465D direction tokens
+- ✅ Gold logo mark, favicon (`app/icon.svg`), apple-touch-icon + 192/512 PNGs, `manifest.webmanifest` (standalone PWA)
+- ✅ OG social card `public/og.png` (1200×630) + full openGraph/twitter metadata, metadataBase from APP_URL (Render domain in production)
+- ✅ Theme system: dark/light with persisted preference, theme islands for cinematic surfaces, `theme-color` per theme
+- ✅ Motion system: Lenis smooth scroll, scroll reveals, line-mask headings (mount-animated in heroes), magnetic buttons, marquees, parallax, Ken Burns hero photography — all with prefers-reduced-motion fallbacks
 
-## 4 · Brokerage core
-- ✅ Account economics per owner rule: DEMO auto-provisioned with $100,000 labelled virtual capital; LIVE starts at $0 and cannot trade until funded (INSUFFICIENT_FUNDS enforced server-side + funding-gate UI in the ticket)
-- ✅ Order types (market/limit/stop family), internal dealing fills with venue provenance, resting-order matcher, position netting, TP/SL, cancel/close
-- ✅ Short-expiry CALL/PUT with worker settlement; ledger-double-entry accounting, balanced-ledger tested
-- ✅ Portfolio: equity, margin, buying power, realised/open P&L, diversification, history chart
-- ⬜ Real external liquidity/execution partner for LIVE (currently internal dealing; labelled in admin & audit)
+## 2. Marketing site (public)
+- ✅ Home: cinematic photo carousel hero, live terminal preview card, coin ticker tape under nav, market sessions, movers, discovery grid, storytelling sections
+- ✅ Markets: photographic hero, ticker tape, live table (no provider-source column), heatmap treemap of every instrument, movers, news/brief, earnings radar, screener link
+- ✅ Screener: TradingView-powered global scanner (america/crypto/forex/cfd)
+- ✅ Trading desks: forex / crypto spot / CFD / futures / short-expiry pages with photographic heroes, feature grids, live tables, sessions
+- ✅ Accounts, trading conditions, deposits & withdrawals info, referral program, help center, contact (wired to admin inbox)
+- ✅ Company about, legal suite (terms, privacy, risk disclosure, AML, cookies)
+- ✅ 404 scene with shader + wayfinding
+- ✅ Asset branding everywhere: official coin marks, stacked FX flags, bullion stacks, energy flames/droplets, coded index rings (DOW/NDX/SPX/DAX/FTSE)
 
-## 5 · Wallet & funding
-- ✅ Ledger, holdings, transfers segregated across environments (cross-environment transfer blocked, tested)
-- ✅ Withdrawals require ADMIN approval (no pre-approved path); deposits disabled until payment rails exist (503 + neutral "funding coming soon" UX)
-- ⬜ Payment provider integration (crypto addresses / bank rails) — blocker for live funding
+## 3. Market data & research
+- ✅ 44 reference instruments; live quotes (Kraken/Coinbase/Yahoo) with TTL refresh, serverless-safe caching, stale flags
+- ✅ Candle history + reference charts; TradingView terminal charts; venue depth for major crypto
+- ✅ Indicator engine (RSI/EMA/MACD/Bollinger/ATR/VWAP) + Signal Lens panel in terminal
+- ✅ Performance maths (win rate, profit factor, max DD, Sharpe) — null-safe doctrine
+- ✅ News: Finnhub editorial flow when key configured; auto leaders/laggards market brief otherwise (no dead-end copy)
+- ✅ Economic/earnings radar; crypto discovery (CoinGecko) with branded-icon fallbacks
 
-## 6 · KYC & compliance controls
-- ✅ KYC submission flow with document country dropdown; statuses NOT_SUBMITTED → PENDING → APPROVED/REJECTED
-- ✅ Manual-only verification: admin approves/rejects; no auto-approval anywhere (code-verified); withdrawal approval likewise manual
-- ✅ No seeded sample users/trades in production; seed endpoint is staff-only and markets-only
-- 🟡 Jurisdiction-specific regulatory copy should be reviewed by counsel before launch
+## 4. Brokerage core
+- ✅ Auth: signup with country dropdown, email verification, sign-in, 2FA (TOTP + QR), password reset, safe redirects, atomic single-use tokens
+- ✅ Accounts: PAPER ($100k virtual, labelled) + LIVE ($0 until funded); demo-first economics enforced client & server
+- ✅ Order ticket: market/limit, leverage, margin modes; internal matching engine with provenance; resting orders; worker settlement; TP/SL; cancellations; position netting
+- ✅ Short-expiry CALL/PUT with payout rates and worker settlement
+- ✅ Live funding gate: unfunded live accounts see "Fund your live account" + deposit link; server rejects unfunded live orders
+- ✅ Alerts, watchlists, copy-trading placeholder pages, referrals with tracking
+- ✅ Wallet: ledger-consistent deposits/withdrawals/transfers, cross-environment transfer block, funding gates
 
-## 7 · Support & chat
-- ✅ PRIMEVEST Customer Support widget: bot FAQ + forced human handoff, visitor token persistence, solid (non-transparent) panel, DRAGGABLE launcher that docks bottom and never covers content (position remembered)
-- ✅ Admin console /admin/chat: open/closed tabs, threads, replies, close; staff nav link
-- ✅ Ticket system (dashboard/support) with staff replies
+## 5. Funding & payments
+- ✅ Manual crypto deposit desk: configured receive addresses per asset/network, copy action, tx-hash intake → PENDING finance review, duplicate-hash rejection, zero auto-credit (suite-asserted)
+- ✅ Admin credit/reject flow with notifications; idempotent single credit
+- ⬜ Card / bank rails (future)
+- ⬜ Real liquidity partner for LIVE execution (paper/internal dealing today)
 
-## 8 · Admin & ops
-- ✅ Admin shell: users, KYC queue, withdrawals, markets (with staff-only seed button), audit log, settings, stats, live chat
-- ✅ Audit logging of admin actions; role gates (ADMIN/SUPERADMIN/SUPPORT/FINANCE)
-- ✅ Neon production baselined (_prisma_migrations complete); Vercel builds run env guard + migrate-safe build command
+## 6. KYC, support & admin
+- ✅ KYC submission flow with document upload; admin manual approval only (no auto-approve anywhere)
+- ✅ Support chat: draggable bottom-docked launcher, visitor→bot→handoff→agent→close, admin console
+- ✅ Admin back office: users, KYC queue, withdrawals queue, deposit review, chat inbox, market management, audit log
+- ✅ Zero premade sample users/trades in production; review seed is metadata-only
 
-## 9 · Auth & security
-- ✅ Email+password with verification, reset (atomic single-use tokens), 2FA (TOTP), session rotation, rate limits, safe redirects
-- ✅ Secrets only in git-ignored .env / platform envs; no tokens in repo (scanned)
-- 🟡 Rotate the three secrets previously pasted in chat (Neon password, GitHub token, Finnhub key)
+## 7. Dashboard & terminal
+- ✅ Dashboard: viewport-aligned layout, wallet card, performance card (equity curve + stats), allocation donut, positions, orders, history, notifications
+- ✅ Terminal desk: instrument rail, chart panel (TradingView/reference), Signal Lens, order ticket, venue depth, session stats, symbol news, recent executions
+- ✅ Account bar with PAPER/LIVE switcher; auth-aware marketing nav (no Sign in when logged in)
+- ✅ Deposits/withdrawals/transactions pages with friendly ledger copy
 
-## 10 · Mobile & accessibility
-- ✅ Zero horizontal overflow at 360–430px (automated check in terminal suite); grid min-width pitfalls fixed
-- ✅ All choosers are in-page gold dropdowns (country, asset, leverage, alert symbol/direction, sort) — no OS radio sheets
-- ✅ Mobile tab bars (marketing + dashboard), safe-area offsets, sticky-nav-aware anchors
-- ✅ ARIA: listbox semantics, aria-live statuses, focus-visible rings, reduced-motion paths
+## 8. Quality, privacy & ops
+- ✅ Suites: account-safety, auth-experience, paper-trading, terminal-workspace — all PASS on current build
+- ✅ 19–21 route crawls: H1s present, zero horizontal overflow, zero console errors (mobile 390px)
+- ✅ Search privacy pre-launch: robots.txt Disallow /, site-wide noindex/nofollow/nocache, X-Robots-Tag header; launch flip recorded below
+- ✅ Security headers (frame, content-type, referrer, permissions); health endpoint `/api/health`
+- ✅ Render blueprint: web (pro) + worker (standard) + Postgres (pro-4gb), PR previews, healthcheck, graceful worker drain, review-only pre-deploy seed
+- ✅ Secrets hygiene guidance: rotate GitHub token, Neon URL, Finnhub key (documented; user advised)
 
-## 11 · Quality gates
-- ✅ Four regression suites green: account-safety, auth-experience (browser), paper-trading, terminal-workspace (browser, mobile+desktop, zero console errors)
-- ✅ tsc strict clean; production build clean; 25+ route smoke checks per release
-- 🟡 ESLint not configured (tsc is the gate) — optional hardening
+## 9. Footer & chrome
+- ✅ Creative compact footer: live global-desk strip (session clocks + open dots), animated gold hairline, magnetic CTA, link columns with hover glide, systems-live pulse, risk block, ghost wordmark marquee
+- ✅ Sticky nav with dropdown menus (opaque), command palette, scroll-top, route progress, chat launcher
 
-## 12 · Deployment
-- ✅ GitHub main + live-standard in sync; Vercel auto-deploys main; Neon prod migrated + seeded
-- ✅ Sandbox preview mirrors prod behaviour
-- ✅ Manual crypto deposit desk wired end-to-end (imported backend aa23a64 + new UI): configured receive addresses per asset/network, copy-to-clipboard, tx-hash submission → PENDING for finance review, zero auto-credit (suite-asserted); honest 'opening soon' state when no addresses configured
-- ✅ Render blueprint imported & reviewed (render.yaml: web + worker + Postgres, health check, graceful worker drain, review-only seed guard) — coexists with the live Vercel deployment; pick one primary before launch
-- ⬜ Custom domain (DNS + SSL) — next planned phase
-- ⬜ Launch switch: flip robots/meta to indexable + submit sitemap once public
-- ⬜ Transactional email provider (SMTP/Resend) for verification & notification deliverability
-- ⬜ Lighthouse/perf budget pass & OG image asset
-- ⬜ Status/monitoring + error tracking (Sentry-class) for prod
-
-## Verification snapshot (this pass)
-- scrollWidth == viewport at 390px on dashboard, terminal, markets
-- Live quotes 44/44 on Vercel; chat E2E visitor→bot→handoff→agent→close verified
-- All approvals manual; live trading gated on funding; demo-only virtual capital
+## 10. Open items (next phases)
+- ⬜ Custom domain (DNS + SSL on Render; then APP_URL/cookies/emails follow) — next planned phase
+- ⬜ Launch flip: robots/meta to indexable + sitemap submission
+- ⬜ Transactional email provider (templates + branded logo ready; delivery unconfigured)
+- ⬜ Card/bank payment rails; real LIVE liquidity partner
+- ⬜ Counsel review of jurisdictional copy
+- ⬜ ESLint hardening pass; Lighthouse performance budget; production monitoring/alerting
+- ⬜ Secret rotation (GitHub token, Neon URL, Finnhub key)
