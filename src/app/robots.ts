@@ -14,5 +14,15 @@ export default function robots(): MetadataRoute.Robots {
       sitemap: `${base}/sitemap.xml`,
     };
   }
-  return { rules: [{ userAgent: '*', disallow: ['/'] }] };
+  const social = [
+    'Twitterbot', 'facebookexternalhit', 'Facebot', 'LinkedInBot', 'Slackbot',
+    'Slack-ImgProxy', 'TelegramBot', 'WhatsApp', 'Discordbot', 'Pinterestbot',
+    'Iframely', 'Embedly', 'SkypeUriPreview', 'ViberBot', 'Applebot',
+  ];
+  return {
+    rules: [
+      { userAgent: '*', disallow: ['/'] },
+      ...social.map((userAgent) => ({ userAgent, allow: ['/'] })),
+    ],
+  };
 }
