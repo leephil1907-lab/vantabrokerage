@@ -1,8 +1,8 @@
 import { ImageResponse } from 'next/og';
 
-export const runtime = 'edge';
-export const contentType = 'image/png';
-export const size = { width: 1200, height: 630 };
+// Node runtime: Render serves this build with `next start`, which has no edge runtime.
+export const runtime = 'nodejs';
+export const revalidate = 3600;
 
 export async function GET() {
   const bars = [34, 48, 42, 66, 57, 78, 69, 92, 84, 110, 98, 126, 118, 148, 137, 166, 154, 190, 176, 214];
@@ -47,6 +47,6 @@ export async function GET() {
         <div style={{ position: 'absolute', right: '58px', bottom: '36px', fontSize: '17px', color: 'rgba(225,245,245,.72)', letterSpacing: '2px' }}>PRIMEVEST</div>
       </div>
     ),
-    { ...size }
+    { width: 1200, height: 630 }
   );
 }
