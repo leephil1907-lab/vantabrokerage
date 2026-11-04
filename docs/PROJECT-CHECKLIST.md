@@ -22,7 +22,7 @@ Legend: ✅ shipped & verified · 🟡 partial / conditional · ⬜ open
 - ✅ Screener: TradingView-powered global scanner (america/crypto/forex/cfd)
 - ✅ Trading desks: forex / crypto spot / CFD / futures / short-expiry pages with photographic heroes, feature grids, live tables, sessions
 - ✅ Accounts, trading conditions, deposits & withdrawals info, referral program, help center, contact (wired to admin inbox)
-- ✅ Company about, legal suite (terms, privacy, risk disclosure, AML, cookies)
+- ✅ Company about; legal suite in final form v2.0 (terms, privacy, risk disclosure, AML, cookies) — full documents describing the live product: internal dealing, manual-review funding, paper/live environments, KYC and crypto controls
 - ✅ 404 scene with shader + wayfinding
 - ✅ Asset branding everywhere: official coin marks, stacked FX flags, bullion stacks, energy flames/droplets, coded index rings (DOW/NDX/SPX/DAX/FTSE)
 
@@ -64,7 +64,7 @@ Legend: ✅ shipped & verified · 🟡 partial / conditional · ⬜ open
 ## 8. Quality, privacy & ops
 - ✅ Suites: account-safety, auth-experience, paper-trading, terminal-workspace — all PASS on current build
 - ✅ 19–21 route crawls: H1s present, zero horizontal overflow, zero console errors (mobile 390px)
-- ✅ Search privacy pre-launch: robots.txt Disallow /, site-wide noindex/nofollow/nocache, X-Robots-Tag header; launch flip recorded below
+- ✅ Search privacy pre-launch: robots.txt Disallow /, site-wide noindex/nofollow/nocache, X-Robots-Tag header — all driven by one switch: `PUBLIC_INDEXABLE=true` (+ redeploy) opens robots.txt, lifts meta robots, drops the header and publishes sitemap.xml
 - ✅ Security headers (frame, content-type, referrer, permissions, HSTS preload); health endpoint `/api/health`
 - ✅ Render blueprint: web (pro) + worker (standard) + Postgres (pro-4gb), PR previews, healthcheck, graceful worker drain, review-only pre-deploy seed
 - ✅ Secrets hygiene guidance: rotate GitHub token, Neon URL, Finnhub key (documented; user advised)
@@ -74,10 +74,15 @@ Legend: ✅ shipped & verified · 🟡 partial / conditional · ⬜ open
 - ✅ Sticky nav with dropdown menus (opaque), command palette, scroll-top, route progress, chat launcher
 
 ## 10. Open items (next phases)
-- ⬜ Custom domain (DNS + SSL on Render; then APP_URL/cookies/emails follow) — next planned phase
+- 🟡 Custom domain — user acquiring; runbook below
+- ⬜ Transactional email provider
 - ⬜ Launch flip: robots/meta to indexable + sitemap submission
-- ⬜ Transactional email provider (templates + branded logo ready; delivery unconfigured)
 - ⬜ Card/bank payment rails; real LIVE liquidity partner
-- ⬜ Counsel review of jurisdictional copy
 - ⬜ ESLint hardening pass; Lighthouse performance budget; production monitoring/alerting
 - ⬜ Secret rotation (GitHub token, Neon URL, Finnhub key)
+
+## 11. Domain & launch runbook (when the domain arrives)
+1. Buy/point the domain; add it in Render → service → Settings → Custom domains (SSL auto-issued).
+2. Set `APP_URL=https://yourdomain` and `PUBLIC_INDEXABLE=true` in the Render **web** environment (worker inherits APP_URL via blueprint); redeploy.
+3. Verify: metadataBase/OG/canonical + sitemap.xml emit the domain; robots.txt allows public routes; X-Robots-Tag header gone; session cookies already domain-agnostic (SameSite=Lax, no pinned domain).
+4. Submit sitemap.xml to search consoles; monitor first crawl; flip complete.

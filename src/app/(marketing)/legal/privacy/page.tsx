@@ -3,50 +3,49 @@ import { LegalPage } from '@/components/legal-page';
 export const metadata = { title: 'Privacy policy' };
 
 export default function PrivacyPage() {
-  return (
-    <LegalPage
-      title="Privacy policy"
-      summary="What personal data the platform collects, why it is processed, how long it is kept and the controls available to you."
-      breadcrumb="Privacy"
-      updated="31 October 2026"
-      sections={[
-        { id: 'collect', title: 'Data we collect', body: (
-          <ul>
-            <li>Account details: name, email, phone, country, date of birth.</li>
-            <li>Verification data: identity documents and their review outcome.</li>
-            <li>Session metadata: IP address, user agent, timestamps, revocation status.</li>
-            <li>Trading and financial records: orders, executions, positions, ledger entries, deposits and withdrawals.</li>
-            <li>Support correspondence and tickets you raise.</li>
-          </ul>
-        ) },
-        { id: 'why', title: 'Why we process it', body: (
-          <ul>
-            <li>To operate your account and execute your instructions.</li>
-            <li>To meet anti-money-laundering and know-your-customer obligations.</li>
-            <li>To detect fraud, abuse and unauthorised access.</li>
-            <li>To provide support and resolve disputes.</li>
-            <li>To meet legal, tax and regulatory record-keeping duties.</li>
-          </ul>
-        ) },
-        { id: 'legal-basis', title: 'Legal basis', body: (
-          <p>Processing is necessary to perform our contract with you, to comply with legal obligations, and — for security and service improvement — on the basis of our legitimate interests. Where consent is the basis (for example optional communications), you may withdraw it at any time.</p>
-        ) },
-        { id: 'sharing', title: 'Who we share data with', body: (
-          <p>Only where necessary: identity verification providers, blockchain explorers used to confirm deposits, payment providers, and regulators or law enforcement where legally compelled. We do not sell personal data and we do not load advertising or cross-site tracking scripts.</p>
-        ) },
-        { id: 'retention', title: 'Retention', body: (
-          <p>Transaction and identity records are retained for the period required by applicable financial-crime and tax rules. Session records are retained for a shorter security window. When retention expires, data is deleted or irreversibly anonymised.</p>
-        ) },
-        { id: 'security', title: 'How we protect it', body: (
-          <p>Passwords are hashed with bcrypt. Session tokens are stored as hashes with device metadata and can be revoked individually. Two-factor authentication is available for sign-in and required for withdrawals. Access to administrative data is role-based and every privileged action is logged with actor, IP and before/after state.</p>
-        ) },
-        { id: 'rights', title: 'Your rights', body: (
-          <p>Depending on your jurisdiction you may request access to, correction of, or erasure of your personal data, and may object to or restrict certain processing. Where processing rests on consent you may withdraw it. Requests can be made through the <a href="/dashboard/support">support desk</a> once signed in, and identity will be verified before action.</p>
-        ) },
-        { id: 'contact', title: 'Contact', body: (
-          <p>Privacy questions can be raised through the <a href="/contact">contact</a> page or a support ticket from your dashboard.</p>
-        ) },
-      ]}
-    />
-  );
+  return <LegalPage title="Privacy policy" summary="What we collect, why we collect it, who it is shared with, how long we keep it and the rights you hold over it." breadcrumb="Privacy" updated="4 November 2026" version="2.0" sections={[
+    { id: 'controller', title: '1. Controller and contact', body: <>
+      <p>The PRIMEVEST operating entity (&ldquo;PRIMEVEST&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) is the controller of personal data processed through the Platform. Privacy questions and rights requests can be submitted through the <a href="/contact">contact page</a> or the in-product support chat; we acknowledge requests promptly and respond within the periods required by applicable law.</p>
+    </> },
+    { id: 'data', title: '2. Data we collect', body: <>
+      <p><strong>Identity and contact data:</strong> name, email address, country of residence and credentials you register with.</p>
+      <p><strong>Verification data:</strong> documents and information submitted for identity and address verification under our AML obligations, including screening results.</p>
+      <p><strong>Account and trading records:</strong> environment type, balances, orders, executions, positions, ledger entries and wallet addresses you use for funding or withdrawals.</p>
+      <p><strong>Technical data:</strong> IP address, device and browser characteristics, session security tokens and security logs.</p>
+      <p><strong>Communication data:</strong> support chat transcripts and messages exchanged with our team.</p>
+    </> },
+    { id: 'purposes', title: '3. Purposes and legal bases', body: <>
+      <p>We process personal data to perform our contract with you (operating accounts, executing orders, maintaining the ledger, providing support); to comply with legal obligations (anti-money-laundering, sanctions, tax and regulatory record-keeping); for our legitimate interests in security, fraud prevention, dispute resolution and service improvement; and, where applicable, on your consent for optional communications, which you may withdraw at any time.</p>
+    </> },
+    { id: 'kyc', title: '4. Verification and AML processing', body: <>
+      <p>Identity verification, sanctions and politically-exposed-person screening and transaction monitoring are performed under our <a href="/legal/aml">AML policy</a>. Verification documents are accessed only by compliance staff and processors bound by confidentiality, and are retained for the periods mandated by applicable AML law even after account closure.</p>
+    </> },
+    { id: 'funding', title: '5. Funding and on-chain data', body: <>
+      <p>Deposits and withdrawals in crypto assets involve wallet addresses and transaction hashes. On-chain data is public by design; we record the references needed to reconcile your ledger and meet AML obligations. We do not operate card or bank payment rails and therefore do not collect card numbers or bank credentials.</p>
+    </> },
+    { id: 'sharing', title: '6. Who we share data with', body: <>
+      <p>We share personal data only with: infrastructure and hosting processors operating the Platform (compute, database and storage providers); verification and screening vendors; professional advisers; and regulators, tax authorities or law enforcement where a lawful request obliges us. Processors act on documented instructions with appropriate security. We do not sell personal data and do not share it for third-party advertising.</p>
+    </> },
+    { id: 'transfers', title: '7. International transfers', body: <>
+      <p>Platform infrastructure operates in European and United States regions. Where personal data is transferred outside your jurisdiction, we rely on lawful transfer mechanisms such as adequacy decisions or standard contractual clauses, together with technical safeguards including encryption in transit and at rest.</p>
+    </> },
+    { id: 'security', title: '8. Security', body: <>
+      <p>We apply encryption in transit and at rest, role-based access control with least-privilege principles, mandatory two-factor authentication for staff and customers, audit logging of sensitive operations and continuous dependency and secret hygiene practices. No system is perfectly secure; if an incident affects your personal data we will notify you and authorities where required.</p>
+    </> },
+    { id: 'retention', title: '9. Retention', body: <>
+      <p>Account, trading and funding records are retained for the duration of the relationship plus the periods required by financial-regulation and AML law (commonly five years, longer where a matter remains open). Support transcripts are kept with the account record. Security logs are retained on a rolling basis. Data no longer required is deleted or irreversibly anonymised.</p>
+    </> },
+    { id: 'rights', title: '10. Your rights', body: <>
+      <p>Subject to applicable law and to AML retention obligations, you may request access to your personal data, correction of inaccuracies, deletion, restriction of processing, portability of data you provided, and object to processing based on legitimate interests. Exercise rights through the contact channel; we verify identity before acting. You may also lodge a complaint with your supervisory authority.</p>
+    </> },
+    { id: 'cookies', title: '11. Cookies and local storage', body: <>
+      <p>Our use of cookies and device storage is limited to what the Platform needs to function and to remember your preferences, as described in the <a href="/legal/cookies">cookie policy</a>. We do not use advertising trackers.</p>
+    </> },
+    { id: 'children', title: '12. Children', body: <>
+      <p>The Platform is intended solely for persons aged 18 and over. We do not knowingly collect personal data from minors and will delete such data and close accounts if discovered.</p>
+    </> },
+    { id: 'changes', title: '13. Changes', body: <>
+      <p>We may update this policy as the Platform or the law evolves. Material changes are notified through the Platform or by email before taking effect, and the version date above is updated accordingly.</p>
+    </> },
+  ]} />;
 }

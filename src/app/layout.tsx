@@ -38,10 +38,12 @@ export const metadata: Metadata = {
     'PRIMEVEST is a multi-asset brokerage platform: forex, CFDs, short-expiry CALL/PUT, crypto spot and perpetual futures — with a unified wallet, full portfolio accounting and an audit-logged back office.',
   applicationName: 'PRIMEVEST',
   alternates: { canonical: '/' },
-  robots: {
-    index: false, follow: false, nocache: true,
-    googleBot: { index: false, follow: false, noarchive: true, nosnippet: true, noimageindex: true },
-  },
+  robots: process.env.PUBLIC_INDEXABLE === 'true'
+    ? { index: true, follow: true }
+    : {
+        index: false, follow: false, nocache: true,
+        googleBot: { index: false, follow: false, noarchive: true, nosnippet: true, noimageindex: true },
+      },
   openGraph: {
     title: 'PRIMEVEST — Multi-asset brokerage terminal',
     description: 'Forex, CFDs, short-expiry, crypto spot and perpetual futures in one multi-asset terminal.',
