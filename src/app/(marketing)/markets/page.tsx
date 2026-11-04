@@ -8,6 +8,7 @@ import { MarketMovers } from '@/components/markets/market-movers';
 import { NewsFeed } from '@/components/markets/news-feed';
 import { CTASection } from '@/components/marketing-ui';
 import { MarketHeatmap } from '@/components/markets/market-heatmap';
+import { TickerTape } from '@/components/markets/ticker-tape';
 import { EarningsRadar } from '@/components/markets/earnings-radar';
 import { HeroScene } from '@/components/three/hero-scene';
 
@@ -24,13 +25,15 @@ const DESKS = [
 export default function MarketsPage() {
   return (
     <>
+      <TickerTape />
       <section className="theme-island-dark relative overflow-hidden border-b border-white/[0.07] bg-ink-950">
         <ShaderHero />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink-950/85 via-ink-950/55 to-transparent" />
+        <div aria-hidden="true" className="hero-photo absolute inset-0" style={{ backgroundImage: "url('/images/hero-markets.webp')" }} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink-950/88 via-ink-950/62 to-ink-950/25" />
         <div className="shell relative grid min-h-[390px] items-center gap-4 py-14 sm:py-20 lg:grid-cols-[1fr_0.75fr]">
           <div className="relative z-10">
             <Reveal><p className="eyebrow">Market intelligence</p></Reveal>
-            <h1 className="display mt-4 max-w-2xl text-[40px] leading-[1.05] sm:text-[56px]"><MaskLine delay={0.05}>The markets move.</MaskLine><MaskLine delay={0.14}><span className="text-lime">Stay ready.</span></MaskLine></h1>
+            <h1 className="display mt-4 max-w-2xl text-[40px] leading-[1.05] sm:text-[56px]"><MaskLine delay={0.05} immediate>The markets move.</MaskLine><MaskLine delay={0.14} immediate><span className="text-lime">Stay ready.</span></MaskLine></h1>
             <Reveal delay={0.1}><p className="mt-5 max-w-xl text-[14px] leading-7 text-muted">Explore global currencies and digital assets in one considered workspace. Follow provider-sourced prices and discover crypto markets.</p></Reveal>
             <Reveal delay={0.15}><div className="mt-7 flex flex-wrap gap-3"><Magnetic strength={0.25}><a href="#crypto-discovery-heading" className="btn-primary px-5 py-3">Explore crypto markets <span aria-hidden>↗</span></a></Magnetic><Magnetic strength={0.25}><Link href="/dashboard/forex" className="btn-ghost px-5 py-3">Open forex desk</Link></Magnetic></div></Reveal>
             <p className="mt-5 text-[11px] text-white/45">Live prices from institutional-grade data providers.</p>

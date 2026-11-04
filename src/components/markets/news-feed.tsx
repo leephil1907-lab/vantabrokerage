@@ -1,4 +1,5 @@
 'use client';
+import { MarketBrief } from '@/components/markets/market-brief';
 import { useEffect, useState } from 'react';
 import { Badge, Skeleton, apiFetch } from '@/components/ui';
 import { relTime } from '@/lib/format';
@@ -28,15 +29,11 @@ export function NewsFeed({ symbol, category = 'general', title = 'Market news' }
       <div className="mb-3 flex items-center justify-between gap-2">
         <div><h2 id="news-title" className="text-[15px] font-semibold text-white">{title}</h2>
           <p className="text-[11px] text-muted">{symbol ? `Headlines mentioning ${symbol}` : 'Cross-market editorial flow'}</p></div>
-        {data?.provider === 'finnhub' ? <Badge tone="lime">Finnhub live</Badge> : <Badge tone="gray">Key required</Badge>}
+        {data?.provider === 'finnhub' && <Badge tone="lime">Finnhub live</Badge>}
       </div>
       {error && <p className="rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-[11.5px] text-danger">{error}</p>}
       {!data && !error && <Skeleton className="h-32" />}
-      {data?.provider === 'none' && (
-        <p className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-[11.5px] leading-relaxed text-muted">
-          {data.message ?? 'Editorial news is not configured.'} The auto-generated market brief and live movers above continue to provide data-driven context.
-        </p>
-      )}
+      {data?.provider === 'none' && <MarketBrief />}
       {data?.provider === 'finnhub' && (
         <ul className="space-y-3">
           {data.items.slice(0, 8).map((n) => (

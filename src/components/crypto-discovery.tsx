@@ -85,7 +85,7 @@ export function CryptoDiscovery({ compactLayout = false }: { compactLayout?: boo
         </div>
         <div aria-live="polite" className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] ${delayed ? 'border-siren/25 text-siren' : 'border-white/10 text-muted'}`}>
           <span className={`h-1.5 w-1.5 rounded-full ${delayed ? 'bg-siren' : 'bg-emerald'}`} />
-          {!data ? (error ? 'Feed unavailable' : 'Connecting to market data') : delayed ? `Delayed · fetched ${relTime(data.fetchedAt)}` : `CoinGecko · fetched ${relTime(data.fetchedAt)}`}
+          {!data ? (error ? 'Reconnecting to market data' : 'Connecting to market data') : delayed ? `Delayed · fetched ${relTime(data.fetchedAt)}` : `CoinGecko · fetched ${relTime(data.fetchedAt)}`}
         </div>
       </div>
       <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-ink-850/75 shadow-panel">
@@ -97,7 +97,7 @@ export function CryptoDiscovery({ compactLayout = false }: { compactLayout?: boo
           </div>
         </div>
         {!data && !error ? <div className="space-y-2 p-5" aria-label="Loading market data">{Array.from({ length: 6 }, (_, i) => <div key={i} className="skeleton h-10 w-full" />)}</div> : !data ? (
-          <div className="p-8 text-center"><p className="text-sm text-white">Market data is temporarily unavailable.</p><button onClick={() => void load()} className="btn-ghost mt-4 text-xs">Try again</button></div>
+          <div className="p-8 text-center"><p className="text-sm text-white">Market data is reconnecting — one moment.</p><button onClick={() => void load()} className="btn-ghost mt-4 text-xs">Try again</button></div>
         ) : rows.length === 0 ? <div className="p-8 text-center text-sm text-muted">No assets match your search.</div> : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">

@@ -214,7 +214,7 @@ export function Magnetic({ children, strength = 0.32, className = '' }: { childr
 }
 
 /** Line-mask heading reveal: text slides up from behind an overflow mask when scrolled into view. */
-export function MaskLine({ children, className = '', delay = 0, as = 'span' }: { children: ReactNode; className?: string; delay?: number; as?: 'span' | 'div' | 'h1' | 'h2' | 'p' }) {
+export function MaskLine({ children, className = '', delay = 0, as = 'span', immediate = false }: { children: ReactNode; className?: string; delay?: number; as?: 'span' | 'div' | 'h1' | 'h2' | 'p'; immediate?: boolean }) {
   const reduce = useReducedMotion();
   const Comp = motion[as] as typeof motion.span;
   return (
@@ -222,8 +222,9 @@ export function MaskLine({ children, className = '', delay = 0, as = 'span' }: {
       <Comp
         className="block will-change-transform"
         initial={reduce ? undefined : { y: '110%' }}
-        whileInView={reduce ? undefined : { y: '0%' }}
-        viewport={{ once: true, margin: '-30px', amount: 0.1 }}
+        {...(immediate
+          ? { animate: reduce ? undefined : { y: '0%' } }
+          : { whileInView: reduce ? undefined : { y: '0%' }, viewport: { once: true, margin: '-30px', amount: 0.1 } })}
         transition={{ duration: 0.85, ease: EASE, delay }}
       >
         {children}

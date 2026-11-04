@@ -64,7 +64,7 @@ function HeroTerminal({ markets, feed }: { markets: M[]; feed: ReturnType<typeof
           </span>
           <span className="ml-1 text-[10.5px] uppercase tracking-[0.16em] text-muted">PRIMEVEST terminal</span>
         </div>
-        <FeedStatus state={!market?.last || !market.source ? 'offline' : market.stale ? 'delayed' : 'live'} label={!market?.last || !market.source ? 'Feed unavailable' : market.stale ? 'Delayed' : 'Live price'} />
+        <FeedStatus state={!market?.last || !market.source ? 'offline' : market.stale ? 'delayed' : 'live'} label={!market?.last || !market.source ? 'Reconnecting' : market.stale ? 'Delayed' : 'Live price'} />
       </div>
 
       {/* symbol tabs */}
@@ -127,10 +127,10 @@ function HeroTerminal({ markets, feed }: { markets: M[]; feed: ReturnType<typeof
           </div>
 
           <div className="mt-3 h-[132px]">
-            {market?.last ? <SparkArea symbol={current.id} up={up} tick={tick} referenceId={useReference ? current.coinId ?? undefined : undefined} /> : <div className="flex h-full items-center justify-center rounded-xl border border-white/[0.06] bg-black/20 px-4 text-center text-[11px] text-muted">Chart unavailable for this market</div>}
+            {market?.last ? <SparkArea symbol={current.id} up={up} tick={tick} referenceId={useReference ? current.coinId ?? undefined : undefined} /> : <div className="flex h-full items-center justify-center rounded-xl border border-white/[0.06] bg-black/20 px-4 text-center text-[11px] text-muted">Chart warming up for this market</div>}
           </div>
 
-          {useReference && asset ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/[0.07] bg-ink-950/40 px-3 py-2.5 text-[10.5px] text-muted"><span>CoinGecko reference · {asset.updatedAt ? `updated ${relTime(asset.updatedAt)}` : 'update time unavailable'}</span><Link href="/markets#crypto-discovery-heading" className="font-medium text-lime">View assets →</Link></div> : <div className="mt-3 grid grid-cols-2 gap-2">
+          {useReference && asset ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/[0.07] bg-ink-950/40 px-3 py-2.5 text-[10.5px] text-muted"><span>CoinGecko reference · {asset.updatedAt ? `updated ${relTime(asset.updatedAt)}` : 'updating now'}</span><Link href="/markets#crypto-discovery-heading" className="font-medium text-lime">View assets →</Link></div> : <div className="mt-3 grid grid-cols-2 gap-2">
             <div className="rounded-xl border border-emerald/25 bg-emerald/[0.07] px-3 py-2 text-center"><p className="text-[10px] uppercase tracking-[0.14em] text-emerald/80">Bid reference</p><p className="value-mono mt-0.5 text-[13px] font-semibold text-emerald">{market?.bid != null ? fmtPrice(market.bid, dp) : '—'}</p></div>
             <div className="rounded-xl border border-danger/25 bg-danger/[0.07] px-3 py-2 text-center"><p className="text-[10px] uppercase tracking-[0.14em] text-danger/80">Ask reference</p><p className="value-mono mt-0.5 text-[13px] font-semibold text-danger">{market?.ask != null ? fmtPrice(market.ask, dp) : '—'}</p></div>
           </div>}
@@ -158,7 +158,7 @@ function SparkArea({ symbol, up, tick, referenceId }: { symbol: string; up: bool
     return () => { cancelled = true; };
   }, [symbol, referenceId]);
 
-  if (unavailable) return <div className="flex h-full items-center justify-center text-[11px] text-muted">Chart data unavailable</div>;
+  if (unavailable) return <div className="flex h-full items-center justify-center text-[11px] text-muted">Chart reconnecting</div>;
   if (points.length < 2) return <div className="skeleton-shimmer h-full w-full" />;
 
   const min = Math.min(...points);

@@ -8,7 +8,7 @@ export const maxDuration = 30;
 export async function GET(req: NextRequest) {
   try {
     if (!finnhubConfigured()) {
-      return json({ provider: 'none', items: [], message: 'Editorial news requires a Finnhub API key (FINNHUB_API_KEY). Reference-data briefs remain available.' });
+      return json({ provider: 'none', items: [], message: undefined });
     }
     const url = new URL(req.url);
     const symbol = url.searchParams.get('symbol');

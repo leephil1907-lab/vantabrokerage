@@ -1,6 +1,6 @@
 import { listMarketsFast } from '@/lib/markets';
 import { getSessionUser } from '@/lib/auth';
-import { TickerTape } from '@/components/market-visual';
+import { TickerTape } from '@/components/markets/ticker-tape';
 import { LiveHome } from '@/components/home/live-home';
 
 export const dynamic = 'force-dynamic';
@@ -31,8 +31,8 @@ export default async function HomePage() {
 
   return (
     <>
+      <TickerTape />
       <LiveHome markets={serialised} authenticated={!!user} />
-      <TickerTape markets={serialised.filter((m) => m.category !== 'BINARY')} />
     </>
   );
 }

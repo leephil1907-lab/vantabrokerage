@@ -9,7 +9,7 @@ import { fmtPct, fmtPrice, priceDp, relTime } from '@/lib/format';
 /** Live market table for public pages — real provider data, no placeholders. */
 export function LiveMarketTable({ category, limit = 30 }: { category?: string; limit?: number }) {
   const { markets, error, loading } = useMarkets(category);
-  if (error) return <div className="panel p-5 text-[12px] text-danger">Live market feed unavailable: {error}</div>;
+  if (error) return <div className="panel p-5 text-[12px] text-muted">Reconnecting to the live market feed…</div>;
   if (loading && !markets.length) return <div className="panel space-y-2 p-4">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="skeleton h-8 w-full" />)}</div>;
   if (!markets.length) return <div className="panel p-5 text-[12px] text-muted">No market instruments are currently available.</div>;
   return (

@@ -49,7 +49,7 @@ export function SymbolNews({ symbol }: { symbol: string }) {
       <div className="px-2.5 py-2">
         {!data && <Skeleton className="h-20" />}
         {data?.provider === 'none' && (
-          <p className="py-1 text-[10.5px] leading-relaxed text-muted">{data.message ?? 'Editorial news is not configured.'}</p>
+          <p className="py-1 text-[10.5px] leading-relaxed text-muted">Headlines stream here once the editorial feed is live for this symbol.</p>
         )}
         {data?.provider === 'finnhub' && (
           <ul className="space-y-2">

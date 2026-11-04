@@ -69,7 +69,7 @@ export function PageHero({
               {badge && <span className="chip ml-1 normal-case tracking-normal">{badge}</span>}
             </p>
           </Reveal>
-          <h1 className="display mt-3 max-w-2xl text-[30px] leading-[1.08] sm:text-[40px]"><MaskLine delay={0.05}>{title}</MaskLine></h1>
+          <h1 className="display mt-3 max-w-2xl text-[30px] leading-[1.08] sm:text-[40px]"><MaskLine delay={0.05} immediate>{title}</MaskLine></h1>
           <Reveal delay={0.08}>
             <p className="mt-4 max-w-xl text-[13.5px] leading-relaxed text-muted">{body}</p>
           </Reveal>

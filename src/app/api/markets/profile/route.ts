@@ -16,7 +16,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Invalid symbol.' }, { status: 400 });
   }
   if (!finnhubConfigured()) {
-    return NextResponse.json({ provider: 'none', message: 'Company profiles require a Finnhub API key (FINNHUB_API_KEY).' });
+    return NextResponse.json({ provider: 'none', message: undefined });
   }
   try {
     const [profile, q] = await Promise.all([companyProfile(ticker), quote(ticker)]);

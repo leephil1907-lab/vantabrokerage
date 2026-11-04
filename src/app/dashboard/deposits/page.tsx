@@ -17,8 +17,7 @@ export default function DepositsPage() {
   const { push } = useToast();
   const [data, setData] = useState<Payload | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [method, setMethod] = useState<'crypto' | 'bank'>('crypto');
-  const [asset, setAsset] = useState('');
+    const [asset, setAsset] = useState('');
   const [network, setNetwork] = useState('');
   const [amountUsd, setAmountUsd] = useState('');
   const [cryptoAmount, setCryptoAmount] = useState('');
@@ -98,12 +97,8 @@ export default function DepositsPage() {
         <section className="panel">
           <div className="rounded-t-2xl border-b border-white/[.07] px-5 py-5 sm:px-7"><div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl border border-lime/20 bg-lime/10 text-xl text-lime">↙</span><div><h2 className="text-base font-semibold text-white">Add funds</h2><p className="mt-1 text-xs text-muted">{fundingLive ? 'Send on-chain, submit your transaction hash, and finance verifies and credits it.' : 'Choose a funding method to see its availability.'}</p></div></div></div>
           <div className="space-y-6 p-5 sm:p-7">
-            <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/[.06] bg-black/20 p-1.5" role="tablist" aria-label="Funding method">
-              {(['crypto', 'bank'] as const).map((m) => <button key={m} role="tab" aria-selected={method === m} onClick={() => setMethod(m)} className={`rounded-xl px-3 py-3 text-sm font-medium transition ${method === m ? 'bg-white/[.09] text-white shadow-sm' : 'text-muted hover:text-white'}`}>{m === 'crypto' ? '◈  Crypto' : '▤  Bank transfer'}</button>)}
-            </div>
-            {method === 'bank' ? (
-              <div className="rounded-xl border border-white/[.07] bg-black/20 p-4"><p className="text-sm font-medium text-white">Bank transfer</p><p className="mt-2 text-xs leading-relaxed text-muted">Bank details will appear here once bank funding is enabled.</p></div>
-            ) : !fundingLive ? (
+            <div className="rounded-2xl border border-white/[.06] bg-black/20 px-4 py-3"><p className="text-sm font-medium text-white">◈  Crypto transfer</p><p className="mt-1 text-[11px] text-muted">On-chain funding with finance verification on every credit.</p></div>
+            {!fundingLive ? (
               <>
                 <div className="rounded-2xl border border-amber-400/20 bg-amber-400/[.06] p-4"><div className="flex gap-3"><span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-amber-400/30 text-amber-300">!</span><div><p className="text-sm font-semibold text-amber-200">Funding coming soon</p><p className="mt-1 text-xs leading-relaxed text-white/55">Deposit options will appear here once funding is enabled.</p></div></div></div>
                 <button disabled className="w-full cursor-not-allowed rounded-xl bg-white/[.07] px-4 py-3.5 text-sm font-semibold text-white/35">Deposits opening soon</button>

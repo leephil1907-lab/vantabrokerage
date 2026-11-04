@@ -3,17 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { fmtPct, fmtPrice, priceDp } from '@/lib/format';
 
-export type MiniMarket = {
-  symbol: string;
-  displayName?: string;
-  last: number | null;
-  change24h: number | null;
-  bid?: number | null;
-  ask?: number | null;
-  source?: string | null;
-  stale?: boolean;
-  category?: string;
-};
+
 
 /** Animated depth-based chart used on the marketing site. Draws only real series data. */
 export function MarketSparkline({ series, up }: { series: number[]; up: boolean }) {
@@ -47,30 +37,6 @@ export function MarketSparkline({ series, up }: { series: number[]; up: boolean 
 }
 
 /** Live market ticker tape — values are fetched from /api/markets. */
-export function TickerTape({ markets }: { markets: MiniMarket[] }) {
-  const items = markets.filter((m) => m.last !== null);
-  if (!items.length) {
-    return <div className="border-y border-white/[0.06] bg-ink-900/60 py-2 text-center text-[11px] text-muted">Connecting to market data…</div>;
-  }
-  const doubled = [...items, ...items];
-  return (
-    <div className="overflow-hidden border-y border-white/[0.06] bg-ink-900/60">
-      <div className="ticker-track flex w-max gap-8 py-2.5">
-        {doubled.map((m, i) => {
-          const up = (m.change24h ?? 0) >= 0;
-          return (
-            <span key={`${m.symbol}-${i}`} className="flex items-center gap-2 whitespace-nowrap px-1 text-[11.5px]">
-              <span className="font-medium text-white/80">{m.symbol}</span>
-              <span className="value-mono text-white">{fmtPrice(m.last, priceDp(m.symbol))}</span>
-              <span className={`value-mono ${up ? 'text-emerald' : 'text-danger'}`}>{fmtPct(m.change24h)}</span>
-            </span>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 /** Hero chart: real candles pulled from the terminal API, with a simulated-cursor reveal. */
 export function HeroChart({ symbol = 'BTC/USDT' }: { symbol?: string }) {
   const [candles, setCandles] = useState<{ time: number; open: number; high: number; low: number; close: number }[]>([]);
