@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { IBM_Plex_Mono, Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { RouteProgress } from '@/components/motion/page-transition';
+import { ServiceWorkerRegistrar } from '@/components/service-worker-registrar';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/manifest.webmanifest" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <RouteProgress />
+        <ServiceWorkerRegistrar />
         {children}
       </body>
     </html>

@@ -12,6 +12,7 @@ Legend: ✅ shipped & verified · 🟡 partial / conditional · ⬜ open
 - ✅ Exchange-grade palette v3: blue-graphite dark chassis, porcelain light theme, #0ECB81/#F6465D direction tokens
 - ✅ Gold logo mark, favicon (`app/icon.svg`), apple-touch-icon + 192/512 PNGs, `manifest.webmanifest` (standalone PWA)
 - ✅ OG social card `public/og.png` (1200×630) + full openGraph/twitter metadata, metadataBase from APP_URL (Render domain in production)
+- ✅ PWA / PWABuilder checklist complete: full manifest (id, lang, categories, display, theme/bg, 192+512 any **and** true maskable icons, wide+narrow store screenshots, three app shortcuts), service worker `sw.js` (precached shell, static cache-first, navigations network-first with offline fallback — verified rendering offline), HTTPS + HSTS preload header on Render
 - ✅ Theme system: dark/light with persisted preference, theme islands for cinematic surfaces, `theme-color` per theme
 - ✅ Motion system: Lenis smooth scroll, scroll reveals, line-mask headings (mount-animated in heroes), magnetic buttons, marquees, parallax, Ken Burns hero photography — all with prefers-reduced-motion fallbacks
 
@@ -64,7 +65,7 @@ Legend: ✅ shipped & verified · 🟡 partial / conditional · ⬜ open
 - ✅ Suites: account-safety, auth-experience, paper-trading, terminal-workspace — all PASS on current build
 - ✅ 19–21 route crawls: H1s present, zero horizontal overflow, zero console errors (mobile 390px)
 - ✅ Search privacy pre-launch: robots.txt Disallow /, site-wide noindex/nofollow/nocache, X-Robots-Tag header; launch flip recorded below
-- ✅ Security headers (frame, content-type, referrer, permissions); health endpoint `/api/health`
+- ✅ Security headers (frame, content-type, referrer, permissions, HSTS preload); health endpoint `/api/health`
 - ✅ Render blueprint: web (pro) + worker (standard) + Postgres (pro-4gb), PR previews, healthcheck, graceful worker drain, review-only pre-deploy seed
 - ✅ Secrets hygiene guidance: rotate GitHub token, Neon URL, Finnhub key (documented; user advised)
 

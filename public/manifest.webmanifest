@@ -1,15 +1,31 @@
 {
+  "id": "/",
   "name": "PRIMEVEST — Multi-asset brokerage terminal",
   "short_name": "PRIMEVEST",
   "description": "Forex, CFDs, short-expiry, crypto spot and perpetual futures in one multi-asset terminal with a unified wallet and full portfolio accounting.",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["finance", "business", "productivity"],
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0a0e16",
   "theme_color": "#0a0e16",
+  "prefer_related_applications": false,
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "/screenshots/desktop-wide.png", "sizes": "1280x800", "type": "image/png", "form_factor": "wide", "label": "PRIMEVEST markets desk with live quotes, heatmap and sessions" },
+    { "src": "/screenshots/mobile-narrow.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "PRIMEVEST home on mobile" }
+  ],
+  "shortcuts": [
+    { "name": "Terminal", "short_name": "Terminal", "description": "Open the trading terminal desk", "url": "/terminal", "icons": [{ "src": "/shortcuts/terminal-96.png", "sizes": "96x96", "type": "image/png" }] },
+    { "name": "Markets", "short_name": "Markets", "description": "Live markets, heatmap and movers", "url": "/markets", "icons": [{ "src": "/shortcuts/markets-96.png", "sizes": "96x96", "type": "image/png" }] },
+    { "name": "Dashboard", "short_name": "Dashboard", "description": "Portfolio, wallet and performance", "url": "/dashboard", "icons": [{ "src": "/shortcuts/dashboard-96.png", "sizes": "96x96", "type": "image/png" }] }
   ]
 }
