@@ -5,7 +5,7 @@ import { PrimevestGlyph } from '@/components/brand';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { HeroScene } from '@/components/three/hero-scene';
-import { Magnetic } from '@/components/motion/primitives';
+import { EASE, Magnetic } from '@/components/motion/primitives';
 
 const SLIDES = [
   { image: '/images/hero-dealing.jpg', kicker: 'The dealing desk', title: 'Precision, in every fill.', text: 'Orders execute against live market quotes with full ledger provenance — markets, sessions and risk in one considered workspace.' },
@@ -20,12 +20,14 @@ export function HeroCarousel({ children }: { children: ReactNode }) {
 
   // The hero advances continuously. Pointer hover and keyboard focus do not
   // pause it, and there are intentionally no manual navigation controls.
+  // Visitors who prefer reduced motion keep a stable first slide.
   useEffect(() => {
+    if (reduce) return;
     const timer = window.setInterval(() => {
       if (!document.hidden) setIndex((current) => (current + 1) % SLIDES.length);
     }, 8000);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [reduce]);
 
   const slide = SLIDES[index];
 
@@ -36,10 +38,10 @@ export function HeroCarousel({ children }: { children: ReactNode }) {
         key={slide.image}
         className="story-hero-image"
         style={{ backgroundImage: `url('${slide.image}')` }}
-        initial={reduce ? false : { opacity: 0, scale: 1.025 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: reduce ? 0 : 0.9 }}
+        initial={reduce ? false : { opacity: 0, scale: 1.055, filter: 'blur(5px)' }}
+        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+        exit={reduce ? undefined : { opacity: 0, scale: 1.02, filter: 'blur(3px)' }}
+        transition={{ duration: reduce ? 0 : 0.9, ease: EASE }}
       />
     </AnimatePresence>
     <div className="story-hero-overlay" aria-hidden="true" />
@@ -50,10 +52,10 @@ export function HeroCarousel({ children }: { children: ReactNode }) {
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={index}
-              initial={reduce ? false : { opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduce ? undefined : { opacity: 0, y: -6 }}
-              transition={{ duration: reduce ? 0 : 0.3 }}
+              initial={reduce ? false : { opacity: 0, y: 14, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={reduce ? undefined : { opacity: 0, y: -7, filter: 'blur(3px)' }}
+              transition={{ duration: reduce ? 0 : 0.42, ease: EASE }}
             >
               <h1>{slide.title}</h1>
               <p className="story-description">{slide.text}</p>
